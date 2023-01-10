@@ -1,25 +1,31 @@
 package com.dorandoran.doranserver.config;
 
+import com.dorandoran.doranserver.jwt.JwtFilter;
+import com.dorandoran.doranserver.jwt.TokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final TokenProvider tokenProvider;
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.csrf().ignoringAntMatchers("/api/signup");
-//                .and()
-//                .authorizeRequests()
-//                .mvcMatchers("/index","/assets/**","/test").permitAll()
-////                .mvcMatchers("/list/**").permitAll()
-//                .mvcMatchers("/list/**").hasRole("USER")
-//                .anyRequest().authenticated();
-        return http.build();
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+        httpSecurity
+                .authorizeRequests()
+                .mvcMatchers("/api/signup").permitAll()
+                .anyRequest().authenticated()
+                .and().csrf().disable()
+                .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
 
     }
 }

@@ -30,8 +30,4 @@ public class PolicyTerms {
     @NotNull
     @Column(name = "POLICY_3")
     private Boolean policy3;
-
-    @NotNull
-    @Column(name = "POLICY_4")
-    private Boolean policy4;
 }

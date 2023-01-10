@@ -36,6 +36,10 @@ public class Member {
     @Column(name = "SIGN_UP_DATE")
     private Date signUpDate;
 
+    @NotNull
+    @Column(name = "MEMBER_TOKEN")
+    private String memberToken;
+
     @ManyToOne
     @JoinColumn(name = "POLICY_TERMS_ID")
     private PolicyTerms policyTermsId;

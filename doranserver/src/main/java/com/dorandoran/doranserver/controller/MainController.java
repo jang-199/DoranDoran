@@ -17,3 +17,5 @@ public class MainController {
         return new ResponseEntity<>(signUpDto,HttpStatus.OK);
     }
 }
+//회원가입(출생년도, 닉네임, udid)
+//

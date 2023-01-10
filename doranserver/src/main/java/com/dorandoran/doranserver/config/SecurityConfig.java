@@ -20,7 +20,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
                 .authorizeRequests()
-                .mvcMatchers("/api/signup").permitAll()
+                .mvcMatchers("/api/signup","/login").permitAll()
                 .anyRequest().authenticated()
                 .and().csrf().disable()
                 .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);

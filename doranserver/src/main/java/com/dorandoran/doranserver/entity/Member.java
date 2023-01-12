@@ -36,6 +36,10 @@ public class Member {
     @Column(name = "MEMBER_TOKEN")
     private String memberToken;
 
+    @NotNull
+    @Column(name = "FIREBASE_TOKEN")
+    private String firebaseToken;
+
     @ManyToOne
     @JoinColumn(name = "POLICY_TERMS_ID")
     private PolicyTerms policyTermsId;

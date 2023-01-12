@@ -28,20 +28,15 @@ public class MainController {
 
     private final TokenProvider tokenProvider;
 
-    @PostMapping("/api/signup")
-    ResponseEntity<?> mainPage(@RequestBody SignUpDto signUpDto) {
-        log.info("NickName : {} , DateOfBirth : {} , IdentificationNumber : {}",signUpDto.getNickName(),signUpDto.getDateOfBirth(),signUpDto.getIdentificationNumber());
-        return new ResponseEntity<>(signUpDto,HttpStatus.OK);
-    }
-
+    @PostMapping("/api/check-nickname")
 
     //회원가입(출생년도, 닉네임, udid)
-    @PostMapping("/login")
-    ResponseEntity<?> responseJwtToken(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+    @PostMapping("/api/signup")
+    ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + loginDto.getAccessToken());
+        httpHeaders.add("Authorization", "Bearer " + loginDto.getKakaoAccessToken());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(httpHeaders);
 

@@ -29,10 +29,6 @@ public class Member {
     private String nickname;
 
     @NotNull
-    @Column(name = "IDENTIFICATION_NUMBER")
-    private String identificationNumber;
-
-    @NotNull
     @Column(name = "SIGN_UP_DATE")
     private Date signUpDate;
 

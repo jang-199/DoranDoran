@@ -28,7 +28,7 @@ public class MainController {
 
     private final TokenProvider tokenProvider;
 
-    @PostMapping("/api/check-nickname")
+    //@PostMapping("/api/check-nickname")
 
     //회원가입(출생년도, 닉네임, udid)
     @PostMapping("/api/signup")

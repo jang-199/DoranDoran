@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -26,7 +28,7 @@ public class Member {
 
     @NotNull
     @Column(name = "DATE_OF_BIRTH")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotNull
     @Column(name = "NICKNAME")
@@ -34,7 +36,7 @@ public class Member {
 
     @NotNull
     @Column(name = "SIGN_UP_DATE")
-    private Date signUpDate;
+    private LocalDateTime signUpDate;
 
     @NotNull
     @Column(name = "FIREBASE_TOKEN")

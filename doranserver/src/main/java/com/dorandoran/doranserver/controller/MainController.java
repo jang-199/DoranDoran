@@ -3,17 +3,13 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.dto.SignUpDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
-import com.dorandoran.doranserver.repository.PolicyTermsRepository;
 import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
 import com.dorandoran.doranserver.service.SignUpImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.http.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Slf4j
@@ -36,6 +34,7 @@ public class MainController {
     //회원가입(출생년도, 닉네임, udid)
     @PostMapping("/api/signup")
     ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -60,8 +59,10 @@ public class MainController {
 
             policyTermsCheck.policyTermsSave(policyTerms);
 
+
+
             Member member = Member.builder().dateOfBirth(loginDto.getDateOfBirth())
-                    .signUpDate(new Date())
+                    .signUpDate(LocalDateTime.now())
                     .firebaseToken(loginDto.getFirebaseToken())
                     .nickname(loginDto.getNickName())
                     .policyTermsId(policyTerms)

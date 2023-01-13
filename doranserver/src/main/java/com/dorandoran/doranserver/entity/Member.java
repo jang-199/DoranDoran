@@ -21,6 +21,10 @@ public class Member {
     private Long memberId;
 
     @NotNull
+    @Column(name = "EMAIL")
+    private String email;
+
+    @NotNull
     @Column(name = "DATE_OF_BIRTH")
     private Date dateOfBirth;
 
@@ -31,10 +35,6 @@ public class Member {
     @NotNull
     @Column(name = "SIGN_UP_DATE")
     private Date signUpDate;
-
-    @NotNull
-    @Column(name = "MEMBER_TOKEN")
-    private String memberToken;
 
     @NotNull
     @Column(name = "FIREBASE_TOKEN")

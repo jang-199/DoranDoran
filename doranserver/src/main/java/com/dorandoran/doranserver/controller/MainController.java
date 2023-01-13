@@ -1,7 +1,11 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.SignUpDto;
-import com.dorandoran.doranserver.jwt.TokenProvider;
+import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.PolicyTerms;
+import com.dorandoran.doranserver.repository.PolicyTermsRepository;
+import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
+import com.dorandoran.doranserver.service.SignUpImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -19,16 +23,15 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @Controller
 public class MainController {
-
-    private final TokenProvider tokenProvider;
-
-    //@PostMapping("/api/check-nickname")
+    private final SignUpImpl signUp;
+    private final PolicyTermsCheckImpl policyTermsCheck;
 
     //회원가입(출생년도, 닉네임, udid)
     @PostMapping("/api/signup")
@@ -50,8 +53,23 @@ public class MainController {
             JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
             String email = kakao_account.getString("email");
             log.info("email : {}", email);
+            PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
+                    .policy2(true)
+                    .policy3(true)
+                    .build();
 
-            return new ResponseEntity<>(loginDto,HttpStatus.OK);
+            policyTermsCheck.policyTermsSave(policyTerms);
+
+            Member member = Member.builder().dateOfBirth(loginDto.getDateOfBirth())
+                    .signUpDate(new Date())
+                    .firebaseToken(loginDto.getFirebaseToken())
+                    .nickname(loginDto.getNickName())
+                    .policyTermsId(policyTerms)
+                    .email(email).build();
+
+            signUp.saveMember(member);
+
+            return new ResponseEntity<>(member.getEmail(),HttpStatus.OK);
         } catch (HttpClientErrorException e) {
             log.error("access token err : {}", e.getMessage());
         }

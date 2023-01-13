@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.dto.NicknameDto;
 import com.dorandoran.doranserver.dto.SignUpDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +32,15 @@ import java.util.Date;
 public class MainController {
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
+
+    @PostMapping("/api/check-nickname")
+    ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto){
+        Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
+        if(nickname.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     //회원가입(출생년도, 닉네임, udid)
     @PostMapping("/api/signup")

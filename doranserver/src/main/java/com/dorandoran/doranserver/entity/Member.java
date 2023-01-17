@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -21,20 +23,24 @@ public class Member {
     private Long memberId;
 
     @NotNull
+    @Column(name = "EMAIL")
+    private String email;
+
+    @NotNull
     @Column(name = "DATE_OF_BIRTH")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotNull
     @Column(name = "NICKNAME")
     private String nickname;
 
     @NotNull
-    @Column(name = "IDENTIFICATION_NUMBER")
-    private String identificationNumber;
+    @Column(name = "SIGN_UP_DATE")
+    private LocalDateTime signUpDate;
 
     @NotNull
-    @Column(name = "SIGN_UP_DATE")
-    private Date signUpDate;
+    @Column(name = "FIREBASE_TOKEN")
+    private String firebaseToken;
 
     @ManyToOne
     @JoinColumn(name = "POLICY_TERMS_ID")

@@ -9,31 +9,29 @@ import com.dorandoran.doranserver.service.SignUpImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("api")
 @RestController
 @Controller
-public class MainController {
+public class APIController {
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
 
-    @PostMapping("/api/check-nickname")
+    @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto){
         Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
         if(nickname.isPresent()) {
@@ -43,7 +41,7 @@ public class MainController {
     }
 
     //회원가입(출생년도, 닉네임, udid)
-    @PostMapping("/api/signup")
+    @PostMapping("/signup")
     ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";

@@ -2,23 +2,25 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.NicknameDto;
 import com.dorandoran.doranserver.dto.SignUpDto;
+import com.dorandoran.doranserver.entity.BackgroundPic;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
+import com.dorandoran.doranserver.service.BackGroundPicServiceImpl;
 import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
 import com.dorandoran.doranserver.service.SignUpImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -30,11 +32,12 @@ import java.util.Optional;
 public class APIController {
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
+    private final BackGroundPicServiceImpl backGroundPicService;
 
     @PostMapping("/check-nickname")
-    ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto){
+    ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
         Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
-        if(nickname.isPresent()) {
+        if (nickname.isPresent()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
@@ -69,7 +72,6 @@ public class APIController {
             policyTermsCheck.policyTermsSave(policyTerms);
 
 
-
             Member member = Member.builder().dateOfBirth(loginDto.getDateOfBirth())
                     .signUpDate(LocalDateTime.now())
                     .firebaseToken(loginDto.getFirebaseToken())
@@ -79,11 +81,36 @@ public class APIController {
 
             signUp.saveMember(member);
 
-            return new ResponseEntity<>(member.getEmail(),HttpStatus.OK);
+            return new ResponseEntity<>(member.getEmail(), HttpStatus.OK);
         } catch (HttpClientErrorException e) {
             log.error("access token err : {}", e.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("background/{picCnt}")
+    ResponseEntity<?> backgroundPic(@PathVariable Integer picCnt) {
+        log.info("{}", picCnt);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @GetMapping("background/{imgName}")
+    ResponseEntity<Resource> eachBackground(@PathVariable String imgName) throws MalformedURLException {
+        Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(imgName);
+        if (backgroundPic.isPresent()){
+
+            UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Content-Disposition", "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"");
+            return ResponseEntity.ok()
+                    .headers(httpHeaders)
+                    .body(urlResource);
+            
+        }
+        else {
+            throw new RuntimeException("해당 사진이 존재하지 않습니다.");
+        }
+
+    }
 }

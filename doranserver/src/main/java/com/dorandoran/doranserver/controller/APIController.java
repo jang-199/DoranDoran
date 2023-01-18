@@ -106,7 +106,7 @@ public class APIController {
             return ResponseEntity.ok()
                     .headers(httpHeaders)
                     .body(urlResource);
-            
+
         }
         else {
             throw new RuntimeException("해당 사진이 존재하지 않습니다.");

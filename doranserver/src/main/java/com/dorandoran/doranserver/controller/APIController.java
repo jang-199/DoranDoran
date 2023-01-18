@@ -11,6 +11,7 @@ import com.dorandoran.doranserver.service.SignUpImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
@@ -22,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +31,8 @@ import java.util.Optional;
 @RestController
 @Controller
 public class APIController {
+    @Value("${background.cnt}")
+    Integer backgroundPicCnt;
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final BackGroundPicServiceImpl backGroundPicService;
@@ -88,29 +91,27 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("background/{picCnt}")
-    ResponseEntity<?> backgroundPic(@PathVariable Integer picCnt) {
-        log.info("{}", picCnt);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("background/maxcount")
+    ResponseEntity<Integer> backgroundPic() {
+        return ResponseEntity.ok().body(backgroundPicCnt);
     }
 
 
-    @GetMapping("background/{imgName}")
-    ResponseEntity<Resource> eachBackground(@PathVariable String imgName) throws MalformedURLException {
-        Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(imgName);
-        if (backgroundPic.isPresent()){
+    @GetMapping("background/{picName}")
+    ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
 
-            UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add("Content-Disposition", "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"");
+        Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(picName);
+        if (backgroundPic.isPresent()) {
+            UrlResource urlResource = new UrlResource("file:" + "/Users/jw1010110/backgroundPic/1.jpg");
+//            UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
             return ResponseEntity.ok()
-                    .headers(httpHeaders)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"")
                     .body(urlResource);
-
-        }
-        else {
+        }else {
             throw new RuntimeException("해당 사진이 존재하지 않습니다.");
         }
-
     }
+
+
+
 }

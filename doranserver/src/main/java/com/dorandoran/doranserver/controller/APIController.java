@@ -40,10 +40,13 @@ public class APIController {
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
+        log.info("nicknameDto.getNickname: {}",nicknameDto.getNickname());
         Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
         if (nickname.isPresent()) {
+            log.info("bad req response");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        log.info("ok response");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

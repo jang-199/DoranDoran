@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.entity.BackgroundPic;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
 import com.dorandoran.doranserver.service.BackGroundPicServiceImpl;
+import com.dorandoran.doranserver.service.MemberService;
 import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
 import com.dorandoran.doranserver.service.SignUpImpl;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class APIController {
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final BackGroundPicServiceImpl backGroundPicService;
+    private final MemberService memberService;
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -71,24 +73,27 @@ public class APIController {
             JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
             String email = kakao_account.getString("email");
             log.info("email : {}", email);
-            PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
-                    .policy2(true)
-                    .policy3(true)
-                    .build();
+            if (memberService.findByEmail(email).isEmpty()) {
+                PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
+                        .policy2(true)
+                        .policy3(true)
+                        .build();
 
-            policyTermsCheck.policyTermsSave(policyTerms);
+                policyTermsCheck.policyTermsSave(policyTerms);
 
 
-            Member member = Member.builder().dateOfBirth(loginDto.getDateOfBirth())
-                    .signUpDate(LocalDateTime.now())
-                    .firebaseToken(loginDto.getFirebaseToken())
-                    .nickname(loginDto.getNickName())
-                    .policyTermsId(policyTerms)
-                    .email(email).build();
+                Member member = Member.builder().dateOfBirth(loginDto.getDateOfBirth())
+                        .signUpDate(LocalDateTime.now())
+                        .firebaseToken(loginDto.getFirebaseToken())
+                        .nickname(loginDto.getNickName())
+                        .policyTermsId(policyTerms)
+                        .email(email).build();
 
-            signUp.saveMember(member);
+                signUp.saveMember(member);
 
-            return new ResponseEntity<>(member.getEmail(), HttpStatus.OK);
+                return new ResponseEntity<>(member.getEmail(), HttpStatus.OK);
+            }
+
         } catch (HttpClientErrorException e) {
             log.error("access token err : {}", e.getMessage());
         }

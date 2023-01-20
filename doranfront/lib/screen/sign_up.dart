@@ -1,17 +1,15 @@
+import 'package:dorandoran/const/storage.dart';
 import 'package:dorandoran/screen/home.dart';
 import 'package:dorandoran/screen/using_agree.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dorandoran/const/util.dart';
 import 'package:dorandoran/model/user.dart';
-import 'package:flutter/services.dart';
-import 'dart:async';
-import 'package:unique_identifier/unique_identifier.dart';
-//import 'package:device_information/device_information.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+
 
 class SignUp extends StatefulWidget {
-  const SignUp({Key? key}) : super(key: key);
+
+  const SignUp({ Key? key}) : super(key: key);
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -20,12 +18,13 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   DateTime selectedDate = DateTime.now();
   TextEditingController name = TextEditingController();
-  String _identifier='UnKnown';
+  Map<String,bool> namecheck={'':false};
+  String text ="";
+
 
   @override
   void initState() {
     super.initState();
-    initUniqueIdentifierState();
   }
 
   @override
@@ -42,57 +41,96 @@ class _SignUpState extends State<SignUp> {
               SizedBox(height: 50),
               Column(
                 children: [
-                  NameInput(controller: name),
-                  SizedBox(height: 40),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('생년월일을 선택해주세요', style: whitestyle.copyWith(fontSize: 24)),
-                  SizedBox(height: 10),
-                  Container(
-                    width: 240,
-                    height: 50,
-                    child: TextButton(
-                      child: Text(
-                        '${selectedDate.year}-${getTimeFormat(selectedDate.month)}-${getTimeFormat(selectedDate.day)}',
-                        style: whitestyle.copyWith(fontSize: 18),
+                  Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text('별명을 설정해주세요', style: whitestyle.copyWith(fontSize: 24)),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Container(
+                      child: TextField(
+                        style: whitestyle,
+                        decoration: InputDecoration(
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white)),
+                          hintText: "닉네임을 입력해주세요",
+                          hintStyle: whitestyle.copyWith(color: Colors.indigo),
+                        ),
+                        controller: name,
+                        maxLength: 8,
                       ),
-                      style: TextButton.styleFrom(
-                          primary: Colors.white,
-                          side: BorderSide(
-                            color: Colors.white,
-                          )),
-                      onPressed: () {
-                        showCupertinoDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder: (BuildContext context) {
-                            return Align(
-                              child: Container(
+                      width: 285,
+                    ),
+                    SizedBox(width: 20),
+                    TextButton(
+                        onPressed: () {
+                          checkname(name.text.toString());
+                        },
+                        child: Text("확인"),
+                        style: TextButton.styleFrom(
+                            primary: Colors.white,
+                            side: BorderSide(
+                              color: Colors.white,
+                            ))),
+                  ],
+                ),
+                Text(text,style: text=='사용가능한 이름입니다.' ? whitestyle.copyWith(color: Colors.blue):whitestyle.copyWith(color: Colors.red),),
+              ]),
+                  SizedBox(height: 20),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('생년월일을 선택해주세요',
+                          style: whitestyle.copyWith(fontSize: 24)),
+                      SizedBox(height: 10),
+                      Container(
+                        width: 240,
+                        height: 50,
+                        child: TextButton(
+                          child: Text(
+                            '${selectedDate.year}-${getTimeFormat(selectedDate.month)}-${getTimeFormat(selectedDate.day)}',
+                            style: whitestyle.copyWith(fontSize: 18),
+                          ),
+                          style: TextButton.styleFrom(
+                              primary: Colors.white,
+                              side: BorderSide(
                                 color: Colors.white,
-                                height: 300.0,
-                                child: CupertinoDatePicker(
-                                  mode: CupertinoDatePickerMode.date,
-                                  initialDateTime: selectedDate,
-                                  maximumYear: DateTime.now().year,
-                                  maximumDate: DateTime.now(),
-                                  onDateTimeChanged: (DateTime date) {
-                                    setState(() {
-                                      selectedDate = date; //사용자가 선택한 날짜 저장
-                                    });
-                                  },
-                                ),
-                              ),
+                              )),
+                          onPressed: () {
+                            showCupertinoDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (BuildContext context) {
+                                return Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                    color: Color(0xDDFFFFFF), //색상,,
+                                    height: 250.0,
+                                    child: CupertinoDatePicker(
+                                      mode: CupertinoDatePickerMode.date,
+                                      initialDateTime: selectedDate,
+                                      maximumYear: DateTime.now().year,
+                                      maximumDate: DateTime.now(),
+                                      onDateTimeChanged: (DateTime date) {
+                                        setState(() {
+                                          selectedDate = date; //사용자가 선택한 날짜 저장
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
                   SizedBox(height: 40),
-                  NextButton(selectedDate: selectedDate, name: name)
+                  NextButton(
+                    selectedDate: selectedDate,
+                    name: name,
+                    namecheck: namecheck,
+                  )
                 ],
               ),
             ]),
@@ -101,123 +139,51 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
-
-  //유저 IMEI(ios:UDID) 가져오기
-  Future<void> initUniqueIdentifierState() async {
-    String? identifier;
-    try {
-      identifier = await UniqueIdentifier.serial;
-    } on  Exception{
-      identifier = 'Failed to get Unique Identifier';
-    }
-    if(identifier=='Failed to get Unique Identifier') {
-      final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
-      var data = await deviceInfoPlugin.iosInfo;
-      identifier = data.identifierForVendor;
-    }
-    //identifier = await DeviceInformation.deviceIMEINumber;
-    setState(() {
-      _identifier = identifier!;
+  void textchange(String context){
+    setState((){
+      text=context;
     });
   }
-}
 
-class NameInput extends StatelessWidget {
-  final TextEditingController controller;
-
-  const NameInput({required this.controller, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text('별명을 설정해주세요', style: whitestyle.copyWith(fontSize: 24)),
-      SizedBox(height: 10),
-      Container(
-        child: TextField(
-          style: whitestyle,
-          decoration: InputDecoration(
-            enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white)),
-            hintText: "닉네임을 입력해주세요",
-            hintStyle: whitestyle.copyWith(color: Colors.indigo),
-          ),
-          controller: controller,
-        ),
-        width: 250,
-      )
-    ]);
+  void checkname(String name) {
+    if (name == '') { //null상태
+      textchange("닉네임을 입력해주세요.");
+      print('null');
+    }
+    else if (name.length <= 1) {
+      textchange("닉네임의 길이는 최소 2글자 이상이어야 합니다.");
+    }
+    else if (!RegExp(r"^[가-힣0-9a-zA-Z]*$").hasMatch(
+        name)) { //제대로된 문자인지 확인.(특수문자.이모티콘 체크)
+      textchange("올바르지 않은 닉네임입니다.");
+    }
+    else { //형식은 통과
+      textchange("");
+      postNameCheckRequest(name).then((value) {
+        if (value == 200) {
+          textchange('사용가능한 이름입니다.');
+          namecheck[name] = true;
+        }
+        else {
+          textchange('이미 사용중인 이름입니다.');
+          namecheck[name] = false;
+        }
+      });
+    }
   }
 }
-
-// class BirthInput extends StatefulWidget {
-//   final DateTime selectedDate;
-//
-//   const BirthInput({required this.selectedDate, Key? key}) : super(key: key);
-//
-//   @override
-//   State<BirthInput> createState() => _BirthInputState();
-// }
-//
-// class _BirthInputState extends State<BirthInput> {
-//   @override
-//   Widget build(BuildContext context) {
-//     DateTime selectedDate = widget.selectedDate;
-//
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.stretch,
-//       children: [
-//         Text('생년월일을 선택해 주세요', style: whitestyle.copyWith(fontSize: 24)),
-//         SizedBox(height: 10),
-//         Container(
-//           width: 240,
-//           height: 50,
-//           child: TextButton(
-//             child: Text(
-//               '${selectedDate.year}-${getTimeFormat(selectedDate.month)}-${getTimeFormat(selectedDate.day)}',
-//               style: whitestyle.copyWith(fontSize: 18),
-//             ),
-//             style: TextButton.styleFrom(
-//                 primary: Colors.white,
-//                 side: BorderSide(
-//                   color: Colors.white,
-//                 )),
-//             onPressed: () {
-//               showCupertinoDialog(
-//                 context: context,
-//                 barrierDismissible: true,
-//                 builder: (BuildContext context) {
-//                   return Align(
-//                     child: Container(
-//                       color: Colors.white,
-//                       height: 300.0,
-//                       child: CupertinoDatePicker(
-//                         mode: CupertinoDatePickerMode.date,
-//                         initialDateTime: selectedDate,
-//                         maximumYear: DateTime.now().year,
-//                         maximumDate: DateTime.now(),
-//                         onDateTimeChanged: (DateTime date) {
-//                           setState(() {
-//                             selectedDate = date; //사용자가 선택한 날짜 저장
-//                           });
-//                         },
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               );
-//             },
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 class NextButton extends StatelessWidget {
   final DateTime selectedDate;
   final TextEditingController name;
+  final Map<String,bool> namecheck;
 
-  const NextButton({required this.selectedDate, required this.name, Key? key})
+  const NextButton(
+      {
+        required this.namecheck,
+      required this.selectedDate,
+      required this.name,
+      Key? key})
       : super(key: key);
 
   @override
@@ -234,7 +200,15 @@ class NextButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.all(15)),
           onPressed: () {
-            //postRequest('${selectedDate.year}-${getTimeFormat(selectedDate.month)}-${getTimeFormat(selectedDate.day)}', name.text.toString(),'dddd');
+          // if(namecheck[name]==true) {
+            //포스트
+           postUserRequest('${selectedDate.year}-${getTimeFormat(selectedDate.month)}-${getTimeFormat(selectedDate.day)}', name.text.toString(),firebasetoken!,kakaotoken!);
+            print('${selectedDate.year}-${getTimeFormat(
+                selectedDate.month)}-${getTimeFormat(selectedDate.day)}');
+            print('${name.text.toString()}');
+            print(firebasetoken!);
+            print(kakaotoken!);
+
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => Home()));
           },

@@ -172,5 +172,7 @@ Temporary Items
 ### macOS Patch ###
 # iCloud generated files
 *.icloud
+.idea
+.DS_Store
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,macos,java

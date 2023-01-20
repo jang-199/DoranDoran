@@ -53,8 +53,10 @@ class KaKaoLogin extends StatelessWidget {
                               }
                             } else {
                               try {
+                                print("어3");
                                 token = await UserApi.instance
                                     .loginWithKakaoAccount();
+                                print("미");
                                 kakaotoken = token.accessToken.toString();
                                 Navigator.push(
                                     context,

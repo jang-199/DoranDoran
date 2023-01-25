@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.entity;
 
+import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,7 +46,11 @@ public class Post {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
-    @ManyToOne
-    @JoinColumn(name = "BACKGROUND_PIC")
-    private BackgroundPic backgroundPic;
+    @NotNull
+    @Column(name = "SWITCH_PIC")
+    private ImgType SwitchPic;
+
+    @NotNull
+    @Column(name = "IMG_NAME")
+    private String ImgName;
 }

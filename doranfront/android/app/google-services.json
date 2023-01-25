@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1021779013330",
+    "project_id": "dorandoran-374312",
+    "storage_bucket": "dorandoran-374312.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021779013330:android:f1bf6a84d8ed82bcd4070b",
+        "android_client_info": {
+          "package_name": "com.example.dorandoran"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021779013330-4bni4hc06qo988v6um1tthspd5g221ll.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDycxonDuGb05IHFu4Gb3Iuk6Btkew6h4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1021779013330-4bni4hc06qo988v6um1tthspd5g221ll.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1021779013330-2sbirvp3rpvtsk5f6tofd7rk62rnk779.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dorandoran"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

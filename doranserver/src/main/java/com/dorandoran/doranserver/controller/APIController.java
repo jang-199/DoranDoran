@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -130,19 +131,16 @@ public class APIController {
         }
     }
 
-    @PostMapping("/createPost")
+    @PostMapping("/post")
     ResponseEntity<?> createPost(@RequestParam MultipartFile file,
                                  @RequestBody PostDto postDto,
                                  @RequestBody BackgroundPicDto backgroundPicDto,
                                  @RequestBody MemberDto memberDto,
-                                 @RequestBody UserUpoloadPicDto userUpoloadPicDto,
                                  @RequestBody HashTagDto hashTagDto) throws IOException {
 
-        //backgroundPic 객체 생성
-        BackgroundPic backgroundPic = BackgroundPic.builder().serverPath(backgroundPicServerPath).imgName(backgroundPicDto.getBackgroundImgName()).build();
-
-        //글 저장
         Optional<Member> memberEmail = memberService.findByEmail(memberDto.getEmail());
+
+        log.info("{}의 글 생성",memberEmail.get().getNickname());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
@@ -150,11 +148,27 @@ public class APIController {
                 .location(postDto.getLocation())
                 .memberId(memberEmail.get())
                 .build();
+        if(!file.isEmpty()) {
+            String userUploadImgName = UUID.randomUUID().toString();
+            post.setSwitchPic(ImgType.UserUpload);
+            post.setImgName(userUploadImgName);
+            UserUploadPic userUploadPic = UserUploadPic
+                    .builder()
+                    .imgName(userUploadImgName)
+                    .serverPath(userUploadPicServerPath)
+                    .build();
+            userUploadPicService.saveUserUploadPic(userUploadPic);
+            file.transferTo(new File(userUploadPicServerPath));
+        }
+        else {
+            post.setSwitchPic(ImgType.DefaultBackground);
+            post.setImgName(backgroundPicDto.getBackgroundImgName());
+        }
         postService.savePost(post);
 
         //글 공감 테이블에 저장
-        PostLike postLike = PostLike.builder().
-                postId(post)
+        PostLike postLike = PostLike.builder()
+                .postId(post)
                 .memberId(memberEmail.get())
                 .build();
         postLikeService.savePostLike(postLike);
@@ -168,24 +182,17 @@ public class APIController {
                             .hashTagCount(1L)
                             .build();
                     hashTagService.saveHashTag(buildHashTag);
+                    log.info("해시태그 {}",hashTag + " 생성");
                 } else {
                     Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
-                    Long hashTagCount = byHashTagName.get().getHashTagCount();
-                    byHashTagName.get().setHashTagCount(hashTagCount + 1);
-                    hashTagService.saveHashTag(byHashTagName.get());
+                    if (byHashTagName.isPresent()) {
+                        Long hashTagCount = byHashTagName.get().getHashTagCount();
+                        byHashTagName.get().setHashTagCount(hashTagCount + 1);
+                        hashTagService.saveHashTag(byHashTagName.get());
+                        log.info("해시태그 {}",hashTag + "의 카운트 1증가");
+                    }
                 }
             }
-        }
-
-        //userUploadPic이 있으면 저장
-        if (!file.isEmpty()){
-            UserUploadPic userUploadPic = UserUploadPic
-                    .builder()
-                    .imgName(userUpoloadPicDto.getUserUpoloadImgName())
-                    .serverPath(userUploadPicServerPath)
-                    .build();
-            userUploadPicService.saveUserUploadPic(userUploadPic);
-            file.transferTo(new File(userUploadPicServerPath));
         }
 
         return new ResponseEntity<>(HttpStatus.OK);

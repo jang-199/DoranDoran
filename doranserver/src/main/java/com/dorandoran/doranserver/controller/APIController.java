@@ -103,6 +103,7 @@ public class APIController {
     @GetMapping("background/maxcount")
     ResponseEntity<Integer> backgroundPic() {
         return ResponseEntity.ok().body(backgroundPicCnt);
+
     }
 
 
@@ -124,21 +125,7 @@ public class APIController {
         }
     }
 
-    @GetMapping("backgrounds/{picCnt}")
-    ResponseEntity<?> backgrounds(@PathVariable Integer picCnt) throws MalformedURLException {
-        log.info("{}",picCnt);
-        LinkedMultiValueMap<String, UrlResource> multiValueMap = new LinkedMultiValueMap<>();
-        UrlResource resource1 = new UrlResource("file:" + "/Users/jw1010110/backgroundPic/1.jpg");
-        UrlResource resource2 = new UrlResource("file:" + "/Users/jw1010110/backgroundPic/2.jpg");
-        UrlResource resource3 = new UrlResource("file:" + "/Users/jw1010110/backgroundPic/3.jpg");
 
-        multiValueMap.add("1.jpg", resource1);
-        multiValueMap.add("2.jpg", resource2);
-        multiValueMap.add("3.jpg", resource3);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-        return ResponseEntity.ok().headers(httpHeaders).body(multiValueMap);
-    }
 
 
 }

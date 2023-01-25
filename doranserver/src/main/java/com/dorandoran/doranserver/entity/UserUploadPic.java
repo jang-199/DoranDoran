@@ -26,8 +26,4 @@ public class UserUploadPic {
     @NotNull
     @Column(name = "IMG_NAME")
     private String imgName;
-
-    @ManyToOne
-    @JoinColumn(name = "POST_ID")
-    private Post postId;
 }

@@ -1,14 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.NicknameDto;
-import com.dorandoran.doranserver.dto.SignUpDto;
-import com.dorandoran.doranserver.entity.BackgroundPic;
-import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.PolicyTerms;
-import com.dorandoran.doranserver.service.BackGroundPicServiceImpl;
-import com.dorandoran.doranserver.service.MemberService;
-import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
-import com.dorandoran.doranserver.service.SignUpImpl;
+import com.dorandoran.doranserver.dto.*;
+import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -22,7 +16,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,12 +30,20 @@ import java.util.*;
 @RestController
 @Controller
 public class APIController {
+    @Value("${userUpload.Store.path}")
+    String userUploadPicServerPath;
+    @Value("${background.Store.path}")
+    String backgroundPicServerPath;
     @Value("${background.cnt}")
     Integer backgroundPicCnt;
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final BackGroundPicServiceImpl backGroundPicService;
     private final MemberService memberService;
+    private final UserUploadPicServiceImpl userUploadPicService;
+    private final PostLikeServiceImpl postLikeService;
+    private final HashTagServiceImpl hashTagService;
+    private final PostServiceImpl postService;
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -125,7 +130,66 @@ public class APIController {
         }
     }
 
+    @PostMapping("/createPost")
+    ResponseEntity<?> createPost(@RequestParam MultipartFile file,
+                                 @RequestBody PostDto postDto,
+                                 @RequestBody BackgroundPicDto backgroundPicDto,
+                                 @RequestBody MemberDto memberDto,
+                                 @RequestBody UserUpoloadPicDto userUpoloadPicDto,
+                                 @RequestBody HashTagDto hashTagDto) throws IOException {
 
+        //backgroundPic 객체 생성
+        BackgroundPic backgroundPic = BackgroundPic.builder().serverPath(backgroundPicServerPath).imgName(backgroundPicDto.getBackgroundImgName()).build();
+
+        //글 저장
+        Optional<Member> memberEmail = memberService.findByEmail(memberDto.getEmail());
+        Post post = Post.builder()
+                .content(postDto.getContent())
+                .forMe(postDto.getForMe())
+                .postTime(new Date())
+                .location(postDto.getLocation())
+                .memberId(memberEmail.get())
+                .build();
+        postService.savePost(post);
+
+        //글 공감 테이블에 저장
+        PostLike postLike = PostLike.builder().
+                postId(post)
+                .memberId(memberEmail.get())
+                .build();
+        postLikeService.savePostLike(postLike);
+
+        //HashTag 테이블 생성
+        if (!hashTagDto.getHashTagName().isEmpty()) {
+            for (String hashTag : hashTagDto.getHashTagName()) {
+                if (hashTagService.duplicateCheckHashTag(hashTag)) {
+                    HashTag buildHashTag = HashTag.builder()
+                            .hashTagName(hashTag)
+                            .hashTagCount(1L)
+                            .build();
+                    hashTagService.saveHashTag(buildHashTag);
+                } else {
+                    Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
+                    Long hashTagCount = byHashTagName.get().getHashTagCount();
+                    byHashTagName.get().setHashTagCount(hashTagCount + 1);
+                    hashTagService.saveHashTag(byHashTagName.get());
+                }
+            }
+        }
+
+        //userUploadPic이 있으면 저장
+        if (!file.isEmpty()){
+            UserUploadPic userUploadPic = UserUploadPic
+                    .builder()
+                    .imgName(userUpoloadPicDto.getUserUpoloadImgName())
+                    .serverPath(userUploadPicServerPath)
+                    .build();
+            userUploadPicService.saveUserUploadPic(userUploadPic);
+            file.transferTo(new File(userUploadPicServerPath));
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 
 }

@@ -30,7 +30,7 @@ public class BackgroundPicDBInitializer {
     @Value("${background.Store.path}")
     String serverPath;
 
-    @PostConstruct
+/*    @PostConstruct
     public void init() {
         for (int i = 0; i < max; i++) {
             BackgroundPic build = BackgroundPic.builder().imgName(i+1 + ".jpg")
@@ -56,9 +56,8 @@ public class BackgroundPicDBInitializer {
                     .build();
             memberService.saveMember(build2);
 
-            Post build = Post.builder().postTime(new Date()).content("hi"+i)
+            Post build = Post.builder().postTime(LocalDateTime.now()).content("hi"+i)
                     .forMe(false)
-                    .deleteDate(null)
                     .location("location")
                     .memberId(build2)
                     .switchPic(ImgType.UserUpload)
@@ -66,5 +65,5 @@ public class BackgroundPicDBInitializer {
                     .build();
             postService.savePost(build);
         }
-    }
+    }*/
 }

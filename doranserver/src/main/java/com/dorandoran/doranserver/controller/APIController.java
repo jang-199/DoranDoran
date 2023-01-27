@@ -192,22 +192,21 @@ public class APIController {
      * @return
      */
     @PostMapping("/post-like")
-    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto){
-        Optional<Post> post = postService.findPost(postLikeDto.getPostId());
+    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
+        Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
 
         if (post.isPresent()) {
-            PostLike postLike = PostLike.builder()
-                    .postId(post.get())
-                    .memberId(byEmail.get())
-        //userUploadPic이 있으면 저장
-        if (!file.isEmpty()) {
-            UserUploadPic userUploadPic = UserUploadPic
-                    .builder()
-                    .imgName(userUpoloadPicDto.getUserUpoloadImgName())
-                    .serverPath(userUploadPicServerPath)
-                    .build();
-            postLikeService.savePostLike(postLike);
+            if (postLikeService.findByMemberId(postLikeDto.getEmail()).isPresent()) {
+                postLikeService.deletePostLike(postLikeDto.getEmail());
+            }
+            else {
+                PostLike postLike = PostLike.builder()
+                        .postId(post.get())
+                        .memberId(byEmail.get())
+                        .build();
+                postLikeService.savePostLike(postLike);
+            }
         }
 
         return new ResponseEntity<>(HttpStatus.OK);

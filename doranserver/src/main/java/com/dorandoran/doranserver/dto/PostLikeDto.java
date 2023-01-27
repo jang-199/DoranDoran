@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserUpoloadPicDto {
-    String UserUpoloadImgName;
+public class PostLikeDto {
+    Long postId;
+    String email;
 }

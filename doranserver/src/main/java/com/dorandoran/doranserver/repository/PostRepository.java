@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Optional;
+
 public interface PostRepository extends JpaRepository<Post,Long> {
     @Query("select m from Post m order by m.postId desc")
     List<Post> findFirstPost(PageRequest pageRequest);

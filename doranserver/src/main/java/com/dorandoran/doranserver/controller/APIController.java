@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -129,19 +130,12 @@ public class APIController {
         }
     }
 
-    @PostMapping("/createPost")
-    ResponseEntity<?> createPost(@RequestParam MultipartFile file,
-                                 @RequestBody PostDto postDto,
-                                 @RequestBody BackgroundPicDto backgroundPicDto,
-                                 @RequestBody MemberDto memberDto,
-                                 @RequestBody UserUpoloadPicDto userUpoloadPicDto,
-                                 @RequestBody HashTagDto hashTagDto) throws IOException {
+    @PostMapping("/post")
+    ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
 
-        //backgroundPic 객체 생성
-        BackgroundPic backgroundPic = BackgroundPic.builder().serverPath(backgroundPicServerPath).imgName(backgroundPicDto.getBackgroundImgName()).build();
+        Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
-        //글 저장
-        Optional<Member> memberEmail = memberService.findByEmail(memberDto.getEmail());
+        log.info("{}의 글 생성",memberEmail.get().getNickname());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
@@ -149,33 +143,63 @@ public class APIController {
                 .location(postDto.getLocation())
                 .memberId(memberEmail.get())
                 .build();
+        if(!postDto.getFile().isEmpty()) {
+            String userUploadImgName = UUID.randomUUID().toString();
+            post.setSwitchPic(ImgType.UserUpload);
+            post.setImgName(userUploadImgName);
+            UserUploadPic userUploadPic = UserUploadPic
+                    .builder()
+                    .imgName(userUploadImgName)
+                    .serverPath(userUploadPicServerPath)
+                    .build();
+            userUploadPicService.saveUserUploadPic(userUploadPic);
+            postDto.getFile().transferTo(new File(userUploadPicServerPath));
+        }
+        else {
+            post.setSwitchPic(ImgType.DefaultBackground);
+            post.setImgName(postDto.getBackgroundImgName());
+        }
         postService.savePost(post);
 
-        //글 공감 테이블에 저장
-        PostLike postLike = PostLike.builder().
-                postId(post)
-                .memberId(memberEmail.get())
-                .build();
-        postLikeService.savePostLike(postLike);
-
         //HashTag 테이블 생성
-        if (!hashTagDto.getHashTagName().isEmpty()) {
-            for (String hashTag : hashTagDto.getHashTagName()) {
+        if (!postDto.getHashTagName().isEmpty()) {
+            for (String hashTag : postDto.getHashTagName()) {
                 if (hashTagService.duplicateCheckHashTag(hashTag)) {
                     HashTag buildHashTag = HashTag.builder()
                             .hashTagName(hashTag)
                             .hashTagCount(1L)
                             .build();
                     hashTagService.saveHashTag(buildHashTag);
+                    log.info("해시태그 {}",hashTag + " 생성");
                 } else {
                     Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
-                    Long hashTagCount = byHashTagName.get().getHashTagCount();
-                    byHashTagName.get().setHashTagCount(hashTagCount + 1);
-                    hashTagService.saveHashTag(byHashTagName.get());
+                    if (byHashTagName.isPresent()) {
+                        Long hashTagCount = byHashTagName.get().getHashTagCount();
+                        byHashTagName.get().setHashTagCount(hashTagCount + 1);
+                        hashTagService.saveHashTag(byHashTagName.get());
+                        log.info("해시태그 {}",hashTag + "의 카운트 1증가");
+                    }
                 }
             }
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
+    /**
+     *
+     * @param postLikeDto String email, Long postId
+     * {"email" : "사용자 ID", "postId" : 글ID}
+     * @return
+     */
+    @PostMapping("/post-like")
+    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto){
+        Optional<Post> post = postService.findPost(postLikeDto.getPostId());
+        Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
+
+        if (post.isPresent()) {
+            PostLike postLike = PostLike.builder()
+                    .postId(post.get())
+                    .memberId(byEmail.get())
         //userUploadPic이 있으면 저장
         if (!file.isEmpty()) {
             UserUploadPic userUploadPic = UserUploadPic
@@ -183,8 +207,7 @@ public class APIController {
                     .imgName(userUpoloadPicDto.getUserUpoloadImgName())
                     .serverPath(userUploadPicServerPath)
                     .build();
-            userUploadPicService.saveUserUploadPic(userUploadPic);
-            file.transferTo(new File(userUploadPicServerPath));
+            postLikeService.savePostLike(postLike);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);

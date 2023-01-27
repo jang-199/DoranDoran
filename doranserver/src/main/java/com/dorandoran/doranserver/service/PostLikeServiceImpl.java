@@ -5,6 +5,7 @@ import com.dorandoran.doranserver.repository.PostLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,12 +19,13 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public Optional<PostLike> findByMemberId(String email) {
+    public Optional<List<PostLike>> findByMemberId(String email) {
         return postLikeRepository.findByMemberId_Email(email);
     }
 
     @Override
-    public void deletePostLike(String email) {
-        postLikeRepository.deleteByMemberId_Email(email);
+    public void deletePostLike(PostLike postLike) {
+        postLikeRepository.delete(postLike);
     }
+
 }

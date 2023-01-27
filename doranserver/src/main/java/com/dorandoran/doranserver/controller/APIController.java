@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -40,11 +41,12 @@ public class APIController {
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final BackGroundPicServiceImpl backGroundPicService;
-    private final MemberService memberService;
+    private final MemberServiceImpl memberService;
     private final UserUploadPicServiceImpl userUploadPicService;
     private final PostLikeServiceImpl postLikeService;
     private final HashTagServiceImpl hashTagService;
     private final PostServiceImpl postService;
+    private final CommentServiceImpl commentService;
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -144,7 +146,7 @@ public class APIController {
                 .memberId(memberEmail.get())
                 .build();
         if(!postDto.getFile().isEmpty()) {
-            String userUploadImgName = UUID.randomUUID().toString();
+            String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
@@ -157,7 +159,7 @@ public class APIController {
         }
         else {
             post.setSwitchPic(ImgType.DefaultBackground);
-            post.setImgName(postDto.getBackgroundImgName());
+            post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
         postService.savePost(post);
 
@@ -195,19 +197,38 @@ public class APIController {
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
-
-        if (post.isPresent()) {
-            if (postLikeService.findByMemberId(postLikeDto.getEmail()).isPresent()) {
-                postLikeService.deletePostLike(postLikeDto.getEmail());
-            }
-            else {
-                PostLike postLike = PostLike.builder()
-                        .postId(post.get())
-                        .memberId(byEmail.get())
-                        .build();
-                postLikeService.savePostLike(postLike);
+        Optional<List<PostLike>> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
+        if (byMemberId.isPresent()) {
+            for (PostLike postLike : byMemberId.get()) {
+                if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
+                    postLikeService.deletePostLike(postLike);
+                }
             }
         }
+        else {
+            PostLike postLike = PostLike.builder()
+                    .postId(post.get())
+                    .memberId(byEmail.get())
+                    .build();
+            postLikeService.savePostLike(postLike);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/comment")
+    ResponseEntity<?> comment(@RequestBody CommentDto commentDto){
+        Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
+        Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
+        log.info("사용자 {}의 댓글 작성",commentDto.getEmail());
+        Comment comment = Comment.builder()
+                .comment(commentDto.getComment())
+                .commentTime(LocalDateTime.now())
+                .commentLikeCount(0L)
+                .postId(post.get())
+                .memberId(member.get())
+                .build();
+        commentService.saveComment(comment);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

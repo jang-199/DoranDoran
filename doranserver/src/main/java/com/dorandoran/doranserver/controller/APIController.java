@@ -190,8 +190,8 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/post/{postCnt}")
-    ResponseEntity<?> inquirePost(@PathVariable Long postCnt) {
+    @GetMapping("/post/{userEmail}/{postCnt}")
+    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt) {
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstPost();
             return ResponseEntity.ok().body(firstPost);

@@ -8,7 +8,7 @@ build/tmp/
 #!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+**/src/test/java/com/dorandoran/doranserver/DoranserverApplicationTests
 ### STS ###
 .apt_generated
 .classpath
@@ -20,7 +20,7 @@ build/tmp/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
+**/src/main/resources/
 ### IntelliJ IDEA ###
 .idea
 *.iws

@@ -12,9 +12,9 @@ import java.util.Optional;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post,Long> {
-    @Query("select m from Post m order by m.postId desc")
+    @Query("select m from Post m where m.forMe = false order by m.postId desc")
     List<Post> findFirstPost(PageRequest pageRequest);
 
-    @Query(value = "select m from Post m where m.postId <= :pos order by m.postId desc ")
+    @Query(value = "select m from Post m where m.postId <= :pos  and m.forMe = false order by m.postId desc ")
     List<Post> findPost(@Param("pos") Long pos,PageRequest pageRequest);
 }

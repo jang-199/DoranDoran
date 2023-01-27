@@ -11,9 +11,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 
-@Slf4j
-@Configuration
-public class FirebaseConfig {
+
+//@Slf4j
+//@Configuration
+//public class FirebaseConfig {
 //    @PostConstruct
 //    public void initialize() throws IOException {
 //        FirebaseOptions options = FirebaseOptions.builder()
@@ -24,4 +25,6 @@ public class FirebaseConfig {
 //            FirebaseApp.initializeApp(options);
 //        }
 //    }
-}
+//}
+
+

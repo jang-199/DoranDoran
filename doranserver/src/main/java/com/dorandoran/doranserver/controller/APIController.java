@@ -12,12 +12,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,6 +129,20 @@ public class APIController {
             throw new RuntimeException("해당 사진이 존재하지 않습니다.");
         }
     }
+    @GetMapping("/userpic/{picName}")
+    ResponseEntity<Resource> findUserUploadPic(@PathVariable Long picId) throws MalformedURLException {
+
+        try {
+            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPic(picId);
+            UrlResource urlResource = new UrlResource("file:" + userUploadPic.getServerPath());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + userUploadPic.getImgName() + "\"")
+                    .body(urlResource);
+        } catch (Exception e) {
+            log.error("{}",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/post")
     ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
@@ -187,6 +199,7 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     /**
      *
      * @param postLikeDto String email, Long postId
@@ -212,7 +225,6 @@ public class APIController {
                     .build();
             postLikeService.savePostLike(postLike);
         }
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -229,18 +241,49 @@ public class APIController {
                 .memberId(member.get())
                 .build();
         commentService.saveComment(comment);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @GetMapping("/post/{userEmail}/{postCnt}/{location}")
+    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt,@PathVariable String location) {
+        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
-    @GetMapping("/post/{userEmail}/{postCnt}")
-    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt) {
-        if (postCnt == 0) {
+        if (postCnt == 0) { //first find
             List<Post> firstPost = postService.findFirstPost();
-            return ResponseEntity.ok().body(firstPost);
+            return makePostResponseList(userEmail, postResponseDtoList, builder, firstPost,location);
         }else {
-            List<Post> post = postService.findPost(postCnt);
-            return ResponseEntity.ok().body(post);
+            List<Post> postList = postService.findPost(postCnt);
+            return makePostResponseList(userEmail, postResponseDtoList, builder, postList, location);
         }
     }
+
+    private ResponseEntity<?> makePostResponseList(String userEmail,
+                                                   ArrayList<PostResponseDto> postResponseDtoList,
+                                                   PostResponseDto.PostResponseDtoBuilder builder,
+                                                   List<Post> postList,
+                                                   String location) {
+        for (Post post : postList) {
+            Integer lIkeCnt = postLikeService.findLIkeCnt(post);
+
+            builder.postId(post.getPostId())
+                    .contents(post.getContent())
+                    .postTime(post.getPostTime())
+                    .location(123)//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
+                    .likeCnt(lIkeCnt);
+
+            if (post.getSwitchPic() == ImgType.UserUpload) {
+                String[] split = post.getImgName().split("[.]");
+                builder.backgroundPicUri("localhost:8080/api/userpic/" + split[0]);
+            }else {
+                String[] split = post.getImgName().split("[.]");
+                builder.backgroundPicUri("localhost:8080/api/background/" + split[0]);
+            }
+            Optional<Member> byEmail = memberService.findByEmail(userEmail);
+
+            builder.likeResult(postLikeService.findLikeResult(byEmail.get(), post));
+            postResponseDtoList.add(builder.build());
+        }
+        return ResponseEntity.ok().body(postResponseDtoList);
+    }
+
 }

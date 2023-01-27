@@ -11,4 +11,5 @@ public interface PostService {
     public List<Post> findFirstPost();
 
     public List<Post> findPost(Long startPost);
+    public Optional<Post> findSinglePost(Long postId);
 }

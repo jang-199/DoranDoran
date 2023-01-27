@@ -29,4 +29,9 @@ public class PostServiceImpl implements PostService {
 //        return postRepository.findPost(startPost-19L, startPost);
         return postRepository.findPost(startPost, PageRequest.of(0, 20));
     }
+
+    @Override
+    public Optional<Post> findSinglePost(Long postId) {
+        return postRepository.findById(postId);
+    }
 }

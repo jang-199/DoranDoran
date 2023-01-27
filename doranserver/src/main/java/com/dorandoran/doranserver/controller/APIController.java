@@ -198,9 +198,32 @@ public class APIController {
     }
 
 
+    /**
+     *
+     * @param postLikeDto String email, Long postId
+     * {"email" : "사용자 ID", "postId" : 글ID}
+     * @return
+     */
+    @PostMapping("/post-like")
+    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
+        Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
+        Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
+
+        if (post.isPresent()) {
+            if (postLikeService.findByMemberId(postLikeDto.getEmail()).isPresent()) {
+                postLikeService.deletePostLike(postLikeDto.getEmail());
+            } else {
+                PostLike postLike = PostLike.builder()
+                        .postId(post.get())
+                        .memberId(byEmail.get())
+                        .build();
+                postLikeService.savePostLike(postLike);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @GetMapping("/post/{userEmail}/{postCnt}/{location}")
     ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt,@PathVariable String location) {
-
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
@@ -220,7 +243,7 @@ public class APIController {
                     builder.backgroundPicUri("localhost:8080/api/background/" + post.getImgName());
                 }
 
-                builder.likeResult()
+                builder.likeResult(postLikeService.findLikeResult(userEmail)).build();
             }
             return ResponseEntity.ok().body(firstPost);
         }else {

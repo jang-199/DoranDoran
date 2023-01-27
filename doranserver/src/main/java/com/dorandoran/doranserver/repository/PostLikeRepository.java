@@ -8,5 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
+
     List<PostLike> findByPostId(Post post);
+    Optional<PostLike> findByMemberId_Email(String email);
+    Optional<PostLike> deleteByMemberId_Email(String email);
+
 }

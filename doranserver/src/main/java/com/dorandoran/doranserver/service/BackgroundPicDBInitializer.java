@@ -30,7 +30,7 @@ public class BackgroundPicDBInitializer {
     @Value("${background.Store.path}")
     String serverPath;
 
-    @PostConstruct
+/*    @PostConstruct
     public void init() {
         for (int i = 0; i < max; i++) {
             BackgroundPic build = BackgroundPic.builder().imgName(i+1 + ".jpg")
@@ -65,5 +65,5 @@ public class BackgroundPicDBInitializer {
                     .build();
             postService.savePost(build);
         }
-    }
+    }*/
 }

@@ -132,13 +132,9 @@ public class APIController {
     }
 
     @PostMapping("/post")
-    ResponseEntity<?> createPost(@RequestParam MultipartFile file,
-                                 @RequestBody PostDto postDto,
-                                 @RequestBody BackgroundPicDto backgroundPicDto,
-                                 @RequestBody MemberDto memberDto,
-                                 @RequestBody HashTagDto hashTagDto) throws IOException {
+    ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
 
-        Optional<Member> memberEmail = memberService.findByEmail(memberDto.getEmail());
+        Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
         log.info("{}의 글 생성",memberEmail.get().getNickname());
         Post post = Post.builder()
@@ -148,7 +144,7 @@ public class APIController {
                 .location(postDto.getLocation())
                 .memberId(memberEmail.get())
                 .build();
-        if(!file.isEmpty()) {
+        if(!postDto.getFile().isEmpty()) {
             String userUploadImgName = UUID.randomUUID().toString();
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -158,24 +154,17 @@ public class APIController {
                     .serverPath(userUploadPicServerPath)
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
-            file.transferTo(new File(userUploadPicServerPath));
+            postDto.getFile().transferTo(new File(userUploadPicServerPath));
         }
         else {
             post.setSwitchPic(ImgType.DefaultBackground);
-            post.setImgName(backgroundPicDto.getBackgroundImgName());
+            post.setImgName(postDto.getBackgroundImgName());
         }
         postService.savePost(post);
 
-        //글 공감 테이블에 저장
-        PostLike postLike = PostLike.builder()
-                .postId(post)
-                .memberId(memberEmail.get())
-                .build();
-        postLikeService.savePostLike(postLike);
-
         //HashTag 테이블 생성
-        if (!hashTagDto.getHashTagName().isEmpty()) {
-            for (String hashTag : hashTagDto.getHashTagName()) {
+        if (!postDto.getHashTagName().isEmpty()) {
+            for (String hashTag : postDto.getHashTagName()) {
                 if (hashTagService.duplicateCheckHashTag(hashTag)) {
                     HashTag buildHashTag = HashTag.builder()
                             .hashTagName(hashTag)
@@ -193,6 +182,28 @@ public class APIController {
                     }
                 }
             }
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param postLikeDto String email, Long postId
+     * {"email" : "사용자 ID", "postId" : 글ID}
+     * @return
+     */
+    @PostMapping("/post-like")
+    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto){
+        Optional<Post> post = postService.findPost(postLikeDto.getPostId());
+        Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
+
+        if (post.isPresent()) {
+            PostLike postLike = PostLike.builder()
+                    .postId(post.get())
+                    .memberId(byEmail.get())
+                    .build();
+            postLikeService.savePostLike(postLike);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);

@@ -5,6 +5,8 @@ import com.dorandoran.doranserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -12,5 +14,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public void savePost(Post post) {
         postRepository.save(post);
+    }
+    @Override
+    public Optional<Post> findPost(Long postId) {
+        return postRepository.findById(postId);
     }
 }

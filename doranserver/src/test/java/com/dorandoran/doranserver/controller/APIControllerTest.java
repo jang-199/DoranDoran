@@ -1,6 +1,5 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.HashTagDto;
 import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.repository.HashTagRepository;
 import com.dorandoran.doranserver.service.HashTagServiceImpl;

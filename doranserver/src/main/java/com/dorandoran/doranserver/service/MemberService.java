@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface MemberService {
     public Optional<Member> findByEmail(String email);
+
+    public void saveMember(Member member);
 }

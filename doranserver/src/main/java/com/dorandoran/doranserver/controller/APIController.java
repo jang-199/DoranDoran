@@ -47,7 +47,7 @@ public class APIController {
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
-        log.info("nicknameDto.getNickname: {}",nicknameDto.getNickname());
+        log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
         if (nickname.isPresent()) {
             log.info("bad req response");
@@ -105,23 +105,22 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("background/maxcount")
+    @GetMapping("/background/maxcount")
     ResponseEntity<Integer> backgroundPic() {
         return ResponseEntity.ok().body(backgroundPicCnt);
 
     }
 
 
-    @GetMapping("background/{picName}")
+    @GetMapping("/background/{picName}")
     ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
 
         Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(picName);
         if (backgroundPic.isPresent()) {
-//            UrlResource urlResource = new UrlResource("file:" + "/Users/jw1010110/backgroundPic/1.jpg");
             UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
-            log.info("{}",backgroundPic.get().getBackgroundPicId());
-            log.info("{}",backgroundPic.get().getImgName());
-            log.info("{}",backgroundPic.get().getServerPath());
+            log.info("{}", backgroundPic.get().getBackgroundPicId());
+            log.info("{}", backgroundPic.get().getImgName());
+            log.info("{}", backgroundPic.get().getServerPath());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"")
                     .body(urlResource);
@@ -146,7 +145,7 @@ public class APIController {
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
-                .postTime(new Date())
+                .postTime(LocalDateTime.now())
                 .location(postDto.getLocation())
                 .memberId(memberEmail.get())
                 .build();
@@ -178,7 +177,7 @@ public class APIController {
         }
 
         //userUploadPic이 있으면 저장
-        if (!file.isEmpty()){
+        if (!file.isEmpty()) {
             UserUploadPic userUploadPic = UserUploadPic
                     .builder()
                     .imgName(userUpoloadPicDto.getUserUpoloadImgName())
@@ -191,5 +190,14 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
+    @GetMapping("/post/{postCnt}")
+    ResponseEntity<?> inquirePost(@PathVariable Long postCnt) {
+        if (postCnt == 0) {
+            List<Post> firstPost = postService.findFirstPost();
+            return ResponseEntity.ok().body(firstPost);
+        }else {
+            List<Post> post = postService.findPost(postCnt);
+            return ResponseEntity.ok().body(post);
+        }
+    }
 }

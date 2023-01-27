@@ -9,6 +9,7 @@ import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -31,16 +32,12 @@ public class Post {
     private Boolean forMe;
 
     @Nullable
-    @Column(name = "DELETE_DATE")
-    private Date deleteDate;
-
-    @Nullable
     @Column(name = "LOCATION")
     private String location;
 
     @NotNull
     @Column(name = "POST_TIME")
-    private Date postTime;
+    private LocalDateTime postTime;
 
     @OneToOne
     @JoinColumn(name = "MEMBER_ID")
@@ -48,7 +45,7 @@ public class Post {
 
     @NotNull
     @Column(name = "SWITCH_PIC")
-    private ImgType SwitchPic;
+    private ImgType switchPic;
 
     @NotNull
     @Column(name = "IMG_NAME")

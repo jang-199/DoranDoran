@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class APIController {
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final BackGroundPicServiceImpl backGroundPicService;
-    private final MemberService memberService;
+    private final MemberServiceImpl memberService;
     private final UserUploadPicServiceImpl userUploadPicService;
     private final PostLikeServiceImpl postLikeService;
     private final HashTagServiceImpl hashTagService;
@@ -127,7 +128,7 @@ public class APIController {
             throw new RuntimeException("해당 사진이 존재하지 않습니다.");
         }
     }
-    @GetMapping("/userpic/{picId}")
+    @GetMapping("/userpic/{picName}")
     ResponseEntity<Resource> findUserUploadPic(@PathVariable Long picId) throws MalformedURLException {
 
         try {
@@ -208,18 +209,22 @@ public class APIController {
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
-
-        if (post.isPresent()) {
-            if (postLikeService.findByMemberId(postLikeDto.getEmail()).isPresent()) {
-                postLikeService.deletePostLike(postLikeDto.getEmail());
-            } else {
-                PostLike postLike = PostLike.builder()
-                        .postId(post.get())
-                        .memberId(byEmail.get())
-                        .build();
-                postLikeService.savePostLike(postLike);
+        Optional<List<PostLike>> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
+        if (byMemberId.isPresent()) {
+            for (PostLike postLike : byMemberId.get()) {
+                if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
+                    postLikeService.deletePostLike(postLike);
+                }
             }
         }
+        else {
+            PostLike postLike = PostLike.builder()
+                    .postId(post.get())
+                    .memberId(byEmail.get())
+                    .build();
+            postLikeService.savePostLike(postLike);
+        }
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/post/{userEmail}/{postCnt}/{location}")
@@ -227,28 +232,42 @@ public class APIController {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
-        if (postCnt == 0) {
+        if (postCnt == 0) { //first find
             List<Post> firstPost = postService.findFirstPost();
-            for (Post post : firstPost) {
-                Integer lIkeCnt = postLikeService.findLIkeCnt(post);
-
-                builder.contents(post.getContent())
-                        .postTime(post.getPostTime())
-                        .location(Integer.parseInt(post.getLocation()))//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
-                        .likeCnt(lIkeCnt);
-
-                if (post.getSwitchPic() == ImgType.UserUpload) {
-                    builder.backgroundPicUri("localhost:8080/api/userpic/" + post.getImgName());
-                }else {
-                    builder.backgroundPicUri("localhost:8080/api/background/" + post.getImgName());
-                }
-
-                builder.likeResult(postLikeService.findLikeResult(userEmail)).build();
-            }
-            return ResponseEntity.ok().body(firstPost);
+            return makePostResponseList(userEmail, postResponseDtoList, builder, firstPost,location);
         }else {
-            List<Post> post = postService.findPost(postCnt);
-            return ResponseEntity.ok().body(post);
+            List<Post> postList = postService.findPost(postCnt);
+            return makePostResponseList(userEmail, postResponseDtoList, builder, postList, location);
         }
     }
+
+    private ResponseEntity<?> makePostResponseList(String userEmail,
+                                                   ArrayList<PostResponseDto> postResponseDtoList,
+                                                   PostResponseDto.PostResponseDtoBuilder builder,
+                                                   List<Post> postList,
+                                                   String location) {
+        for (Post post : postList) {
+            Integer lIkeCnt = postLikeService.findLIkeCnt(post);
+
+            builder.postId(post.getPostId())
+                    .contents(post.getContent())
+                    .postTime(post.getPostTime())
+                    .location(123)//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
+                    .likeCnt(lIkeCnt);
+
+            if (post.getSwitchPic() == ImgType.UserUpload) {
+                String[] split = post.getImgName().split("[.]");
+                builder.backgroundPicUri("localhost:8080/api/userpic/" + split[0]);
+            }else {
+                String[] split = post.getImgName().split("[.]");
+                builder.backgroundPicUri("localhost:8080/api/background/" + split[0]);
+            }
+            Optional<Member> byEmail = memberService.findByEmail(userEmail);
+
+            builder.likeResult(postLikeService.findLikeResult(byEmail.get(), post));
+            postResponseDtoList.add(builder.build());
+        }
+        return ResponseEntity.ok().body(postResponseDtoList);
+    }
+
 }

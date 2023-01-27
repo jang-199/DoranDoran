@@ -18,8 +18,8 @@ public class UserUploadPicServiceImpl implements UserUploadPicService{
     }
 
     @Override
-    public UserUploadPic findUserUploadPic(Long userUploadPicId) throws Exception {
-        Optional<UserUploadPic> byId = userUploadPicRepository.findById(userUploadPicId);
+    public UserUploadPic findUserUploadPic(Long imgId) throws Exception {
+        Optional<UserUploadPic> byId = userUploadPicRepository.findById(imgId);
         if (byId.isPresent()) {
             return byId.get();
         }

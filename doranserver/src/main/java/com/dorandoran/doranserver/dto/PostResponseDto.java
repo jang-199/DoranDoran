@@ -14,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class PostResponseDto {
 
+    Long postId; //글 번호
     String contents; // 글 내용
     LocalDateTime postTime; // 작성 시간
     Integer location; //위치(떨어진 거리)

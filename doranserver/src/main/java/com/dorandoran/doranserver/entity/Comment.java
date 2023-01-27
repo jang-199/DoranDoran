@@ -8,6 +8,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -32,7 +34,7 @@ public class Comment {
 
     @NotNull
     @Column(name = "COMMENT_TIME")
-    private Date commentTime;
+    private LocalDateTime commentTime;
 
     @ManyToOne
     @JoinColumn(name = "POST_ID")

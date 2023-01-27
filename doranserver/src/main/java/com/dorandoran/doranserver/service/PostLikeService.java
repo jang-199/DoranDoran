@@ -14,4 +14,5 @@ public interface PostLikeService {
     public Optional<List<PostLike>> findByMemberId(String email);
     public void deletePostLike(PostLike postLike);
 
+
 }

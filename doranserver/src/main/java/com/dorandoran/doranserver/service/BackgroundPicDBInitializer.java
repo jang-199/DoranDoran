@@ -123,7 +123,7 @@ public class BackgroundPicDBInitializer {
 //    }
 
 
-
+    @PostConstruct
     public void init() {
 
 //        for (int i = 0; i < max; i++) {
@@ -173,5 +173,33 @@ public class BackgroundPicDBInitializer {
 //            }
 //
 //        }
+
+//        for (int i = 1; i <= 400; i++) {
+//
+//            PolicyTerms build1 = PolicyTerms.builder().policy1(true)
+//                    .policy2(true)
+//                    .policy3(true)
+//                    .build();
+//            policyTermsCheck.policyTermsSave(build1);
+//
+//            Member build2 = Member.builder().email("email")
+//                    .dateOfBirth(LocalDate.now())
+//                    .nickname("nickname")
+//                    .signUpDate(LocalDateTime.now())
+//                    .firebaseToken("token")
+//                    .policyTermsId(build1)
+//                    .build();
+//            memberService.saveMember(build2);
+//
+//            Post build = Post.builder().postTime(LocalDateTime.now()).content("hi"+i)
+//                    .forMe(false)
+//                    .location("location")
+//                    .memberId(build2)
+//                    .switchPic(ImgType.UserUpload)
+//                    .ImgName("img")
+//                    .build();
+//            postService.savePost(build);
+//        }
+//
     }
 }

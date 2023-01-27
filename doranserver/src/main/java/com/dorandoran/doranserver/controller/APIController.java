@@ -44,6 +44,7 @@ public class APIController {
     private final PostLikeServiceImpl postLikeService;
     private final HashTagServiceImpl hashTagService;
     private final PostServiceImpl postService;
+    private final CommentServiceImpl commentService;
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -157,7 +158,7 @@ public class APIController {
                 .memberId(memberEmail.get())
                 .build();
         if(!postDto.getFile().isEmpty()) {
-            String userUploadImgName = UUID.randomUUID().toString();
+            String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
@@ -170,7 +171,7 @@ public class APIController {
         }
         else {
             post.setSwitchPic(ImgType.DefaultBackground);
-            post.setImgName(postDto.getBackgroundImgName());
+            post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
         postService.savePost(post);
 
@@ -224,7 +225,22 @@ public class APIController {
                     .build();
             postLikeService.savePostLike(postLike);
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
+    @PostMapping("/comment")
+    ResponseEntity<?> comment(@RequestBody CommentDto commentDto){
+        Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
+        Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
+        log.info("사용자 {}의 댓글 작성",commentDto.getEmail());
+        Comment comment = Comment.builder()
+                .comment(commentDto.getComment())
+                .commentTime(LocalDateTime.now())
+                .commentLikeCount(0L)
+                .postId(post.get())
+                .memberId(member.get())
+                .build();
+        commentService.saveComment(comment);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/post/{userEmail}/{postCnt}/{location}")

@@ -12,12 +12,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,6 +127,20 @@ public class APIController {
             throw new RuntimeException("해당 사진이 존재하지 않습니다.");
         }
     }
+    @GetMapping("/userpic/{picId}")
+    ResponseEntity<Resource> findUserUploadPic(@PathVariable Long picId) throws MalformedURLException {
+
+        try {
+            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPic(picId);
+            UrlResource urlResource = new UrlResource("file:" + userUploadPic.getServerPath());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + userUploadPic.getImgName() + "\"")
+                    .body(urlResource);
+        } catch (Exception e) {
+            log.error("{}",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/post")
     ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
@@ -185,38 +197,31 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     *
-     * @param postLikeDto String email, Long postId
-     * {"email" : "사용자 ID", "postId" : 글ID}
-     * @return
-     */
-    @PostMapping("/post-like")
-    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto){
-        Optional<Post> post = postService.findPost(postLikeDto.getPostId());
-        Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
 
-        if (post.isPresent()) {
-            PostLike postLike = PostLike.builder()
-                    .postId(post.get())
-                    .memberId(byEmail.get())
-        //userUploadPic이 있으면 저장
-        if (!file.isEmpty()) {
-            UserUploadPic userUploadPic = UserUploadPic
-                    .builder()
-                    .imgName(userUpoloadPicDto.getUserUpoloadImgName())
-                    .serverPath(userUploadPicServerPath)
-                    .build();
-            postLikeService.savePostLike(postLike);
-        }
+    @GetMapping("/post/{userEmail}/{postCnt}/{location}")
+    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt,@PathVariable String location) {
 
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
-    @GetMapping("/post/{userEmail}/{postCnt}")
-    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt) {
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstPost();
+            for (Post post : firstPost) {
+                Integer lIkeCnt = postLikeService.findLIkeCnt(post);
+
+                builder.contents(post.getContent())
+                        .postTime(post.getPostTime())
+                        .location(Integer.parseInt(post.getLocation()))//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
+                        .likeCnt(lIkeCnt);
+
+                if (post.getSwitchPic() == ImgType.UserUpload) {
+                    builder.backgroundPicUri("localhost:8080/api/userpic/" + post.getImgName());
+                }else {
+                    builder.backgroundPicUri("localhost:8080/api/background/" + post.getImgName());
+                }
+
+                builder.likeResult()
+            }
             return ResponseEntity.ok().body(firstPost);
         }else {
             List<Post> post = postService.findPost(postCnt);

@@ -56,9 +56,8 @@ public class BackgroundPicDBInitializer {
                     .build();
             memberService.saveMember(build2);
 
-            Post build = Post.builder().postTime(new Date()).content("hi"+i)
+            Post build = Post.builder().postTime(LocalDateTime.now()).content("hi"+i)
                     .forMe(false)
-                    .deleteDate(null)
                     .location("location")
                     .memberId(build2)
                     .switchPic(ImgType.UserUpload)

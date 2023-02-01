@@ -130,10 +130,10 @@ public class APIController {
         }
     }
     @GetMapping("/userpic/{picName}")
-    ResponseEntity<Resource> findUserUploadPic(@PathVariable Long picId) throws MalformedURLException {
+    ResponseEntity<Resource> findUserUploadPic(@PathVariable String picName) {
 
         try {
-            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPic(picId);
+            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPicByName(picName);
             UrlResource urlResource = new UrlResource("file:" + userUploadPic.getServerPath());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + userUploadPic.getImgName() + "\"")
@@ -278,9 +278,8 @@ public class APIController {
                 String[] split = post.getImgName().split("[.]");
                 builder.backgroundPicUri("localhost:8080/api/background/" + split[0]);
             }
-            Optional<Member> byEmail = memberService.findByEmail(userEmail);
 
-            builder.likeResult(postLikeService.findLikeResult(byEmail.get(), post));
+            builder.likeResult(postLikeService.findLikeResult(userEmail, post));
             postResponseDtoList.add(builder.build());
         }
         return ResponseEntity.ok().body(postResponseDtoList);

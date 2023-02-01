@@ -29,14 +29,15 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public Boolean findLikeResult(Member memberId, Post postId) {
-        Optional<PostLike> likeResult = postLikeRepository.findLikeResult(memberId, postId);
+    public Boolean findLikeResult(String email, Post postId) {
+        Optional<PostLike> likeResult = postLikeRepository.findLikeResult(email, postId);
         if (likeResult.isPresent()) {
             return true;
         }else {
             return false;
         }
     }
+
 
     @Override
     public Optional<List<PostLike>> findByMemberId(String email) {

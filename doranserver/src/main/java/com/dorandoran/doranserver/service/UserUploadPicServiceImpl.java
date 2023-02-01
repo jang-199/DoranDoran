@@ -27,4 +27,15 @@ public class UserUploadPicServiceImpl implements UserUploadPicService{
             throw new Exception("유저 업로드 사진을 찾을 수 없습니다.");
         }
     }
+
+    @Override
+    public UserUploadPic findUserUploadPicByName(String picName) throws Exception {
+        Optional<UserUploadPic> byImgName = userUploadPicRepository.findUserPicByName(picName);
+        if (byImgName.isPresent()) {
+            return byImgName.get();
+        }
+        else {
+            throw new Exception("유저 업로드 사진을 찾을 수 없습니다.");
+        }
+    }
 }

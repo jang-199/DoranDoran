@@ -4,6 +4,8 @@ import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -23,14 +25,19 @@ public class BackgroundPicDBInitializer {
     PolicyTermsCheckImpl policyTermsCheck;
     @Autowired
     PostLikeServiceImpl postLikeService;
+
+    @Autowired
+    UserUploadPicServiceImpl userUploadPicService;
+
     @Value("${background.cnt}")
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
-
-
 //    @PostConstruct
 //    public void testData(){
+//
+//        UserUploadPic build8 = UserUploadPic.builder().imgName("6.jpg").serverPath(serverPath + "6.jpg").build();
+//        userUploadPicService.saveUserUploadPic(build8);
 //
 //        PolicyTerms build = PolicyTerms.builder().policy1(Boolean.TRUE).policy2(Boolean.TRUE).policy3(Boolean.TRUE).build();
 //        policyTermsCheck.policyTermsSave(build);
@@ -95,7 +102,7 @@ public class BackgroundPicDBInitializer {
 //                .content("3")
 //                .location("1")
 //                .switchPic(ImgType.UserUpload)
-//                .ImgName("asfjdiojasfiodfasd.jpg")
+//                .ImgName("6.jpg")
 //                .memberId(member3)
 //                .build();
 //        postService.savePost(post1);
@@ -120,12 +127,14 @@ public class BackgroundPicDBInitializer {
 //        postLikeService.savePostLike(build4);
 //        postLikeService.savePostLike(build5);
 //        postLikeService.savePostLike(build6);
+//
+//
 //    }
-
-
-    @PostConstruct
-    public void init() {
-
+//
+//
+//    @PostConstruct
+//    public void init() {
+//
 //        for (int i = 0; i < max; i++) {
 //            BackgroundPic build = BackgroundPic.builder().imgName(i+1 + ".jpg")
 //                    .serverPath(serverPath + (i+1) + ".jpg")
@@ -135,7 +144,7 @@ public class BackgroundPicDBInitializer {
 //
 //
 //
-//        for (int i = 1; i <= 100; i++) {
+//        for (int i = 4; i <= 400+4; i++) {
 //
 //            PolicyTerms build1 = PolicyTerms.builder().policy1(true)
 //                    .policy2(true)
@@ -143,63 +152,35 @@ public class BackgroundPicDBInitializer {
 //                    .build();
 //            policyTermsCheck.policyTermsSave(build1);
 //
-//            Member build2 = Member.builder().email("email")
+//            Member build2 = Member.builder().email(i + "@gmail.com")
 //                    .dateOfBirth(LocalDate.now())
-//                    .nickname("nickname")
+//                    .nickname("Im" + i)
 //                    .signUpDate(LocalDateTime.now())
 //                    .firebaseToken("token")
 //                    .policyTermsId(build1)
 //                    .build();
 //            memberService.saveMember(build2);
 //
-//            if ((i%2)!=0){
-//                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi"+i)
+//            if ((i % 2) != 0) {
+//                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
 //                        .forMe(true)
 //                        .location("location")
 //                        .memberId(build2)
-//                        .switchPic(ImgType.UserUpload)
-//                        .ImgName("img")
+//                        .switchPic(ImgType.DefaultBackground)
+//                        .ImgName("6.jpg")
 //                        .build();
 //                postService.savePost(build);
-//            }else{
-//                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi"+i)
+//            } else {
+//                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
 //                        .forMe(false)
 //                        .location("location")
 //                        .memberId(build2)
 //                        .switchPic(ImgType.UserUpload)
-//                        .ImgName("img")
+//                        .ImgName("6.jpg")
 //                        .build();
 //                postService.savePost(build);
 //            }
 //
 //        }
-
-//        for (int i = 1; i <= 400; i++) {
-//
-//            PolicyTerms build1 = PolicyTerms.builder().policy1(true)
-//                    .policy2(true)
-//                    .policy3(true)
-//                    .build();
-//            policyTermsCheck.policyTermsSave(build1);
-//
-//            Member build2 = Member.builder().email("email")
-//                    .dateOfBirth(LocalDate.now())
-//                    .nickname("nickname")
-//                    .signUpDate(LocalDateTime.now())
-//                    .firebaseToken("token")
-//                    .policyTermsId(build1)
-//                    .build();
-//            memberService.saveMember(build2);
-//
-//            Post build = Post.builder().postTime(LocalDateTime.now()).content("hi"+i)
-//                    .forMe(false)
-//                    .location("location")
-//                    .memberId(build2)
-//                    .switchPic(ImgType.UserUpload)
-//                    .ImgName("img")
-//                    .build();
-//            postService.savePost(build);
-//        }
-//
-    }
+//    }
 }

@@ -30,7 +30,7 @@ public class UserUploadPicServiceImpl implements UserUploadPicService{
 
     @Override
     public UserUploadPic findUserUploadPicByName(String picName) throws Exception {
-        Optional<UserUploadPic> byImgName = userUploadPicRepository.findByImgName(picName);
+        Optional<UserUploadPic> byImgName = userUploadPicRepository.findByImgNameLike(picName);
         if (byImgName.isPresent()) {
             return byImgName.get();
         }

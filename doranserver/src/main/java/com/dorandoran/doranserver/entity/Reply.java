@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -26,7 +27,7 @@ public class Reply {
 
     @NotNull
     @Column(name = "COMMENT_LIKE_TIME")
-    private Date commentLikeTime;
+    private LocalDateTime commentLikeTime;
 
     @ManyToOne
     @JoinColumn(name = "COMMENT_ID")

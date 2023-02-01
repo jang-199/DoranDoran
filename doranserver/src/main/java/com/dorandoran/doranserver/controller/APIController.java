@@ -264,11 +264,13 @@ public class APIController {
                                                    String location) {
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
+            Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
 
             builder.postId(post.getPostId())
                     .contents(post.getContent())
                     .postTime(post.getPostTime())
                     .location(123)//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
+                    .ReplyCnt(commentCntByPostId)
                     .likeCnt(lIkeCnt);
 
             if (post.getSwitchPic() == ImgType.UserUpload) {

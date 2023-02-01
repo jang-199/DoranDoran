@@ -243,8 +243,8 @@ public class APIController {
         commentService.saveComment(comment);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @GetMapping("/post/{userEmail}/{postCnt}/{location}")
-    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt,@PathVariable String location) {
+    @GetMapping("/post")//이메일 . 들어가서 수정 필요
+    ResponseEntity<?> inquirePost(@RequestParam String userEmail,@RequestParam Long postCnt,@RequestParam String location) {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
@@ -273,10 +273,10 @@ public class APIController {
 
             if (post.getSwitchPic() == ImgType.UserUpload) {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("localhost:8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri("124.60.219.83:8080/api/userpic/" + split[0]);
             }else {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("localhost:8080/api/background/" + split[0]);
+                builder.backgroundPicUri("124.60.219.83:8080/api/background/" + split[0]);
             }
 
             builder.likeResult(postLikeService.findLikeResult(userEmail, post));

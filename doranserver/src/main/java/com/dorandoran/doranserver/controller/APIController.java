@@ -45,6 +45,7 @@ public class APIController {
     private final HashTagServiceImpl hashTagService;
     private final PostServiceImpl postService;
     private final CommentServiceImpl commentService;
+    private final DistanceService distanceService;
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -265,11 +266,17 @@ public class APIController {
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
+            String[] userLocation = location.split(",");
+            String[] postLocation = post.getLocation().split(",");
+            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+                    Double.parseDouble(userLocation[1]),
+                    Double.parseDouble(postLocation[0]),
+                    Double.parseDouble(postLocation[1]));
 
             builder.postId(post.getPostId())
                     .contents(post.getContent())
                     .postTime(post.getPostTime())
-                    .location(123)//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
+                    .location(Long.valueOf(Math.round(distance)).intValue())
                     .ReplyCnt(commentCntByPostId)
                     .likeCnt(lIkeCnt);
 

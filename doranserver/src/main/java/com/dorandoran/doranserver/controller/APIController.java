@@ -45,6 +45,7 @@ public class APIController {
     private final HashTagServiceImpl hashTagService;
     private final PostServiceImpl postService;
     private final CommentServiceImpl commentService;
+    private final DistanceService distanceService;
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -130,10 +131,10 @@ public class APIController {
         }
     }
     @GetMapping("/userpic/{picName}")
-    ResponseEntity<Resource> findUserUploadPic(@PathVariable Long picId) throws MalformedURLException {
+    ResponseEntity<Resource> findUserUploadPic(@PathVariable String picName) {
 
         try {
-            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPic(picId);
+            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPicByName(picName);
             UrlResource urlResource = new UrlResource("file:" + userUploadPic.getServerPath());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + userUploadPic.getImgName() + "\"")
@@ -250,8 +251,8 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/post/{userEmail}/{postCnt}/{location}")
-    ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt,@PathVariable String location) {
+    @GetMapping("/post")//이메일 . 들어가서 수정 필요
+    ResponseEntity<?> inquirePost(@RequestParam String userEmail,@RequestParam Long postCnt,@RequestParam String location) {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
@@ -271,23 +272,30 @@ public class APIController {
                                                    String location) {
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
+            Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
+            String[] userLocation = location.split(",");
+            String[] postLocation = post.getLocation().split(",");
+            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+                    Double.parseDouble(userLocation[1]),
+                    Double.parseDouble(postLocation[0]),
+                    Double.parseDouble(postLocation[1]));
 
             builder.postId(post.getPostId())
                     .contents(post.getContent())
                     .postTime(post.getPostTime())
-                    .location(123)//**추후에 떨어지 거리로 계산해서 리턴하는 코드로 수정할 것**
+                    .location(Long.valueOf(Math.round(distance)).intValue())
+                    .ReplyCnt(commentCntByPostId)
                     .likeCnt(lIkeCnt);
 
             if (post.getSwitchPic() == ImgType.UserUpload) {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("localhost:8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri("124.60.219.83:8080/api/userpic/" + split[0]);
             }else {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("localhost:8080/api/background/" + split[0]);
+                builder.backgroundPicUri("124.60.219.83:8080/api/background/" + split[0]);
             }
-            Optional<Member> byEmail = memberService.findByEmail(userEmail);
 
-            builder.likeResult(postLikeService.findLikeResult(byEmail.get(), post));
+            builder.likeResult(postLikeService.findLikeResult(userEmail, post));
             postResponseDtoList.add(builder.build());
         }
         return ResponseEntity.ok().body(postResponseDtoList);

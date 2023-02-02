@@ -5,10 +5,12 @@ build/generated/
 build/resources/
 build/tmp/
 !build/libs/doranserver-0.0.1-SNAPSHOT.jar
+doranserver/build/reports/
+doranserver/build/test-results/
 #!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+**/src/test/
 ### STS ###
 .apt_generated
 .classpath
@@ -22,7 +24,6 @@ bin/
 !**/src/test/**/bin/
 **/src/main/resources/
 **/src/test
-
 ### IntelliJ IDEA ###
 .idea
 *.iws

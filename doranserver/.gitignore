@@ -8,8 +8,6 @@ build/tmp/
 #!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-src/test
-
 
 ### STS ###
 .apt_generated
@@ -23,6 +21,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 **/src/main/resources/
+**/src/test
 
 ### IntelliJ IDEA ###
 .idea

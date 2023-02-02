@@ -28,11 +28,6 @@ public class Comment {
     private String comment;
 
     @NotNull
-    @Column(name = "COMMENT_LIKE_COUNT")
-    @ColumnDefault("0")
-    private Long commentLikeCount;
-
-    @NotNull
     @Column(name = "COMMENT_TIME")
     private LocalDateTime commentTime;
 

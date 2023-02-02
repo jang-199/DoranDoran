@@ -199,7 +199,6 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     /**
      *
      * @param postLikeDto String email, Long postId
@@ -228,6 +227,14 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    //글 내용, 작성자, 공감수, 위치, 댓글수, 몇시간 전, 댓글
+    @GetMapping("/post/detail")
+    ResponseEntity<?> postDetails(@RequestParam Long postId, @RequestParam String userEmail){
+        Optional<Post> Post = postService.findSinglePost(postId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto){
         Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
@@ -236,13 +243,13 @@ public class APIController {
         Comment comment = Comment.builder()
                 .comment(commentDto.getComment())
                 .commentTime(LocalDateTime.now())
-                .commentLikeCount(0L)
                 .postId(post.get())
                 .memberId(member.get())
                 .build();
         commentService.saveComment(comment);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @GetMapping("/post/{userEmail}/{postCnt}/{location}")
     ResponseEntity<?> inquirePost(@PathVariable String userEmail,@PathVariable Long postCnt,@PathVariable String location) {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
@@ -285,5 +292,4 @@ public class APIController {
         }
         return ResponseEntity.ok().body(postResponseDtoList);
     }
-
 }

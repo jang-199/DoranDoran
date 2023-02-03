@@ -164,7 +164,7 @@ public class BackgroundPicDBInitializer {
             if ((i % 2) != 0) {
                 Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
                         .forMe(true)
-                        .location("location")
+                        .location("37.2847022,127.2370257")
                         .memberId(build2)
                         .switchPic(ImgType.DefaultBackground)
                         .ImgName("6.jpg")
@@ -173,7 +173,7 @@ public class BackgroundPicDBInitializer {
             } else {
                 Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
                         .forMe(false)
-                        .location("location")
+                        .location("37.2847022,127.2370257")
                         .memberId(build2)
                         .switchPic(ImgType.UserUpload)
                         .ImgName("6.jpg")

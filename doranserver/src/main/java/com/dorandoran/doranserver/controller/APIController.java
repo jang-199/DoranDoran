@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
+import com.dorandoran.doranserver.dto.commentdetail.CommentDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -20,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,7 +45,10 @@ public class APIController {
     private final HashTagServiceImpl hashTagService;
     private final PostServiceImpl postService;
     private final CommentServiceImpl commentService;
+    private final CommentLikeServiceImpl commentLikeService;
     private final DistanceService distanceService;
+    private final ReplyServiceImpl replyService;
+
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
@@ -150,6 +153,7 @@ public class APIController {
 
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
+        log.info("postDto : {}",postDto);
         log.info("{}의 글 생성",memberEmail.get().getNickname());
         Post post = Post.builder()
                 .content(postDto.getContent())
@@ -158,7 +162,8 @@ public class APIController {
                 .location(postDto.getLocation())
                 .memberId(memberEmail.get())
                 .build();
-        if(!postDto.getFile().isEmpty()) {
+
+        if(postDto.getFile() != null) {
             String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -174,7 +179,7 @@ public class APIController {
             post.setSwitchPic(ImgType.DefaultBackground);
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
-        postService.savePost(post);
+
 
         //HashTag 테이블 생성
         if (!postDto.getHashTagName().isEmpty()) {
@@ -197,6 +202,8 @@ public class APIController {
                 }
             }
         }
+
+        postService.savePost(post);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -215,6 +222,7 @@ public class APIController {
             for (PostLike postLike : byMemberId.get()) {
                 if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
                     postLikeService.deletePostLike(postLike);
+                    log.info("{} 글의 공감 취소", postLikeDto.getPostId());
                 }
             }
         }
@@ -228,12 +236,58 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //글 내용, 작성자, 공감수, 위치, 댓글수, 몇시간 전, 댓글
+    //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
     @GetMapping("/post/detail")
-    ResponseEntity<?> postDetails(@RequestParam Long postId, @RequestParam String userEmail){
-        Optional<Post> Post = postService.findSinglePost(postId);
+    ResponseEntity<?> postDetails(@RequestParam Long postId, @RequestParam String userEmail, @RequestParam String location){
+        Optional<Post> post = postService.findSinglePost(postId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        //글의 위치 데이터와 현재 내 위치 거리 계산
+        String[] userLocation = location.split(",");
+        String[] postLocation = post.get().getLocation().split(",");
+        Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+                Double.parseDouble(userLocation[1]),
+                Double.parseDouble(postLocation[0]),
+                Double.parseDouble(postLocation[1]));
+
+        //리턴할 postDetail builder
+        PostDetailDto postDetailDto = PostDetailDto.builder()
+                .content(post.get().getContent())
+                .postTime(post.get().getPostTime())
+                .location(Long.valueOf(Math.round(distance)).intValue())
+                .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
+                .postLikeResult(postLikeService.findLikeResult(userEmail, post.get()))
+                .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
+                .build();
+
+        //댓글 builder
+        Optional<List<Comment>> commentList = commentService.findComment(post.get());
+        List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
+        if (commentList.isPresent()) {
+            for (Comment comment : commentList.get()) {
+                CommentDetailDto build = CommentDetailDto.builder()
+                        .comment(comment.getComment())
+                        .commentLike(commentLikeService.findCommentLikeCnt(comment.getCommentId()))
+                        .replies(replyService.findReplyList(comment))
+                        .commentLikeResult(Boolean.FALSE)
+                        .build();
+                for (CommentLike commentLike : commentLikeService.findCommentLikeList(comment.getCommentId())) {
+                    if (commentLike.getMemberId().getEmail().equals(userEmail))
+                        build.setCommentLikeResult(Boolean.TRUE);
+                }
+                commentDetailDtoList.add(build);
+            }
+        }
+        postDetailDto.setCommentDetailDto(commentDetailDtoList);
+
+        //배경사진 builder
+        if (post.get().getSwitchPic().equals(ImgType.DefaultBackground)){
+            postDetailDto.setBackgroundPicUri("/home/leeking/DoranDoranPic/BackgroundPic/" + post.get().getImgName());
+        }
+        else {
+            postDetailDto.setBackgroundPicUri("/home/leeking/DoranDoranPic/UserUploadPic/" + post.get().getImgName());
+        }
+
+        return ResponseEntity.ok().body(postDetailDto);
     }
 
     @PostMapping("/comment")

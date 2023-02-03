@@ -19,4 +19,9 @@ public class ReplyServiceImpl implements ReplyService{
         List<Reply> replyCntByComment = replyRepository.findReplyCntByComment(comment);
         return replyCntByComment.size();
     }
+
+    @Override
+    public List<Reply> findReplyList(Comment comment) {
+        return replyRepository.findReplyCntByComment(comment);
+    }
 }

@@ -305,6 +305,7 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     @GetMapping("/post")//이메일 . 들어가서 수정 필요
     ResponseEntity<?> inquirePost(@RequestParam String userEmail,@RequestParam Long postCnt,@RequestParam String location) {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();

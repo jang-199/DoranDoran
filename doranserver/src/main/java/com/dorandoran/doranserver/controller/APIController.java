@@ -244,7 +244,7 @@ public class APIController {
         commentService.saveComment(comment);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @GetMapping("/post")//이메일 . 들어가서 수정 필요
+    @GetMapping("/post")
     ResponseEntity<?> inquirePost(@RequestParam String userEmail,@RequestParam Long postCnt,@RequestParam String location) {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();

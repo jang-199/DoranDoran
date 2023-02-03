@@ -22,7 +22,7 @@ doranserver/build/test-results/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-**/src/main/resources/
+**/src/main/resources/dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json
 ### IntelliJ IDEA ###
 .idea
 *.iws

@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import ch.qos.logback.core.joran.conditional.IfAction;
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.commentdetail.CommentDetailDto;
 import com.dorandoran.doranserver.entity.*;
@@ -328,19 +329,24 @@ public class APIController {
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
-            String[] userLocation = location.split(",");
-            String[] postLocation = post.getLocation().split(",");
-            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-                    Double.parseDouble(userLocation[1]),
-                    Double.parseDouble(postLocation[0]),
-                    Double.parseDouble(postLocation[1]));
+            if (location.isBlank() && post.getLocation().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
+                builder.location(null);
+            } else {
+                String[] userLocation = location.split(",");
+                String[] postLocation = post.getLocation().split(",");
 
-            builder.postId(post.getPostId())
-                    .contents(post.getContent())
-                    .postTime(post.getPostTime())
-                    .location(Long.valueOf(Math.round(distance)).intValue())
-                    .ReplyCnt(commentCntByPostId)
-                    .likeCnt(lIkeCnt);
+                Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+                        Double.parseDouble(userLocation[1]),
+                        Double.parseDouble(postLocation[0]),
+                        Double.parseDouble(postLocation[1]));
+
+                builder.postId(post.getPostId())
+                        .contents(post.getContent())
+                        .postTime(post.getPostTime())
+                        .location(Long.valueOf(Math.round(distance)).intValue())
+                        .ReplyCnt(commentCntByPostId)
+                        .likeCnt(lIkeCnt);
+            }
 
             if (post.getSwitchPic() == ImgType.UserUpload) {
                 String[] split = post.getImgName().split("[.]");

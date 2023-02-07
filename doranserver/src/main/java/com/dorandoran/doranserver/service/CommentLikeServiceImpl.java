@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.CommentLike;
 import com.dorandoran.doranserver.repository.CommentLikeRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     }
 
     @Override
-    public List<CommentLike> findByCommentId(Long commentId) {
-        return commentLikeRepository.findByCommentId(commentId);
+    public Optional<List<CommentLike>> findByCommentId(Comment comment) {
+        return commentLikeRepository.findByCommentId(comment);
     }
 
     @Override

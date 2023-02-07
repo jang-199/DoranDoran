@@ -347,12 +347,15 @@ public class APIController {
                 .commentId(comment.get())
                 .memberId(member.get())
                 .build();
-        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(commentLikeDto.getCommentId());
-        for (CommentLike commentLike : commentLikeList) {
-            if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
-                commentLikeService.deleteCommentLike(commentLike);
-                log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId());
-                return new ResponseEntity<>(HttpStatus.OK);
+
+        Optional<List<CommentLike>> commentLikeList = commentLikeService.findByCommentId(comment.get());
+        if (commentLikeList.isPresent()) {
+            for (CommentLike commentLike : commentLikeList.get()) {
+                if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
+                    commentLikeService.deleteCommentLike(commentLike);
+                    log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId().getCommentId());
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }
             }
         }
         commentLikeService.saveCommentLike(commentLikeBuild);

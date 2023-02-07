@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,22 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     }
 
     @Override
-    public List<CommentLike> findCommentLikeList(Long commentId) {
+    public List<CommentLike> findCommentLikeListByCommentId(Long commentId) {
         return commentLikeRepository.findCommentLikeByCommentId(commentId);
+    }
+
+    @Override
+    public List<CommentLike> findByCommentId(Long commentId) {
+        return commentLikeRepository.findByCommentId(commentId);
+    }
+
+    @Override
+    public void saveCommentLike(CommentLike commentLike) {
+        commentLikeRepository.save(commentLike);
+    }
+
+    @Override
+    public void deleteCommentLike(CommentLike commentLike) {
+        commentLikeRepository.delete(commentLike);
     }
 }

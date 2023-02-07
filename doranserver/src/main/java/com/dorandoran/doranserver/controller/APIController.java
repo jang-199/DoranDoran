@@ -45,6 +45,7 @@ public class APIController {
     private final PostLikeServiceImpl postLikeService;
     private final HashTagServiceImpl hashTagService;
     private final PostServiceImpl postService;
+    private final PostHashServiceImpl postHashService;
     private final CommentServiceImpl commentService;
     private final CommentLikeServiceImpl commentLikeService;
     private final DistanceService distanceService;
@@ -160,10 +161,18 @@ public class APIController {
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
-                .location(postDto.getLocation())
                 .memberId(memberEmail.get())
                 .build();
 
+        //location null 처리
+        if(postDto.getLocation() == null){
+            post.setLocation("");
+        }
+        else {
+            post.setLocation(postDto.getLocation());
+        }
+
+        //파일 처리
         if(postDto.getFile() != null) {
             String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
             post.setSwitchPic(ImgType.UserUpload);
@@ -181,15 +190,21 @@ public class APIController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
+        postService.savePost(post);
 
         //HashTag 테이블 생성
-        if (!postDto.getHashTagName().isEmpty()) {
+        if (postDto.getHashTagName() != null) {
             for (String hashTag : postDto.getHashTagName()) {
+                HashTag buildHashTag = HashTag.builder()
+                        .hashTagName(hashTag)
+                        .hashTagCount(1L)
+                        .build();
+                PostHash postHash = PostHash.builder()
+                        .postId(post)
+                        .hashTagId(buildHashTag)
+                        .build();
+                postHashService.savePostHash(postHash);
                 if (hashTagService.duplicateCheckHashTag(hashTag)) {
-                    HashTag buildHashTag = HashTag.builder()
-                            .hashTagName(hashTag)
-                            .hashTagCount(1L)
-                            .build();
                     hashTagService.saveHashTag(buildHashTag);
                     log.info("해시태그 {}",hashTag + " 생성");
                 } else {
@@ -201,12 +216,12 @@ public class APIController {
                         log.info("해시태그 {}",hashTag + "의 카운트 1증가");
                     }
                 }
+
             }
         }
-
-        postService.savePost(post);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     /**
      *
@@ -224,6 +239,7 @@ public class APIController {
                 if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
                     postLikeService.deletePostLike(postLike);
                     log.info("{} 글의 공감 취소", postLikeDto.getPostId());
+                    return new ResponseEntity<>(HttpStatus.OK);
                 }
             }
         }
@@ -242,36 +258,42 @@ public class APIController {
     ResponseEntity<?> postDetails(@RequestParam Long postId, @RequestParam String userEmail, @RequestParam String location){
         Optional<Post> post = postService.findSinglePost(postId);
 
-        //글의 위치 데이터와 현재 내 위치 거리 계산
-        String[] userLocation = location.split(",");
-        String[] postLocation = post.get().getLocation().split(",");
-        Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-                Double.parseDouble(userLocation[1]),
-                Double.parseDouble(postLocation[0]),
-                Double.parseDouble(postLocation[1]));
-
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
                 .content(post.get().getContent())
                 .postTime(post.get().getPostTime())
-                .location(Long.valueOf(Math.round(distance)).intValue())
                 .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
                 .postLikeResult(postLikeService.findLikeResult(userEmail, post.get()))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
                 .build();
 
+        //글의 위치 데이터와 현재 내 위치 거리 계산
+        if (Objects.equals(post.get().getLocation(), "")) {
+            postDetailDto.setLocation(null);
+        }
+        else {
+            String[] userLocation = location.split(",");
+            String[] postLocation = post.get().getLocation().split(",");
+            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+                    Double.parseDouble(userLocation[1]),
+                    Double.parseDouble(postLocation[0]),
+                    Double.parseDouble(postLocation[1]));
+            postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
+        }
+
         //댓글 builder
-        Optional<List<Comment>> commentList = commentService.findComment(post.get());
+        Optional<List<Comment>> commentList = commentService.findCommentByPost(post.get());
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (commentList.isPresent()) {
             for (Comment comment : commentList.get()) {
                 CommentDetailDto build = CommentDetailDto.builder()
+                        .commentId(comment.getCommentId())
                         .comment(comment.getComment())
                         .commentLike(commentLikeService.findCommentLikeCnt(comment.getCommentId()))
                         .replies(replyService.findReplyList(comment))
                         .commentLikeResult(Boolean.FALSE)
                         .build();
-                for (CommentLike commentLike : commentLikeService.findCommentLikeList(comment.getCommentId())) {
+                for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment.getCommentId())) {
                     if (commentLike.getMemberId().getEmail().equals(userEmail))
                         build.setCommentLikeResult(Boolean.TRUE);
                 }
@@ -280,12 +302,23 @@ public class APIController {
         }
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 
+        //해시태그 builder
+        List<String> postHashListDto = new ArrayList<>();
+        Optional<List<PostHash>> postHashList = postHashService.findPostHash(postId);
+        if (postHashList.isPresent()){
+            for (PostHash postHash : postHashList.get()) {
+                String hashTagName = postHash.getHashTagId().getHashTagName();
+                postHashListDto.add(hashTagName);
+            }
+        }
+        postDetailDto.setPostHashes(postHashListDto);
+
         //배경사진 builder
         if (post.get().getSwitchPic().equals(ImgType.DefaultBackground)){
-            postDetailDto.setBackgroundPicUri("/home/leeking/DoranDoranPic/BackgroundPic/" + post.get().getImgName());
+            postDetailDto.setBackgroundPicUri(backgroundPicServerPath + post.get().getImgName());
         }
         else {
-            postDetailDto.setBackgroundPicUri("/home/leeking/DoranDoranPic/UserUploadPic/" + post.get().getImgName());
+            postDetailDto.setBackgroundPicUri(userUploadPicServerPath + post.get().getImgName());
         }
 
         return ResponseEntity.ok().body(postDetailDto);
@@ -306,6 +339,27 @@ public class APIController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/comment-like")
+    ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
+        Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
+        Optional<Member> member = memberService.findByEmail(commentLikeDto.getUserEmail());
+        CommentLike commentLikeBuild = CommentLike.builder()
+                .commentId(comment.get())
+                .memberId(member.get())
+                .build();
+        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(commentLikeDto.getCommentId());
+        for (CommentLike commentLike : commentLikeList) {
+            if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
+                commentLikeService.deleteCommentLike(commentLike);
+                log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        }
+        commentLikeService.saveCommentLike(commentLikeBuild);
+        log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @GetMapping("/post")//이메일 . 들어가서 수정 필요
     ResponseEntity<?> inquirePost(@RequestParam String userEmail,@RequestParam Long postCnt,@RequestParam String location) {

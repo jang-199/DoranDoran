@@ -23,7 +23,11 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 **/src/main/resources/dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json
+<<<<<<< HEAD
 **/src/test
+=======
+
+>>>>>>> 08fa33f038cafe41c2b6960b33d9b5a50c2e0b12
 ### IntelliJ IDEA ###
 .idea
 *.iws

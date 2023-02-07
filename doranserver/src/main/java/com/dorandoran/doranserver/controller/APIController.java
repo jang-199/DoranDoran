@@ -361,4 +361,15 @@ public class APIController {
         }
         return ResponseEntity.ok().body(postResponseDtoList);
     }
+
+    @PostMapping("/check/registered")
+    ResponseEntity<?> checkRegisteredMember(CheckRegisteredMemberDto memberDto) {
+        Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
+        if (byEmail.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

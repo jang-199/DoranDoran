@@ -10,5 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 public class CommentLikeDto {
-    Long a;
+    Long postId;
+    Long commentId;
+    String userEmail;
 }

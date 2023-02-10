@@ -26,6 +26,5 @@ public class HashTag {
 
     @NotNull
     @Column(name = "HASH_TAG_COUNT")
-    @ColumnDefault("0")
     private Long hashTagCount;
 }

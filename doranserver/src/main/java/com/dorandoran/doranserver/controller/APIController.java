@@ -194,19 +194,18 @@ public class APIController {
 
         //HashTag 테이블 생성
         if (postDto.getHashTagName() != null) {
+            Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
-                log.info("hash tag 존재");
+
+                log.info("해시태그 존재");
+
                 HashTag buildHashTag = HashTag.builder()
                         .hashTagName(hashTag)
                         .hashTagCount(1L)
                         .build();
-                PostHash postHash = PostHash.builder()
-                        .postId(post)
-                        .hashTagId(buildHashTag)
-                        .build();
-                postHashService.savePostHash(postHash);
                 if (hashTagService.duplicateCheckHashTag(hashTag)) {
                     hashTagService.saveHashTag(buildHashTag);
+                    savePostHash(hashTagPost, hashTag);
                     log.info("해시태그 {}",hashTag + " 생성");
                 } else {
                     Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
@@ -214,13 +213,24 @@ public class APIController {
                         Long hashTagCount = byHashTagName.get().getHashTagCount();
                         byHashTagName.get().setHashTagCount(hashTagCount + 1);
                         hashTagService.saveHashTag(byHashTagName.get());
+                        savePostHash(hashTagPost, hashTag);
                         log.info("해시태그 {}",hashTag + "의 카운트 1증가");
                     }
                 }
-
             }
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private void savePostHash(Optional<Post> hashTagPost, String hashTag) {
+        Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
+        if (byHashTagName.isPresent()) {
+            PostHash postHash = PostHash.builder()
+                    .postId(hashTagPost.get())
+                    .hashTagId(byHashTagName.get())
+                    .build();
+            postHashService.savePostHash(postHash);
+        }
     }
 
 

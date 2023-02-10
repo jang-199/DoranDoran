@@ -388,7 +388,12 @@ public class APIController {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
             if (location.isBlank() || post.getLocation().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
-                builder.location(null);
+                builder.location(null)
+                        .postId(post.getPostId())
+                        .contents(post.getContent())
+                        .postTime(post.getPostTime())
+                        .ReplyCnt(commentCntByPostId)
+                        .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = location.split(",");
                 String[] postLocation = post.getLocation().split(",");

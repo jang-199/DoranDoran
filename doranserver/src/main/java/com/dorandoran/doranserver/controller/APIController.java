@@ -420,8 +420,10 @@ public class APIController {
     }
 
     @PostMapping("/check/registered")
-    ResponseEntity<?> checkRegisteredMember(CheckRegisteredMemberDto memberDto) {
+    ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
+        log.info("{}",memberDto.getEmail());
         Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
+        log.info("{}",byEmail.get().getEmail());
         if (byEmail.isPresent()) {
             return new ResponseEntity<>(HttpStatus.OK);
         }else {

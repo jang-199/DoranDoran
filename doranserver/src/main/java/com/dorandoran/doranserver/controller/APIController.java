@@ -196,7 +196,9 @@ public class APIController {
         if (postDto.getHashTagName() != null) {
             Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
+
                 log.info("해시태그 존재");
+
                 HashTag buildHashTag = HashTag.builder()
                         .hashTagName(hashTag)
                         .hashTagCount(1L)
@@ -395,8 +397,13 @@ public class APIController {
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
-            if (location.isBlank() && post.getLocation().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
-                builder.location(null);
+            if (location.isBlank() || post.getLocation().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
+                builder.location(null)
+                        .postId(post.getPostId())
+                        .contents(post.getContent())
+                        .postTime(post.getPostTime())
+                        .ReplyCnt(commentCntByPostId)
+                        .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = location.split(",");
                 String[] postLocation = post.getLocation().split(",");
@@ -416,10 +423,10 @@ public class APIController {
 
             if (post.getSwitchPic() == ImgType.UserUpload) {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("124.60.219.83:8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri("116.44.231.155:8080/api/userpic/" + split[0]);
             }else {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("124.60.219.83:8080/api/background/" + split[0]);
+                builder.backgroundPicUri("116.44.231.155:8080/api/background/" + split[0]);
             }
 
             builder.likeResult(postLikeService.findLikeResult(userEmail, post));
@@ -429,7 +436,7 @@ public class APIController {
     }
 
     @PostMapping("/check/registered")
-    ResponseEntity<?> checkRegisteredMember(CheckRegisteredMemberDto memberDto) {
+    ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
         Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
         if (byEmail.isPresent()) {
             return new ResponseEntity<>(HttpStatus.OK);

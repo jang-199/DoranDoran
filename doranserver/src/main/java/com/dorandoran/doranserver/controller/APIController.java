@@ -195,6 +195,7 @@ public class APIController {
         //HashTag 테이블 생성
         if (postDto.getHashTagName() != null) {
             for (String hashTag : postDto.getHashTagName()) {
+                log.info("hash tag 존재");
                 HashTag buildHashTag = HashTag.builder()
                         .hashTagName(hashTag)
                         .hashTagCount(1L)

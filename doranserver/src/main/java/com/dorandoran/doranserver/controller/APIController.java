@@ -151,7 +151,7 @@ public class APIController {
     }
 
     @PostMapping("/post")
-    ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
+    ResponseEntity<?> Post( PostDto postDto) throws IOException {
 
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 

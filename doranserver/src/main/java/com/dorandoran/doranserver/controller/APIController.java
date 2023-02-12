@@ -193,7 +193,7 @@ public class APIController {
         postService.savePost(post);
 
         //HashTag 테이블 생성
-        if (postDto.getHashTagName() != null) {
+        if (!postDto.getHashTagName().isEmpty()) {
             Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
 

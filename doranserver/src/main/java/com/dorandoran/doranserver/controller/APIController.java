@@ -173,6 +173,7 @@ public class APIController {
 
         //파일 처리
         if(postDto.getFile() != null) {
+            log.info("사용자 지정 이미지 생성");
             String fileName = postDto.getFile().getName();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
             String userUploadImgName = UUID.randomUUID() + fileNameSubstring;

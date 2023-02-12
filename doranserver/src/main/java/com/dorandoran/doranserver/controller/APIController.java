@@ -423,10 +423,10 @@ public class APIController {
 
             if (post.getSwitchPic() == ImgType.UserUpload) {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("116.44.231.155:8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri("124.60.219.83:8080/api/userpic/" + split[0]);
             }else {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("116.44.231.155:8080/api/background/" + split[0]);
+                builder.backgroundPicUri("124.60.219.83:8080/api/background/" + split[0]);
             }
 
             builder.likeResult(postLikeService.findLikeResult(userEmail, post));

@@ -118,7 +118,6 @@ public class APIController {
 
     }
 
-
     @GetMapping("/background/{picName}")
     ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
 
@@ -174,13 +173,15 @@ public class APIController {
 
         //파일 처리
         if(postDto.getFile() != null) {
-            String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
+            String fileName = postDto.getFile().getName();
+            String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
+            String userUploadImgName = UUID.randomUUID() + fileNameSubstring;
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
                     .builder()
                     .imgName(userUploadImgName)
-                    .serverPath(userUploadPicServerPath)
+                    .serverPath(userUploadPicServerPath+userUploadImgName)
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
             postDto.getFile().transferTo(new File(userUploadPicServerPath+userUploadImgName));
@@ -196,7 +197,6 @@ public class APIController {
         if (postDto.getHashTagName().isEmpty()) {
             Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
-
                 log.info("해시태그 존재");
 
                 HashTag buildHashTag = HashTag.builder()

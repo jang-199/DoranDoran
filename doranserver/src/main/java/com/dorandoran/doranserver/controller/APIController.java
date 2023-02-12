@@ -173,7 +173,7 @@ public class APIController {
         }
 
         //파일 처리
-        if(!(postDto.getFile().isEmpty())) {
+        if(postDto.getFile() != null) {
             String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -183,7 +183,7 @@ public class APIController {
                     .serverPath(userUploadPicServerPath)
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
-            postDto.getFile().transferTo(new File(userUploadPicServerPath));
+            postDto.getFile().transferTo(new File(userUploadPicServerPath+userUploadImgName));
         }
         else {
             post.setSwitchPic(ImgType.DefaultBackground);
@@ -193,7 +193,7 @@ public class APIController {
         postService.savePost(post);
 
         //HashTag 테이블 생성
-        if (!postDto.getHashTagName().isEmpty()) {
+        if (postDto.getHashTagName().isEmpty()) {
             Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
 

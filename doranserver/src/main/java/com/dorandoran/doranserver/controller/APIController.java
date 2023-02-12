@@ -173,7 +173,7 @@ public class APIController {
         }
 
         //파일 처리
-        if(postDto.getFile() != null) {
+        if(!(postDto.getFile().isEmpty())) {
             String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);

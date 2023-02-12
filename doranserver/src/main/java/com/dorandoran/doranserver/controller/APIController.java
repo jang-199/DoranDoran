@@ -176,13 +176,16 @@ public class APIController {
 
         //파일 처리
         if(postDto.getFile() != null) {
-            String userUploadImgName = UUID.randomUUID().toString() + ".jpg";
+            log.info("사용자 지정 이미지 생성");
+            String fileName = postDto.getFile().getName();
+            String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
+            String userUploadImgName = UUID.randomUUID() + fileNameSubstring;
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
                     .builder()
                     .imgName(userUploadImgName)
-                    .serverPath(userUploadPicServerPath)
+                    .serverPath(userUploadPicServerPath+userUploadImgName)
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
             postDto.getFile().transferTo(new File(userUploadPicServerPath+userUploadImgName));

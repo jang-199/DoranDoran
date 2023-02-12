@@ -37,6 +37,8 @@ public class APIController {
     String backgroundPicServerPath;
     @Value("${background.cnt}")
     Integer backgroundPicCnt;
+    @Value("{doran.ip.address}")
+    String ipAddress;
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final BackGroundPicServiceImpl backGroundPicService;
@@ -423,10 +425,10 @@ public class APIController {
 
             if (post.getSwitchPic() == ImgType.UserUpload) {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("124.60.219.83:8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri(ipAddress+":8080/api/userpic/" + split[0]);
             }else {
                 String[] split = post.getImgName().split("[.]");
-                builder.backgroundPicUri("124.60.219.83:8080/api/background/" + split[0]);
+                builder.backgroundPicUri(ipAddress+":8080/api/background/" + split[0]);
             }
 
             builder.likeResult(postLikeService.findLikeResult(userEmail, post));

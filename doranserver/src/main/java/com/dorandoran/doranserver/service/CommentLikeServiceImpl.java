@@ -26,7 +26,7 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     }
 
     @Override
-    public Optional<List<CommentLike>> findByCommentId(Comment comment) {
+    public List<CommentLike> findByCommentId(Comment comment) {
         return commentLikeRepository.findByCommentId(comment);
     }
 

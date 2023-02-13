@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface CommentLikeService {
     public Integer findCommentLikeCnt(Long commentId);
     public List<CommentLike> findCommentLikeListByCommentId(Long commentId);
-    public Optional<List<CommentLike>> findByCommentId(Comment comment);
+    public List<CommentLike> findByCommentId(Comment comment);
     public void saveCommentLike(CommentLike commentLike);
     public void deleteCommentLike(CommentLike commentLike);
 }

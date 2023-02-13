@@ -298,10 +298,10 @@ public class APIController {
         }
 
         //댓글 builder
-        Optional<List<Comment>> commentList = commentService.findCommentByPost(post.get());
+        List<Comment> commentList = commentService.findCommentByPost(post.get());
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
-        if (commentList.isPresent()) {
-            for (Comment comment : commentList.get()) {
+        if (commentList.size() != 0) {
+            for (Comment comment : commentList) {
                 CommentDetailDto build = CommentDetailDto.builder()
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
@@ -365,9 +365,9 @@ public class APIController {
                 .memberId(member.get())
                 .build();
 
-        Optional<List<CommentLike>> commentLikeList = commentLikeService.findByCommentId(comment.get());
-        if (commentLikeList.isPresent()) {
-            for (CommentLike commentLike : commentLikeList.get()) {
+        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
+        if (commentLikeList.size() != 0) {
+            for (CommentLike commentLike : commentLikeList) {
                 if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
                     commentLikeService.deleteCommentLike(commentLike);
                     log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId().getCommentId());

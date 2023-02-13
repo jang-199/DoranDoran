@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.repository;
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.CommentLike;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;

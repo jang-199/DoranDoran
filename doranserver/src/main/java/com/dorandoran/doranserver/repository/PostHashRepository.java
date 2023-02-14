@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostHashRepository extends JpaRepository<PostHash,Long> {
-    Optional<List<PostHash>> findPostHashByPostId(Long postId);
+    List<PostHash> findPostHashByPostId(Long postId);
 }

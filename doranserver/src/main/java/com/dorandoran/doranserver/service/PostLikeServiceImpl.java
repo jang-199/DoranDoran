@@ -38,15 +38,19 @@ public class PostLikeServiceImpl implements PostLikeService {
         }
     }
 
-
     @Override
-    public Optional<List<PostLike>> findByMemberId(String email) {
+    public List<PostLike> findByMemberId(String email) {
         return postLikeRepository.findByMemberId_Email(email);
     }
 
     @Override
     public void deletePostLike(PostLike postLike) {
         postLikeRepository.delete(postLike);
+    }
+
+    @Override
+    public List<PostLike> findByPost(Post post) {
+        return postLikeRepository.findByPostId(post);
     }
 
 }

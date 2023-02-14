@@ -22,6 +22,9 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -240,6 +243,60 @@ public class APIController {
 
 
     /**
+     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 글 삭제
+     * @param postDeleteDto Long postId, String userEmail
+     * @return Ok
+     */
+    @PostMapping("/post-delete")
+    public ResponseEntity<?> postDelete(@RequestBody PostDeleteDto postDeleteDto) throws IOException {
+        Optional<Post> post = postService.findSinglePost(postDeleteDto.getPostId());
+        List<Comment> commentList = commentService.findCommentByPost(post.get());
+
+        if (post.get().getMemberId().getEmail().equals(postDeleteDto.getUserEmail())) {
+            //댓글 삭제
+            if (commentList.size() != 0) {
+                log.info("글 삭제 전 댓글 삭제");
+                for (Comment comments : commentList) {
+                    Optional<Comment> comment = commentService.findCommentByCommentId(comments.getCommentId());
+                    List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
+                    List<Reply> replyList = replyService.findReplyList(comment.get());
+                    commentDelete(comment, commentLikeList, replyList);
+                }
+            }
+
+            //글 공감 삭제
+            List<PostLike> postLikeList = postLikeService.findByPost(post.get());
+            if (postLikeList.size() != 0) {
+                log.info("글 삭제 전 글 공감 삭제 로직 실행");
+                for (PostLike postLike : postLikeList) {
+                    postLikeService.deletePostLike(postLike);
+                }
+            }
+
+            //해시태그 삭제
+            List<PostHash> postHashList = postHashService.findPostHash(postDeleteDto.getPostId());
+            if (postHashList.size() != 0) {
+                log.info("글 삭제 전 해시태그 삭제 로직 실행");
+                for (PostHash postHash : postHashList) {
+                    postHashService.deletePostHash(postHash);
+                }
+            }
+
+            //사용자 이미지 삭제 (imageName은 이미지 이름)
+            if (post.get().getSwitchPic().equals(ImgType.UserUpload)) {
+                Path path = Paths.get(userUploadPicServerPath + post.get().getImgName());
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException e) {
+                    log.info("사진이 사용중입니다.");
+                }
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
      *
      * @param postLikeDto String email, Long postId
      * {"email" : "사용자 ID", "postId" : 글ID}
@@ -249,9 +306,9 @@ public class APIController {
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
-        Optional<List<PostLike>> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
-        if (byMemberId.isPresent()) {
-            for (PostLike postLike : byMemberId.get()) {
+        List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
+        if (byMemberId.size() != 0) {
+            for (PostLike postLike : byMemberId) {
                 if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
                     postLikeService.deletePostLike(postLike);
                     log.info("{} 글의 공감 취소", postLikeDto.getPostId());
@@ -320,9 +377,9 @@ public class APIController {
 
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
-        Optional<List<PostHash>> postHashList = postHashService.findPostHash(postId);
-        if (postHashList.isPresent()){
-            for (PostHash postHash : postHashList.get()) {
+        List<PostHash> postHashList = postHashService.findPostHash(postId);
+        if (postHashList.size() != 0){
+            for (PostHash postHash : postHashList) {
                 String hashTagName = postHash.getHashTagId().getHashTagName();
                 postHashListDto.add(hashTagName);
             }
@@ -353,6 +410,46 @@ public class APIController {
                 .build();
         commentService.saveComment(comment);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     * 대댓글 삭제 -> 댓글 공감 삭제 -> 댓글 삭제
+     * 삭제하려는 사용자 email과 작성한 댓글의 사용자 email이 다를 경우 bad request
+     * @param commentDeleteDto
+     * @return
+     */
+    @PostMapping("/comment-delete")
+    public ResponseEntity<?> deleteComment(@RequestBody CommentDeleteDto commentDeleteDto){
+        Optional<Comment> comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
+        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
+        List<Reply> replyList = replyService.findReplyList(comment.get());
+        if (comment.get().getMemberId().getEmail().equals(commentDeleteDto.getUserEmail())) {
+            //대댓글 삭제
+            commentDelete(comment, commentLikeList, replyList);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private void commentDelete(Optional<Comment> comment, List<CommentLike> commentLikeList, List<Reply> replyList) {
+        if (replyList.size() != 0) {
+            for (Reply reply : replyList) {
+                replyService.deleteReply(reply);
+                log.info("{}님의 대댓글 삭제", reply.getMemberId().getNickname());
+            }
+        }
+        //댓글 공감 삭제
+        if (commentLikeList.size() != 0) {
+            for (CommentLike commentLike : commentLikeList) {
+                commentLikeService.deleteCommentLike(commentLike);
+                log.info("{}님의 댓글 공감 삭제", commentLike.getMemberId().getNickname());
+            }
+        }
+        //댓글 삭제
+        commentService.deleteComment(comment.get());
     }
 
     @PostMapping("/comment-like")

@@ -12,4 +12,5 @@ public interface CommentService {
     public Integer findCommentAndReplyCntByPostId(Post post);
     public List<Comment> findCommentByPost(Post post);
     public Optional<Comment> findCommentByCommentId(Long commentId);
+    public void deleteComment(Comment comment);
 }

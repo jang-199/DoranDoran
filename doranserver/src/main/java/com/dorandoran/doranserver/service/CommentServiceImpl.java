@@ -43,4 +43,9 @@ public class CommentServiceImpl implements CommentService{
     public Optional<Comment> findCommentByCommentId(Long commentId) {
         return commentRepository.findById(commentId);
     }
+
+    @Override
+    public void deleteComment(Comment comment) {
+        commentRepository.delete(comment);
+    }
 }

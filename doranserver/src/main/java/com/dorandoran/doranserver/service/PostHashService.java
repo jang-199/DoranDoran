@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface PostHashService {
     public void savePostHash(PostHash postHash);
-    Optional<List<PostHash>> findPostHash(Long postId);
+    List<PostHash> findPostHash(Long postId);
+    public void deletePostHash(PostHash postHash);
 }

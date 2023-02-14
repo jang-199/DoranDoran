@@ -19,6 +19,6 @@ public class PopularPost {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "POST_LIKE_ID")
-    private PostLike postLikeId;
+    @JoinColumn(name = "POST_ID")
+    private Post postId;
 }

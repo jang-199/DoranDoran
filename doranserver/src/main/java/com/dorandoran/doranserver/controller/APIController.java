@@ -38,7 +38,7 @@ public class APIController {
     String backgroundPicServerPath;
     @Value("${background.cnt}")
     Integer backgroundPicCnt;
-    @Value("{doran.ip.address}")
+    @Value("${doran.ip.address}")
     String ipAddress;
     private final SignUpImpl signUp;
     private final PolicyTermsCheckImpl policyTermsCheck;
@@ -155,7 +155,7 @@ public class APIController {
     }
 
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto postDto) throws IOException {
+    ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
 
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
@@ -455,16 +455,23 @@ public class APIController {
         }
     }
 
-    @PostMapping("/post/popular")
+    @GetMapping("/post/popular")
     ResponseEntity<?> inquirePopularPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location){
+        log.info("{}",userEmail);
+        log.info("{}",postCnt);
+        log.info("{}",location);
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
         if (postCnt == 0) { //first find
+            log.info("조건문0");
             List<PopularPost> firstPost = popularPostService.findFirstPopularPost();
+            log.info("{}",firstPost.size());
             return makePopularPostResponseList(userEmail, postResponseDtoList, builder, firstPost, location);
         } else {
+            log.info("조건문 else");
             List<PopularPost> postList = popularPostService.findPopularPost(postCnt);
+            log.info("{}",postList.size());
             return makePopularPostResponseList(userEmail, postResponseDtoList, builder, postList, location);
         }
     }
@@ -511,6 +518,7 @@ public class APIController {
 
             builder.likeResult(postLikeService.findLikeResult(userEmail, popularPost.getPostId()));
             postResponseDtoList.add(builder.build());
+            log.info("size: {}",postResponseDtoList.size());
         }
         return ResponseEntity.ok().body(postResponseDtoList);
     }

@@ -24,4 +24,9 @@ public class ReplyServiceImpl implements ReplyService{
     public List<Reply> findReplyList(Comment comment) {
         return replyRepository.findReplyCntByComment(comment);
     }
+
+    @Override
+    public void deleteReply(Reply reply) {
+        replyRepository.delete(reply);
+    }
 }

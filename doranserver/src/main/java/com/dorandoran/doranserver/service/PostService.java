@@ -12,4 +12,5 @@ public interface PostService {
 
     public List<Post> findPost(Long startPost);
     public Optional<Post> findSinglePost(Long postId);
+    public void deletePost(Post post);
 }

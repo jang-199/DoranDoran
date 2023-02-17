@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.PopularPost;
+import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PopularPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,5 +28,15 @@ public class PopularPostServiceImpl implements PopularPostService{
     @Override
     public void savePopularPost(PopularPost popularPost) {
         popularPostRepository.save(popularPost);
+    }
+
+    @Override
+    public List<PopularPost> findPopularPostByPost(Post post) {
+        return popularPostRepository.findByPostId(post);
+    }
+
+    @Override
+    public void deletePopularPost(PopularPost popularPost) {
+        popularPostRepository.delete(popularPost);
     }
 }

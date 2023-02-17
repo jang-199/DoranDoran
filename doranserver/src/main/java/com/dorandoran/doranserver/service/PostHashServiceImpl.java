@@ -23,8 +23,8 @@ public class PostHashServiceImpl implements PostHashService{
     }
 
     @Override
-    public List<PostHash> findPostHash(Long postId) {
-        return postHashRepository.findPostHashByPostId(postId);
+    public List<PostHash> findPostHash(Post post) {
+        return postHashRepository.findPostHashByPostId(post);
     }
 
     @Override

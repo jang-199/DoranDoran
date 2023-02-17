@@ -158,7 +158,7 @@ public class APIController {
     }
 
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto postDto) throws IOException {
+    ResponseEntity<?> Post(@RequestBody PostDto postDto) throws IOException {
 
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
@@ -181,9 +181,10 @@ public class APIController {
         //파일 처리
         if (postDto.getFile() != null) {
             log.info("사용자 지정 이미지 생성");
-            String fileName = postDto.getFile().getName();
+            String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
-            String userUploadImgName = UUID.randomUUID() + fileNameSubstring;
+            log.info("이미지 이름 : {}",fileNameSubstring);
+            String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
@@ -201,7 +202,7 @@ public class APIController {
         postService.savePost(post);
 
         //HashTag 테이블 생성
-        if (postDto.getHashTagName().isEmpty()) {
+        if (postDto.getHashTagName() != null) {
             Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
 
@@ -243,7 +244,8 @@ public class APIController {
 
 
     /**
-     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 글 삭제
+     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 인기있는 글 삭제 ->글 삭제
+     * 삭제하려는 사용자가 본인 글이 아닐 경우 bad request
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
      */
@@ -274,7 +276,7 @@ public class APIController {
             }
 
             //해시태그 삭제
-            List<PostHash> postHashList = postHashService.findPostHash(postDeleteDto.getPostId());
+            List<PostHash> postHashList = postHashService.findPostHash(post.get());
             if (postHashList.size() != 0) {
                 log.info("글 삭제 전 해시태그 삭제 로직 실행");
                 for (PostHash postHash : postHashList) {
@@ -282,15 +284,35 @@ public class APIController {
                 }
             }
 
+            //인기있는 글 삭제
+            List<PopularPost> popularPostList = popularPostService.findPopularPostByPost(post.get());
+            if (popularPostList.size() != 0){
+                log.info("글 삭제 전 인기있는 글 삭제 로직 실행");
+                for (PopularPost popularPost : popularPostList) {
+                    popularPostService.deletePopularPost(popularPost);
+                }
+            }
+
             //사용자 이미지 삭제 (imageName은 이미지 이름)
             if (post.get().getSwitchPic().equals(ImgType.UserUpload)) {
-                Path path = Paths.get(userUploadPicServerPath + post.get().getImgName());
+                //window전용
+                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
+
+                /*리눅스 되나..?
+                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.get().getImgName());*/
+
+                log.info("path : {}",path);
                 try {
                     Files.deleteIfExists(path);
                 } catch (IOException e) {
                     log.info("사진이 사용중입니다.");
                 }
             }
+
+            postService.deletePost(post.get());
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -375,7 +397,7 @@ public class APIController {
 
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
-        List<PostHash> postHashList = postHashService.findPostHash(postId);
+        List<PostHash> postHashList = postHashService.findPostHash(post.get());
         if (postHashList.size() != 0){
             for (PostHash postHash : postHashList) {
                 String hashTagName = postHash.getHashTagId().getHashTagName();

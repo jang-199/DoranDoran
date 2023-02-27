@@ -211,21 +211,20 @@ public class PostController {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
-        if (byMemberId.size() != 0) {
-            for (PostLike postLike : byMemberId) {
-                if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
-                    postLikeService.deletePostLike(postLike);
-                    log.info("{} 글의 공감 취소", postLikeDto.getPostId());
-                    return new ResponseEntity<>(HttpStatus.OK);
-                }
+        for (PostLike postLike : byMemberId) {
+            if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
+                postLikeService.deletePostLike(postLike);
+                log.info("{} 글의 공감 취소", postLikeDto.getPostId());
+                return new ResponseEntity<>(HttpStatus.OK);
             }
-        } else {
-            PostLike postLike = PostLike.builder()
-                    .postId(post.get())
-                    .memberId(byEmail.get())
-                    .build();
-            postLikeService.savePostLike(postLike);
         }
+        log.info("{}번 글 좋아요", postLikeDto.getPostId());
+        PostLike postLike = PostLike.builder()
+                .postId(post.get())
+                .memberId(byEmail.get())
+                .build();
+        postLikeService.savePostLike(postLike);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

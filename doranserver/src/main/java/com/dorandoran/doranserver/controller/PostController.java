@@ -244,7 +244,7 @@ public class PostController {
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (postRequestDetailDto.getLocation().isBlank()) {
+        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLocation().isBlank()) {
             log.info("location test : {}", post.get().getLocation());
             postDetailDto.setLocation(null);
         } else {

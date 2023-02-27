@@ -1,9 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostDeleteDto;
-import com.dorandoran.doranserver.dto.PostDetailDto;
-import com.dorandoran.doranserver.dto.PostDto;
-import com.dorandoran.doranserver.dto.PostLikeDto;
+import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.commentdetail.CommentDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -233,24 +230,25 @@ public class PostController {
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
-    @GetMapping("/post/detail")
-    ResponseEntity<?> postDetails(@RequestParam Long postId, @RequestParam String userEmail, @RequestParam String location) {
-        Optional<Post> post = postService.findSinglePost(postId);
+    @PostMapping("/post/detail")
+    ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
+        Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
 
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
                 .content(post.get().getContent())
                 .postTime(post.get().getPostTime())
                 .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
-                .postLikeResult(postLikeService.findLikeResult(userEmail, post.get()))
+                .postLikeResult(postLikeService.findLikeResult(postRequestDetailDto.getUserEmail(), post.get()))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (Objects.equals(post.get().getLocation(), "")) {
+        if (post.get().getLocation().isBlank()) {
+            log.info("location test : {}", post.get().getLocation());
             postDetailDto.setLocation(null);
         } else {
-            String[] userLocation = location.split(",");
+            String[] userLocation = postRequestDetailDto.getLocation().split(",");
             String[] postLocation = post.get().getLocation().split(",");
             Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                     Double.parseDouble(userLocation[1]),
@@ -272,7 +270,7 @@ public class PostController {
                         .commentLikeResult(Boolean.FALSE)
                         .build();
                 for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment.getCommentId())) {
-                    if (commentLike.getMemberId().getEmail().equals(userEmail))
+                    if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                         build.setCommentLikeResult(Boolean.TRUE);
                 }
                 commentDetailDtoList.add(build);

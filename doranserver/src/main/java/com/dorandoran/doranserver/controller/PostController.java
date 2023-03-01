@@ -46,11 +46,9 @@ public class PostController {
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) throws IOException {
-
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
         log.info("postDto : {}", postDto);
-        log.info("{}의 글 생성", memberEmail.get().getNickname());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
@@ -59,11 +57,14 @@ public class PostController {
                 .build();
 
         //location null 처리
-//        if (postDto.getLocation() == null) {
-//            post.setLocation("");
-//        } else {
-//            post.setLocation(postDto.getLocation());
-//        }
+        if (postDto.getLocation().isBlank()) {
+            post.setLatitude("");
+            post.setLongitude("");
+        } else {
+            String[] userLocation = postDto.getLocation().split(",");
+            post.setLatitude(userLocation[0]);
+            post.setLongitude(userLocation[1]);
+        }
 
         //파일 처리
         if (postDto.getFile() != null) {
@@ -86,6 +87,7 @@ public class PostController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
+        log.info("{}의 글 생성", memberEmail.get().getNickname());
         postService.savePost(post);
 
         //HashTag 테이블 생성
@@ -243,18 +245,16 @@ public class PostController {
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-//        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLocation().isBlank()) {
-//            log.info("location test : {}", post.get().getLocation());
-//            postDetailDto.setLocation(null);
-//        } else {
-//            String[] userLocation = postRequestDetailDto.getLocation().split(",");
-//            String[] postLocation = post.get().getLocation().split(",");
-//            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-//                    Double.parseDouble(userLocation[1]),
-//                    Double.parseDouble(postLocation[0]),
-//                    Double.parseDouble(postLocation[1]));
-//            postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
-//        }
+        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude().isBlank() || post.get().getLongitude().isBlank()) {
+            postDetailDto.setLocation(null);
+        } else {
+            String[] userLocation = postRequestDetailDto.getLocation().split(",");
+            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+                    Double.parseDouble(userLocation[1]),
+                    Double.parseDouble(post.get().getLatitude()),
+                    Double.parseDouble(post.get().getLongitude()));
+            postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
+        }
 
         //댓글 builder
         List<Comment> commentList = commentService.findCommentByPost(post.get());

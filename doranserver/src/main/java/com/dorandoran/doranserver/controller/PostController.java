@@ -59,11 +59,11 @@ public class PostController {
                 .build();
 
         //location null 처리
-        if (postDto.getLocation() == null) {
-            post.setLocation("");
-        } else {
-            post.setLocation(postDto.getLocation());
-        }
+//        if (postDto.getLocation() == null) {
+//            post.setLocation("");
+//        } else {
+//            post.setLocation(postDto.getLocation());
+//        }
 
         //파일 처리
         if (postDto.getFile() != null) {
@@ -243,18 +243,18 @@ public class PostController {
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLocation().isBlank()) {
-            log.info("location test : {}", post.get().getLocation());
-            postDetailDto.setLocation(null);
-        } else {
-            String[] userLocation = postRequestDetailDto.getLocation().split(",");
-            String[] postLocation = post.get().getLocation().split(",");
-            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-                    Double.parseDouble(userLocation[1]),
-                    Double.parseDouble(postLocation[0]),
-                    Double.parseDouble(postLocation[1]));
-            postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
-        }
+//        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLocation().isBlank()) {
+//            log.info("location test : {}", post.get().getLocation());
+//            postDetailDto.setLocation(null);
+//        } else {
+//            String[] userLocation = postRequestDetailDto.getLocation().split(",");
+//            String[] postLocation = post.get().getLocation().split(",");
+//            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+//                    Double.parseDouble(userLocation[1]),
+//                    Double.parseDouble(postLocation[0]),
+//                    Double.parseDouble(postLocation[1]));
+//            postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
+//        }
 
         //댓글 builder
         List<Comment> commentList = commentService.findCommentByPost(post.get());

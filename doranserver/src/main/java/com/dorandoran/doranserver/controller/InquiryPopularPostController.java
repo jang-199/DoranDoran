@@ -27,7 +27,7 @@ import java.util.List;
 @Controller
 public class InquiryPopularPostController {
 
-    @Value("${doran.ip.address}")
+/*    @Value("${doran.ip.address}")
     String ipAddress;
     private final PopularPostServiceImpl popularPostService;
     private final PostLikeServiceImpl postLikeService;
@@ -100,5 +100,5 @@ public class InquiryPopularPostController {
             log.info("size: {}",postResponseDtoList.size());
         }
         return ResponseEntity.ok().body(postResponseDtoList);
-    }
+    }*/
 }

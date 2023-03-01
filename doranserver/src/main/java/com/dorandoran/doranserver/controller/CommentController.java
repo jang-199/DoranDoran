@@ -79,21 +79,19 @@ public class CommentController {
     ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Optional<Member> member = memberService.findByEmail(commentLikeDto.getUserEmail());
+
+        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
+        for (CommentLike commentLike : commentLikeList) {
+            if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
+                commentLikeService.deleteCommentLike(commentLike);
+                log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId().getCommentId());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        }
         CommentLike commentLikeBuild = CommentLike.builder()
                 .commentId(comment.get())
                 .memberId(member.get())
                 .build();
-
-        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
-        if (commentLikeList.size() != 0) {
-            for (CommentLike commentLike : commentLikeList) {
-                if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
-                    commentLikeService.deleteCommentLike(commentLike);
-                    log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId().getCommentId());
-                    return new ResponseEntity<>(HttpStatus.OK);
-                }
-            }
-        }
         commentLikeService.saveCommentLike(commentLikeBuild);
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
 

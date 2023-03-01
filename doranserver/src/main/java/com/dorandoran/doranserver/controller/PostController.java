@@ -1,9 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostDeleteDto;
-import com.dorandoran.doranserver.dto.PostDetailDto;
-import com.dorandoran.doranserver.dto.PostDto;
-import com.dorandoran.doranserver.dto.PostLikeDto;
+import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.commentdetail.CommentDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -49,11 +46,9 @@ public class PostController {
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) throws IOException {
-
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
 
         log.info("postDto : {}", postDto);
-        log.info("{}의 글 생성", memberEmail.get().getNickname());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
@@ -62,10 +57,13 @@ public class PostController {
                 .build();
 
         //location null 처리
-        if (postDto.getLocation() == null) {
-            post.setLocation("");
+        if (postDto.getLocation().isBlank()) {
+            post.setLatitude("");
+            post.setLongitude("");
         } else {
-            post.setLocation(postDto.getLocation());
+            String[] userLocation = postDto.getLocation().split(",");
+            post.setLatitude(userLocation[0]);
+            post.setLongitude(userLocation[1]);
         }
 
         //파일 처리
@@ -89,6 +87,7 @@ public class PostController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
+        log.info("{}의 글 생성", memberEmail.get().getNickname());
         postService.savePost(post);
 
         //HashTag 테이블 생성
@@ -214,48 +213,46 @@ public class PostController {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
-        if (byMemberId.size() != 0) {
-            for (PostLike postLike : byMemberId) {
-                if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
-                    postLikeService.deletePostLike(postLike);
-                    log.info("{} 글의 공감 취소", postLikeDto.getPostId());
-                    return new ResponseEntity<>(HttpStatus.OK);
-                }
+        for (PostLike postLike : byMemberId) {
+            if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
+                postLikeService.deletePostLike(postLike);
+                log.info("{} 글의 공감 취소", postLikeDto.getPostId());
+                return new ResponseEntity<>(HttpStatus.OK);
             }
-        } else {
-            PostLike postLike = PostLike.builder()
-                    .postId(post.get())
-                    .memberId(byEmail.get())
-                    .build();
-            postLikeService.savePostLike(postLike);
         }
+        log.info("{}번 글 좋아요", postLikeDto.getPostId());
+        PostLike postLike = PostLike.builder()
+                .postId(post.get())
+                .memberId(byEmail.get())
+                .build();
+        postLikeService.savePostLike(postLike);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
-    @GetMapping("/post/detail")
-    ResponseEntity<?> postDetails(@RequestParam Long postId, @RequestParam String userEmail, @RequestParam String location) {
-        Optional<Post> post = postService.findSinglePost(postId);
+    @PostMapping("/post/detail")
+    ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
+        Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
 
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
                 .content(post.get().getContent())
                 .postTime(post.get().getPostTime())
                 .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
-                .postLikeResult(postLikeService.findLikeResult(userEmail, post.get()))
+                .postLikeResult(postLikeService.findLikeResult(postRequestDetailDto.getUserEmail(), post.get()))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (Objects.equals(post.get().getLocation(), "")) {
+        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude().isBlank() || post.get().getLongitude().isBlank()) {
             postDetailDto.setLocation(null);
         } else {
-            String[] userLocation = location.split(",");
-            String[] postLocation = post.get().getLocation().split(",");
+            String[] userLocation = postRequestDetailDto.getLocation().split(",");
             Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                     Double.parseDouble(userLocation[1]),
-                    Double.parseDouble(postLocation[0]),
-                    Double.parseDouble(postLocation[1]));
+                    Double.parseDouble(post.get().getLatitude()),
+                    Double.parseDouble(post.get().getLongitude()));
             postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
         }
 
@@ -272,7 +269,7 @@ public class PostController {
                         .commentLikeResult(Boolean.FALSE)
                         .build();
                 for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment.getCommentId())) {
-                    if (commentLike.getMemberId().getEmail().equals(userEmail))
+                    if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                         build.setCommentLikeResult(Boolean.TRUE);
                 }
                 commentDetailDtoList.add(build);

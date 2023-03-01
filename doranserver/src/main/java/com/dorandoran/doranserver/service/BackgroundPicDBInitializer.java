@@ -84,7 +84,7 @@ public class BackgroundPicDBInitializer {
 //
 //    }
 
-    @PostConstruct
+   /* @PostConstruct
     public void testData(){
         UserUploadPic build8 = UserUploadPic.builder().imgName("6.jpg").serverPath(serverPath + "6.jpg").build();
         userUploadPicService.saveUserUploadPic(build8);
@@ -232,6 +232,6 @@ public class BackgroundPicDBInitializer {
             }
 
         }
-    }
+    }*/
 }
 

@@ -39,4 +39,18 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Post post) {
         postRepository.delete(post);
     }
+
+    @Override
+    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postRepository.findClosePost(Slatitude,Llatitude, Slongitude, Llongitude,of);
+    }
+
+    @Override
+    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost) {
+        PageRequest of = PageRequest.of(0, 20);
+
+    }
+
+
 }

@@ -11,10 +11,14 @@ import java.util.Optional;
 
 import java.util.Optional;
 
-public interface PostRepository extends JpaRepository<Post,Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select m from Post m where m.forMe = false order by m.postId desc")
     List<Post> findFirstPost(PageRequest pageRequest);
 
     @Query(value = "select m from Post m where m.postId <= :pos  and m.forMe = false order by m.postId desc ")
-    List<Post> findPost(@Param("pos") Long pos,PageRequest pageRequest);
+    List<Post> findPost(@Param("pos") Long pos, PageRequest pageRequest);
+
+    @Query(value = "select m from Post m where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon")
+    List<Post> findClosePost(@Param("Slat") Double Slat,@Param("Llat") Double Llat,@Param("Slon") Double Slon,@Param("Llon") Double Llon,PageRequest pageRequest);
+
 }

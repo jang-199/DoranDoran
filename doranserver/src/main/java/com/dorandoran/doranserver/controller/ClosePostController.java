@@ -34,39 +34,39 @@ public class ClosePostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
-//    @GetMapping("/post/close")
-//    ResponseEntity<?> inquiryPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location) {
-//        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
-//        String[] split = location.split(",");
-//        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
-//        if (postCnt == 0) {
-//            List<Post> firstPost = postService.findFirstPost();
-//            firstPost.iterator().forEachRemaining(e->{
-//                Integer lIkeCnt = postLikeService.findLIkeCnt(e);
-//
-//                Boolean likeResult = postLikeService.findLikeResult(userEmail, e);
-//
-//                Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
-//                    String[] split1 = e.getLocation().split(",");
-//                    Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
-//                            Double.parseDouble(split[1]),
-//                            Double.parseDouble(split1[0]),
-//                            Double.parseDouble(split1[1]));
-//                    if (distance <= 10) {
-//                        builder.postId(e.getPostId())
-//                        .contents(e.getContent())
-//                        .postTime(e.getPostTime())
-//                        .location(distance.intValue())
-//                        .likeCnt(lIkeCnt)
-//                        .likeResult(likeResult)
-//                        .ReplyCnt(commentAndReplyCntByPostId);
-//                        postResponseDtoList.add()
-//                    }
-//            });
-//        }else {
-//            List<Post> postList = postService.findPost(postCnt);
-//        }
-//    }
+    @GetMapping("/post/close")
+    ResponseEntity<?> inquiryPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location) {
+        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        String[] split = location.split(",");
+        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
+        if (postCnt == 0) {
+            List<Post> firstPost = postService.findFirstPost();
+            firstPost.iterator().forEachRemaining(e->{
+                Integer lIkeCnt = postLikeService.findLIkeCnt(e);
+
+                Boolean likeResult = postLikeService.findLikeResult(userEmail, e);
+
+                Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
+
+                    Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
+                            Double.parseDouble(split[1]),
+                            Double.parseDouble(e.getLatitude()),
+                            Double.parseDouble(e.getLongitude()));
+                    if (distance <= 10) {
+                        builder.postId(e.getPostId())
+                        .contents(e.getContent())
+                        .postTime(e.getPostTime())
+                        .location(distance.intValue())
+                        .likeCnt(lIkeCnt)
+                        .likeResult(likeResult)
+                        .ReplyCnt(commentAndReplyCntByPostId);
+                        postResponseDtoList.add()
+                    }
+            });
+        }else {
+            List<Post> postList = postService.findPost(postCnt);
+        }
+    }
 
 //    @GetMapping("/post/close")
 //    ResponseEntity<?> inquiryPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location) {

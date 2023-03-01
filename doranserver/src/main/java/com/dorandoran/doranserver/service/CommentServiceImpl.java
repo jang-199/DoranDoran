@@ -21,7 +21,6 @@ public class CommentServiceImpl implements CommentService {
     private final ReplyRepository replyRepository;
     private final ReplyServiceImpl replyService;
     private final CommentLikeServiceImpl commentLikeService;
-    private final CommentServiceImpl commentService;
 
     @Override
     public void saveComment(Comment comment) {
@@ -71,6 +70,6 @@ public class CommentServiceImpl implements CommentService {
             }
         }
         //댓글 삭제
-        commentService.deleteComment(comment.get());
+        deleteComment(comment.get());
     }
 }

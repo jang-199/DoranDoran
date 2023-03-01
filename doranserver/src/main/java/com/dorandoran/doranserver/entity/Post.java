@@ -31,14 +31,18 @@ public class Post {
     private Boolean forMe;
 
     @Nullable
-    @Column(name = "LOCATION")
-    private String location;
+    @Column(name = "LATITUDE")
+    private String latitude;
+
+    @Nullable
+    @Column(name = "LONGITUDE")
+    private String longitude;
 
     @NotNull
     @Column(name = "POST_TIME")
     private LocalDateTime postTime;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 

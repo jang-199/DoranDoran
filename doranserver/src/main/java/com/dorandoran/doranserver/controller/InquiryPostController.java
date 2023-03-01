@@ -56,7 +56,7 @@ public class InquiryPostController {
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
-            if (location.isBlank() || post.getLocation().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
+            if (location.isBlank() || post.getLongitude().isBlank() || post.getLatitude().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
                         .postId(post.getPostId())
                         .contents(post.getContent())
@@ -65,12 +65,11 @@ public class InquiryPostController {
                         .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = location.split(",");
-                String[] postLocation = post.getLocation().split(",");
 
                 Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                         Double.parseDouble(userLocation[1]),
-                        Double.parseDouble(postLocation[0]),
-                        Double.parseDouble(postLocation[1]));
+                        Double.parseDouble(post.getLatitude()),
+                        Double.parseDouble(post.getLongitude()));
 
                 builder.postId(post.getPostId())
                         .contents(post.getContent())

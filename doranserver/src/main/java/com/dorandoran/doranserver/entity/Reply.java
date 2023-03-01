@@ -29,11 +29,11 @@ public class Reply {
     @Column(name = "COMMENT_LIKE_TIME")
     private LocalDateTime commentLikeTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 }

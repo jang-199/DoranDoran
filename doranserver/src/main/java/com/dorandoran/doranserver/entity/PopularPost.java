@@ -18,7 +18,7 @@ public class PopularPost {
     @Column(name = "POPULAR_POST_ID")
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;
 }

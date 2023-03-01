@@ -18,11 +18,11 @@ public class PostHash {
     @Column(name = "POST_HASH_ID")
     private Long poshHashId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HASH_TAG")
     private HashTag hashTagId;
 }

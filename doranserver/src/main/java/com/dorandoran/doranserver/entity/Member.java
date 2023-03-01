@@ -42,7 +42,7 @@ public class Member {
     @Column(name = "FIREBASE_TOKEN")
     private String firebaseToken;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POLICY_TERMS_ID")
     private PolicyTerms policyTermsId;
 }

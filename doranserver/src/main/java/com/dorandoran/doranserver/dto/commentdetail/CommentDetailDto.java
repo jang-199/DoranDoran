@@ -18,5 +18,5 @@ public class CommentDetailDto {
     String comment; //댓글 내용
     Integer commentLike; //댓글 좋아요 개수
     Boolean commentLikeResult; //댓글 좋아요 유뮤
-    List<Reply> replies; //대댓글
+    List<String> replies; //대댓글
 }

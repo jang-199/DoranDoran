@@ -37,24 +37,26 @@ public class BackgroundPicDBInitializer {
     @Value("${background.Store.path}")
     String serverPath;
 
-//    @PostConstruct
-//    public void init() {
-//
-//        for (int i = 0; i < 100; i++) {
-//            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".png").imgName((i + 1) + ".png").build();
-//            backGroundPicService.saveBackgroundPic(build);
-//        }
-//
-//        for (Long i = 1L; i <= 500L; i++) {
-//            PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
-//            policyTermsCheck.policyTermsSave(build);
-//            Member buildMember = Member.builder().policyTermsId(build)
-//                    .email(i + "@gmail.com")
-//                    .dateOfBirth(LocalDate.now())
-//                    .firebaseToken("firebasetoken")
-//                    .nickname("nickname" + i)
-//                    .signUpDate(LocalDateTime.now()).build();
-//            memberService.saveMember(buildMember);//회원 500명 생성
+    @PostConstruct
+    public void init() {
+
+        for (int i = 0; i < 100; i++) {
+            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".png").imgName((i + 1) + ".png").build();
+            backGroundPicService.saveBackgroundPic(build);
+        }
+
+        for (Long i = 1L; i <= 500L; i++) {
+            PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
+            policyTermsCheck.policyTermsSave(build);
+            Member buildMember = Member.builder().policyTermsId(build)
+                    .email(i + "@gmail.com")
+                    .dateOfBirth(LocalDate.now())
+                    .firebaseToken("firebasetoken")
+                    .nickname("nickname" + i)
+                    .signUpDate(LocalDateTime.now()).build();
+            memberService.saveMember(buildMember);//회원 500명 생성
+        }
+    }
 //
 //            Post post = Post.builder().content("회원" + i + "의 글입니다.")
 //                    .forMe(false)

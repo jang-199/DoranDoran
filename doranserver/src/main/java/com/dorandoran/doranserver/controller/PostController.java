@@ -264,11 +264,11 @@ public class PostController {
                 CommentDetailDto build = CommentDetailDto.builder()
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
-                        .commentLike(commentLikeService.findCommentLikeCnt(comment.getCommentId()))
-                        .replies(replyService.findReplyList(comment))
+                        .commentLike(commentLikeService.findCommentLikeCnt(comment))
+                        .replies(replyService.findReplyContents(comment))
                         .commentLikeResult(Boolean.FALSE)
                         .build();
-                for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment.getCommentId())) {
+                for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment)) {
                     if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                         build.setCommentLikeResult(Boolean.TRUE);
                 }

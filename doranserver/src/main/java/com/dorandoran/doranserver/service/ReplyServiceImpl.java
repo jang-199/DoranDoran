@@ -26,6 +26,11 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
+    public List<String> findReplyContents(Comment comment) {
+        return replyRepository.findReplyContents(comment);
+    }
+
+    @Override
     public void deleteReply(Reply reply) {
         replyRepository.delete(reply);
     }

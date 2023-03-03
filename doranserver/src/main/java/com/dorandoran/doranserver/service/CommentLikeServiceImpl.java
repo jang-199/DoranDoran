@@ -15,14 +15,14 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
-    public Integer findCommentLikeCnt(Long commentId) {
-        List<CommentLike> commentLikeByCommentId = commentLikeRepository.findCommentLikeByCommentId(commentId);
+    public Integer findCommentLikeCnt(Comment comment) {
+        List<CommentLike> commentLikeByCommentId = commentLikeRepository.findCommentLikeByCommentId(comment);
         return commentLikeByCommentId.size();
     }
 
     @Override
-    public List<CommentLike> findCommentLikeListByCommentId(Long commentId) {
-        return commentLikeRepository.findCommentLikeByCommentId(commentId);
+    public List<CommentLike> findCommentLikeListByCommentId(Comment comment) {
+        return commentLikeRepository.findCommentLikeByCommentId(comment);
     }
 
     @Override

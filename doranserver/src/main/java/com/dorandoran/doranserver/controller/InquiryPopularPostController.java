@@ -83,7 +83,11 @@ public class InquiryPopularPostController {
                         .postTime(popularPost.getPostId().getPostTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
                         .ReplyCnt(commentCntByPostId)
-                        .likeCnt(lIkeCnt);
+                        .likeCnt(lIkeCnt)
+                        .font(popularPost.getPostId().getFont())
+                        .fontColor(popularPost.getPostId().getFontColor())
+                        .fontSize(popularPost.getPostId().getFontSize())
+                        .fondBold(popularPost.getPostId().getFontBold());
             }
 
             if (popularPost.getPostId().getSwitchPic() == ImgType.UserUpload) {

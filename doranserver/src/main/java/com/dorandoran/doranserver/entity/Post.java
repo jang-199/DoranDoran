@@ -23,7 +23,7 @@ public class Post {
     private Long postId;
 
     @NotNull
-    @Column(name = "CONTENT")
+    @Column(name = "CONTENT",length = 1000)
     private String content;
 
     @NotNull
@@ -53,4 +53,16 @@ public class Post {
     @NotNull
     @Column(name = "IMG_NAME")
     private String ImgName;
+
+    @Column(name = "FONT")
+    private String font;
+
+    @Column(name = "FONT_COLOR")
+    private String fontColor;
+
+    @Column(name = "FONT_SIZE")
+    private Integer fontSize;
+
+    @Column(name = "FONT_BOLD")
+    private Integer fontBold;
 }

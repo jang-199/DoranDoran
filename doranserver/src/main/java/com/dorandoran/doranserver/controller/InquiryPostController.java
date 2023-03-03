@@ -76,7 +76,11 @@ public class InquiryPostController {
                         .postTime(post.getPostTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
                         .ReplyCnt(commentCntByPostId)
-                        .likeCnt(lIkeCnt);
+                        .likeCnt(lIkeCnt)
+                        .font(post.getFont())
+                        .fontColor(post.getFontColor())
+                        .fontSize(post.getFontSize())
+                        .fondBold(post.getFontBold());
             }
 
             if (post.getSwitchPic() == ImgType.UserUpload) {

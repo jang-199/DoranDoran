@@ -21,6 +21,10 @@ public class PostDetailDto {
     Boolean postLikeResult; //글 좋아요 유무
     Integer commentCnt; // 댓글 개수
     String backgroundPicUri; //배경사진 링크
+    String font;
+    String fontColor;
+    Integer fontSize;
+    Integer fondBold;
     List<CommentDetailDto> commentDetailDto; //댓글
     List<String> postHashes; //글의 해시태그
 }

@@ -54,6 +54,10 @@ public class PostController {
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
                 .memberId(memberEmail.get())
+                .font(postDto.getFont())
+                .fontColor(postDto.getFontColor())
+                .fontSize(postDto.getFontSize())
+                .fontBold(postDto.getFondBold())
                 .build();
 
         //location null 처리
@@ -242,6 +246,10 @@ public class PostController {
                 .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
                 .postLikeResult(postLikeService.findLikeResult(postRequestDetailDto.getUserEmail(), post.get()))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
+                .font(post.get().getFont())
+                .fontColor(post.get().getFontColor())
+                .fontSize(post.get().getFontSize())
+                .fondBold(post.get().getFontBold())
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
@@ -264,11 +272,11 @@ public class PostController {
                 CommentDetailDto build = CommentDetailDto.builder()
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
-                        .commentLike(commentLikeService.findCommentLikeCnt(comment.getCommentId()))
-                        .replies(replyService.findReplyList(comment))
+                        .commentLike(commentLikeService.findCommentLikeCnt(comment))
+                        .replies(replyService.findReplyContents(comment))
                         .commentLikeResult(Boolean.FALSE)
                         .build();
-                for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment.getCommentId())) {
+                for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment)) {
                     if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                         build.setCommentLikeResult(Boolean.TRUE);
                 }

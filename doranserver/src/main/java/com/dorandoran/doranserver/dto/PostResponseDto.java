@@ -21,4 +21,8 @@ public class PostResponseDto {
     Boolean likeResult; //좋아요 유무
     Integer ReplyCnt; // 댓글 개수
     String backgroundPicUri; //배경사진 링크
+    String font;
+    String fontColor;
+    Integer fontSize;
+    Integer fondBold;
 }

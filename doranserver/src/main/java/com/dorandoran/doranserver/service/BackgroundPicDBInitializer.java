@@ -36,61 +36,6 @@ public class BackgroundPicDBInitializer {
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
-
-//    @PostConstruct
-//    public void init() {
-//
-//        for (int i = 0; i < max; i++) {
-//            BackgroundPic build = BackgroundPic.builder().imgName(i+1 + ".jpg")
-//                    .serverPath(serverPath + (i+1) + ".jpg")
-//                    .build();
-//            backGroundPicService.saveBackgroundPic(build);
-//        }
-//
-//
-//
-//        for (int i = 4; i <= 400+4; i++) {
-//
-//            PolicyTerms build1 = PolicyTerms.builder().policy1(true)
-//                    .policy2(true)
-//                    .policy3(true)
-//                    .build();
-//            policyTermsCheck.policyTermsSave(build1);
-//
-//            Member build2 = Member.builder().email(i + "@gmail.com")
-//                    .dateOfBirth(LocalDate.now())
-//                    .nickname("Im" + i)
-//                    .signUpDate(LocalDateTime.now())
-//                    .firebaseToken("token")
-//                    .policyTermsId(build1)
-//                    .build();
-//            memberService.saveMember(build2);
-//
-//            if ((i % 2) != 0) {
-//                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
-//                        .forMe(true)
-//                        .latitude("127.1877412")
-//                        .longitude("127.1877412")
-//                        .memberId(build2)
-//                        .switchPic(ImgType.DefaultBackground)
-//                        .ImgName("6.jpg")
-//                        .build();
-//                postService.savePost(build);
-//            } else {
-//                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
-//                        .forMe(false)
-//                        .latitude("127.1877412")
-//                        .longitude("127.1877412")
-//                        .memberId(build2)
-//                        .switchPic(ImgType.UserUpload)
-//                        .ImgName("6.jpg")
-//                        .build();
-//                postService.savePost(build);
-//            }
-//
-//        }
-//    }
-
     @PostConstruct
     public void init() {
 
@@ -118,6 +63,10 @@ public class BackgroundPicDBInitializer {
                     .memberId(buildMember)
                     .switchPic(ImgType.DefaultBackground)
                     .ImgName((i % 100 + 1) + ".png")
+                    .font("Jua")
+                    .fontColor("black")
+                    .fontSize(48)
+                    .fontBold(900)
                     .build();
             postService.savePost(post); //글 500개 생성
 
@@ -188,6 +137,10 @@ public class BackgroundPicDBInitializer {
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName("6.jpg")
                 .memberId(member1)
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(48)
+                .fontBold(900)
                 .build();
 
         Post post2 = Post.builder().
@@ -200,6 +153,10 @@ public class BackgroundPicDBInitializer {
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName("6.jpg")
                 .memberId(member2)
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(48)
+                .fontBold(900)
                 .build();
 
         Post post3 = Post.builder().
@@ -212,6 +169,10 @@ public class BackgroundPicDBInitializer {
                 .switchPic(ImgType.UserUpload)
                 .ImgName("6.jpg")
                 .memberId(member3)
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(48)
+                .fontBold(900)
                 .build();
         postService.savePost(post1);
         postService.savePost(post2);

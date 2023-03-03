@@ -13,4 +13,8 @@ public interface PostService {
     public List<Post> findPost(Long startPost);
     public Optional<Post> findSinglePost(Long postId);
     public void deletePost(Post post);
+
+    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude);
+
+    public List<Post> findClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,Long startPost);
 }

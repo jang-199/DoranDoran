@@ -34,39 +34,56 @@ public class ClosePostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
-//    @GetMapping("/post/close")
-//    ResponseEntity<?> inquiryPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location) {
-//        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
-//        String[] split = location.split(",");
-//        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
-//        if (postCnt == 0) {
-//            List<Post> firstPost = postService.findFirstPost();
-//            firstPost.iterator().forEachRemaining(e->{
-//                Integer lIkeCnt = postLikeService.findLIkeCnt(e);
-//
-//                Boolean likeResult = postLikeService.findLikeResult(userEmail, e);
-//
-//                Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
-//                    String[] split1 = e.getLocation().split(",");
-//                    Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
-//                            Double.parseDouble(split[1]),
-//                            Double.parseDouble(split1[0]),
-//                            Double.parseDouble(split1[1]));
-//                    if (distance <= 10) {
-//                        builder.postId(e.getPostId())
-//                        .contents(e.getContent())
-//                        .postTime(e.getPostTime())
-//                        .location(distance.intValue())
-//                        .likeCnt(lIkeCnt)
-//                        .likeResult(likeResult)
-//                        .ReplyCnt(commentAndReplyCntByPostId);
-//                        postResponseDtoList.add()
-//                    }
-//            });
-//        }else {
-//            List<Post> postList = postService.findPost(postCnt);
-//        }
-//    }
+    @GetMapping("/post/close")
+    ResponseEntity<?> inquiryPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location) {
+        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        String[] split = location.split(",");
+        double Slat = Double.parseDouble(split[0])-0.1;
+        double Llat = Double.parseDouble(split[0])+0.1;
+        double Slon = Double.parseDouble(split[1])-0.1;
+        double Llon = Double.parseDouble(split[1])+0.1;
+        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
+        if (postCnt == 0) {
+            List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
+            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, firstPost);
+        }else {
+            List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt);
+            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, postList);
+        }
+        return ResponseEntity.ok().body(postResponseDtoList);
+    }
+
+    private void makeClosePostResponseList(String userEmail, ArrayList<PostResponseDto> postResponseDtoList, String[] split, PostResponseDto.PostResponseDtoBuilder builder, List<Post> firstPost) {
+        firstPost.iterator().forEachRemaining(e->{
+            Integer lIkeCnt = postLikeService.findLIkeCnt(e);
+
+            Boolean likeResult = postLikeService.findLikeResult(userEmail, e);
+
+            Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
+
+            Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
+                    Double.parseDouble(split[1]),
+                    Double.parseDouble(e.getLatitude()),
+                    Double.parseDouble(e.getLongitude()));
+
+            builder.postId(e.getPostId())
+                    .contents(e.getContent())
+                    .postTime(e.getPostTime())
+                    .location(distance.intValue())
+                    .likeCnt(lIkeCnt)
+                    .likeResult(likeResult)
+                    .ReplyCnt(commentAndReplyCntByPostId);
+
+            if (e.getSwitchPic() == ImgType.UserUpload) {
+                String[] split1 = e.getImgName().split("[.]");
+                builder.backgroundPicUri(ipAddress + ":8080/api/userpic/" + split1[0]);
+            } else {
+                String[] split1 = e.getImgName().split("[.]");
+                builder.backgroundPicUri(ipAddress + ":8080/api/background/" + split1[0]);
+            }
+            postResponseDtoList.add(builder.build());
+        });
+    }
 
 //    @GetMapping("/post/close")
 //    ResponseEntity<?> inquiryPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location) {

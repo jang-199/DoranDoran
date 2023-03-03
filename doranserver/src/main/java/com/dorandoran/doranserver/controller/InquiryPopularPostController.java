@@ -27,7 +27,7 @@ import java.util.List;
 @Controller
 public class InquiryPopularPostController {
 
-/*    @Value("${doran.ip.address}")
+    @Value("${doran.ip.address}")
     String ipAddress;
     private final PopularPostServiceImpl popularPostService;
     private final PostLikeServiceImpl postLikeService;
@@ -63,7 +63,7 @@ public class InquiryPopularPostController {
         for (PopularPost popularPost : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(popularPost.getPostId());
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(popularPost.getPostId());
-            if (location.isBlank() || popularPost.getPostId().getLocation().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
+            if (location.isBlank() || popularPost.getPostId().getLongitude().isBlank() || popularPost.getPostId().getLatitude().isBlank()) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
                         .postId(popularPost.getPostId().getPostId())
                         .contents(popularPost.getPostId().getContent())
@@ -72,12 +72,11 @@ public class InquiryPopularPostController {
                         .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = location.split(",");
-                String[] postLocation = popularPost.getPostId().getLocation().split(",");
 
                 Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                         Double.parseDouble(userLocation[1]),
-                        Double.parseDouble(postLocation[0]),
-                        Double.parseDouble(postLocation[1]));
+                        Double.parseDouble(popularPost.getPostId().getLatitude()),
+                        Double.parseDouble(popularPost.getPostId().getLongitude()));
 
                 builder.postId(popularPost.getPostId().getPostId())
                         .contents(popularPost.getPostId().getContent())
@@ -100,5 +99,5 @@ public class InquiryPopularPostController {
             log.info("size: {}",postResponseDtoList.size());
         }
         return ResponseEntity.ok().body(postResponseDtoList);
-    }*/
+    }
 }

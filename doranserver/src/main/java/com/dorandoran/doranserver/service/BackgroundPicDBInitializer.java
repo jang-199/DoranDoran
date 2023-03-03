@@ -36,7 +36,6 @@ public class BackgroundPicDBInitializer {
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
-
     @PostConstruct
     public void init() {
 
@@ -55,38 +54,37 @@ public class BackgroundPicDBInitializer {
                     .nickname("nickname" + i)
                     .signUpDate(LocalDateTime.now()).build();
             memberService.saveMember(buildMember);//회원 500명 생성
-        }
-    }
-//
-//            Post post = Post.builder().content("회원" + i + "의 글입니다.")
-//                    .forMe(false)
-//                    .location("37.2326962,127.1877412")
-//                    .postTime(LocalDateTime.now())
-//                    .memberId(buildMember)
-//                    .switchPic(ImgType.DefaultBackground)
-//                    .ImgName((i % 100 + 1) + ".png")
-//                    .build();
-//            postService.savePost(post); //글 500개 생성
-//
-//            for (Long j = i; j >0 ; j--) {
-//                PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
-//                postLikeService.savePostLike(buildPostLike);
-//
-//                Comment comment = Comment.builder()
-//                        .comment("나는" + i + "야 반가워")
-//                        .commentTime(LocalDateTime.now())
-//                        .postId(postService.findSinglePost(j).get())
-//                        .memberId(buildMember).build();
-//                commentService.saveComment(comment);
-//            }
-//            //popular에 데이터 추가하고 테스트 진행
-//
-//        }
-//
-//
-//    }
 
-   /* @PostConstruct
+            Post post = Post.builder().content("회원" + i + "의 글입니다.")
+                    .forMe(false)
+                    .latitude("127.1877412")
+                    .longitude("127.1877412")
+                    .postTime(LocalDateTime.now())
+                    .memberId(buildMember)
+                    .switchPic(ImgType.DefaultBackground)
+                    .ImgName((i % 100 + 1) + ".png")
+                    .build();
+            postService.savePost(post); //글 500개 생성
+
+            for (Long j = i; j >0 ; j--) {
+                PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
+                postLikeService.savePostLike(buildPostLike);
+
+                Comment comment = Comment.builder()
+                        .comment("나는" + i + "야 반가워")
+                        .commentTime(LocalDateTime.now())
+                        .postId(postService.findSinglePost(j).get())
+                        .memberId(buildMember).build();
+                commentService.saveComment(comment);
+            }
+            //popular에 데이터 추가하고 테스트 진행
+
+        }
+
+
+    }
+
+    @PostConstruct
     public void testData(){
         UserUploadPic build8 = UserUploadPic.builder().imgName("6.jpg").serverPath(serverPath + "6.jpg").build();
         userUploadPicService.saveUserUploadPic(build8);
@@ -130,7 +128,8 @@ public class BackgroundPicDBInitializer {
                 .postId(1L)
                 .forMe(Boolean.FALSE)
                 .content("1")
-                .location("1")
+                .latitude("127.1877412")
+                .longitude("127.1877412")
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName("6.jpg")
                 .memberId(member1)
@@ -141,7 +140,8 @@ public class BackgroundPicDBInitializer {
                 .postId(2L)
                 .forMe(Boolean.FALSE)
                 .content("2")
-                .location("1")
+                .latitude("127.1877412")
+                .longitude("127.1877412")
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName("6.jpg")
                 .memberId(member2)
@@ -152,7 +152,8 @@ public class BackgroundPicDBInitializer {
                 .postId(3L)
                 .forMe(Boolean.FALSE)
                 .content("3")
-                .location("1")
+                .latitude("127.1877412")
+                .longitude("127.1877412")
                 .switchPic(ImgType.UserUpload)
                 .ImgName("6.jpg")
                 .memberId(member3)
@@ -184,56 +185,6 @@ public class BackgroundPicDBInitializer {
     }
 
 
-    @PostConstruct
-    public void init() {
 
-        for (int i = 0; i < max; i++) {
-            BackgroundPic build = BackgroundPic.builder().imgName(i+1 + ".jpg")
-                    .serverPath(serverPath + (i+1) + ".jpg")
-                    .build();
-            backGroundPicService.saveBackgroundPic(build);
-        }
-
-
-
-        for (int i = 4; i <= 400+4; i++) {
-
-            PolicyTerms build1 = PolicyTerms.builder().policy1(true)
-                    .policy2(true)
-                    .policy3(true)
-                    .build();
-            policyTermsCheck.policyTermsSave(build1);
-
-            Member build2 = Member.builder().email(i + "@gmail.com")
-                    .dateOfBirth(LocalDate.now())
-                    .nickname("Im" + i)
-                    .signUpDate(LocalDateTime.now())
-                    .firebaseToken("token")
-                    .policyTermsId(build1)
-                    .build();
-            memberService.saveMember(build2);
-
-            if ((i % 2) != 0) {
-                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
-                        .forMe(true)
-                        .location("37.2847022,127.2370257")
-                        .memberId(build2)
-                        .switchPic(ImgType.DefaultBackground)
-                        .ImgName("6.jpg")
-                        .build();
-                postService.savePost(build);
-            } else {
-                Post build = Post.builder().postTime(LocalDateTime.now()).content("hi im" + i)
-                        .forMe(false)
-                        .location("37.2847022,127.2370257")
-                        .memberId(build2)
-                        .switchPic(ImgType.UserUpload)
-                        .ImgName("6.jpg")
-                        .build();
-                postService.savePost(build);
-            }
-
-        }
-    }*/
 }
 

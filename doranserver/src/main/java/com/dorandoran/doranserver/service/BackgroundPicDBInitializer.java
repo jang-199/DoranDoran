@@ -63,6 +63,10 @@ public class BackgroundPicDBInitializer {
                     .memberId(buildMember)
                     .switchPic(ImgType.DefaultBackground)
                     .ImgName((i % 100 + 1) + ".png")
+                    .font("Jua")
+                    .fontColor("black")
+                    .fontSize(48)
+                    .fontBold(900)
                     .build();
             postService.savePost(post); //글 500개 생성
 
@@ -133,6 +137,10 @@ public class BackgroundPicDBInitializer {
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName("6.jpg")
                 .memberId(member1)
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(48)
+                .fontBold(900)
                 .build();
 
         Post post2 = Post.builder().
@@ -145,6 +153,10 @@ public class BackgroundPicDBInitializer {
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName("6.jpg")
                 .memberId(member2)
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(48)
+                .fontBold(900)
                 .build();
 
         Post post3 = Post.builder().
@@ -157,6 +169,10 @@ public class BackgroundPicDBInitializer {
                 .switchPic(ImgType.UserUpload)
                 .ImgName("6.jpg")
                 .memberId(member3)
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(48)
+                .fontBold(900)
                 .build();
         postService.savePost(post1);
         postService.savePost(post2);

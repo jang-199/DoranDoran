@@ -25,7 +25,7 @@ import java.util.List;
 @RequestMapping("api")
 @RestController
 @Slf4j
-public class ClosePostController {
+public class InquiryClosePostController {
 
     private final PostServiceImpl postService;
     private final DistanceService distanceService;
@@ -72,7 +72,12 @@ public class ClosePostController {
                     .location(distance.intValue())
                     .likeCnt(lIkeCnt)
                     .likeResult(likeResult)
-                    .ReplyCnt(commentAndReplyCntByPostId);
+                    .ReplyCnt(commentAndReplyCntByPostId)
+                    .font(e.getFont())
+                    .fontColor(e.getFontColor())
+                    .fontSize(e.getFontSize())
+                    .fondBold(e.getFontBold());
+
 
             if (e.getSwitchPic() == ImgType.UserUpload) {
                 String[] split1 = e.getImgName().split("[.]");

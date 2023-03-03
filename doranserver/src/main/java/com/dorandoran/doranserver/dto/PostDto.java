@@ -21,4 +21,8 @@ public class PostDto {
     String backgroundImgName;
     List<String> hashTagName;
     MultipartFile file;
+    String font;
+    String fontColor;
+    Integer fontSize;
+    Integer fondBold;
 }

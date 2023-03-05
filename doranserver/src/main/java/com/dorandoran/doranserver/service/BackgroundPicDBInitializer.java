@@ -40,7 +40,7 @@ public class BackgroundPicDBInitializer {
     public void init() {
 
         for (int i = 0; i < 100; i++) {
-            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".png").imgName((i + 1) + ".png").build();
+            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".jpg").imgName((i + 1) + ".jpg").build();
             backGroundPicService.saveBackgroundPic(build);
         }
 

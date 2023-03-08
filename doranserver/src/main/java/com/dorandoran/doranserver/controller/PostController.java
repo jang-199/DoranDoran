@@ -33,6 +33,8 @@ public class PostController {
     String userUploadPicServerPath;
     @Value("${background.Store.path}")
     String backgroundPicServerPath;
+    @Value("${doran.ip.address}")
+    String ipAddress;
 
     private final MemberServiceImpl memberService;
     private final UserUploadPicServiceImpl userUploadPicService;
@@ -303,9 +305,9 @@ public class PostController {
         //배경사진 builder
         String[] split = post.get().getImgName().split("[.]");
         if (post.get().getSwitchPic().equals(ImgType.DefaultBackground)) {
-            postDetailDto.setBackgroundPicUri(backgroundPicServerPath + split[0]);
+            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
         } else {
-            postDetailDto.setBackgroundPicUri(userUploadPicServerPath + split[0]);
+            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/userpic/" + split[0]);
         }
 
         return ResponseEntity.ok().body(postDetailDto);

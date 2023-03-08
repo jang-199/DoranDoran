@@ -62,7 +62,7 @@ public class BackgroundPicDBInitializer {
                     .postTime(LocalDateTime.now())
                     .memberId(buildMember)
                     .switchPic(ImgType.DefaultBackground)
-                    .ImgName((i % 100 + 1) + ".png")
+                    .ImgName((i % 100 + 1) + ".jpg")
                     .font("Jua")
                     .fontColor("black")
                     .fontSize(48)

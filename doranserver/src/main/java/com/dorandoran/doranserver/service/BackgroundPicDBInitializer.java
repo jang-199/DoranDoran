@@ -44,7 +44,7 @@ public class BackgroundPicDBInitializer {
             backGroundPicService.saveBackgroundPic(build);
         }
 
-        for (Long i = 1L; i <= 500L; i++) {
+        for (Long i = 1L; i <= 50L; i++) {
             PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
             policyTermsCheck.policyTermsSave(build);
             Member buildMember = Member.builder().policyTermsId(build)
@@ -200,6 +200,22 @@ public class BackgroundPicDBInitializer {
 
     }
 
+    @PostConstruct
+    public void my(){
+        PolicyTerms build = PolicyTerms.builder().policy1(Boolean.TRUE).policy2(Boolean.TRUE).policy3(Boolean.TRUE).build();
+        policyTermsCheck.policyTermsSave(build);
+
+        Member member1 = Member.builder()
+                .email("4@gmail.com")
+                .dateOfBirth(LocalDate.now())
+                .nickname("1")
+                .firebaseToken("1")
+                .signUpDate(LocalDateTime.now())
+                .policyTermsId(build)
+                .build();
+
+        memberService.saveMember(member1);
+    }
 
 
 }

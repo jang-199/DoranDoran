@@ -7,11 +7,13 @@ import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,10 +47,8 @@ public class PostController {
     private final PopularPostServiceImpl popularPostService;
 
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto postDto) throws IOException {
+    ResponseEntity<?> Post(PostDto postDto) {
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
-
-        log.info("postDto : {}", postDto);
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
@@ -72,11 +72,14 @@ public class PostController {
 
         //파일 처리
         if (postDto.getFile() != null) {
-            log.info("사용자 지정 이미지 생성");
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
-            log.info("이미지 이름 : {}",fileNameSubstring);
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
+            try {
+                postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
+            }catch (Exception e){
+                log.info("업로드 사진 크기 exception 발생",e);
+            }
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
@@ -85,7 +88,8 @@ public class PostController {
                     .serverPath(userUploadPicServerPath + userUploadImgName)
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
-            postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
+            log.info("사용자 지정 이미지 이름 : {}",fileNameSubstring);
+
         } else {
             post.setSwitchPic(ImgType.DefaultBackground);
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
@@ -297,10 +301,11 @@ public class PostController {
         postDetailDto.setPostHashes(postHashListDto);
 
         //배경사진 builder
+        String[] split = post.get().getImgName().split("[.]");
         if (post.get().getSwitchPic().equals(ImgType.DefaultBackground)) {
-            postDetailDto.setBackgroundPicUri(backgroundPicServerPath + post.get().getImgName());
+            postDetailDto.setBackgroundPicUri(backgroundPicServerPath + split[0]);
         } else {
-            postDetailDto.setBackgroundPicUri(userUploadPicServerPath + post.get().getImgName());
+            postDetailDto.setBackgroundPicUri(userUploadPicServerPath + split[0]);
         }
 
         return ResponseEntity.ok().body(postDetailDto);

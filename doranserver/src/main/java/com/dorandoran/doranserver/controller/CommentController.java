@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.dto.CommentDeleteDto;
 import com.dorandoran.doranserver.dto.CommentDto;
 import com.dorandoran.doranserver.dto.CommentLikeDto;
+import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
@@ -96,5 +97,26 @@ public class CommentController {
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/reply")
+    public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
+        Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
+        Optional<Member> member = memberService.findByEmail(replyDto.getUserEmail());
+
+        if (comment.isPresent() && member.isPresent()) {
+            Reply buildReply = Reply.builder()
+                    .reply(replyDto.getReply())
+                    .ReplyTime(LocalDateTime.now())
+                    .commentId(comment.get())
+                    .memberId(member.get())
+                    .build();
+
+            replyService.saveReply(buildReply);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

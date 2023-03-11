@@ -26,8 +26,8 @@ public class Reply {
     private String reply;
 
     @NotNull
-    @Column(name = "COMMENT_LIKE_TIME")
-    private LocalDateTime commentLikeTime;
+    @Column(name = "REPLY_TIME")
+    private LocalDateTime ReplyTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")

@@ -34,4 +34,9 @@ public class ReplyServiceImpl implements ReplyService{
     public void deleteReply(Reply reply) {
         replyRepository.delete(reply);
     }
+
+    @Override
+    public void saveReply(Reply reply) {
+        replyRepository.save(reply);
+    }
 }

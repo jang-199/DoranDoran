@@ -1,20 +1,23 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
-import com.dorandoran.doranserver.dto.commentdetail.CommentDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.PostDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
+import javax.naming.SizeLimitExceededException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -256,6 +259,7 @@ public class PostController {
                 .fontColor(post.get().getFontColor())
                 .fontSize(post.get().getFontSize())
                 .fondBold(post.get().getFontBold())
+                .postNickname(post.get().getMemberId().getNickname())
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
@@ -272,6 +276,7 @@ public class PostController {
 
         //댓글 builder
         List<Comment> commentList = commentService.findCommentByPost(post.get());
+
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (commentList.size() != 0) {
             for (Comment comment : commentList) {
@@ -279,13 +284,26 @@ public class PostController {
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
                         .commentLike(commentLikeService.findCommentLikeCnt(comment))
-                        .replies(replyService.findReplyContents(comment))
                         .commentLikeResult(Boolean.FALSE)
+                        .commentNickname(comment.getMemberId().getNickname())
+                        .commentTime(comment.getCommentTime())
                         .build();
                 for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment)) {
                     if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                         build.setCommentLikeResult(Boolean.TRUE);
                 }
+                List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
+                List<Reply> replyList = replyService.findReplyList(comment);
+                for (Reply reply : replyList) {
+                    ReplyDetailDto replyDetailDtoBuild = ReplyDetailDto.builder()
+                            .replyId(reply.getReplyId())
+                            .replyNickname(reply.getMemberId().getEmail())
+                            .reply(reply.getReply())
+                            .replyTime(reply.getReplyTime())
+                            .build();
+                    replyDetailDtoList.add(replyDetailDtoBuild);
+                }
+                build.setReplies(replyDetailDtoList);
                 commentDetailDtoList.add(build);
             }
         }
@@ -312,5 +330,4 @@ public class PostController {
 
         return ResponseEntity.ok().body(postDetailDto);
     }
-
 }

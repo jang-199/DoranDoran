@@ -10,4 +10,5 @@ public interface ReplyService {
     public List<Reply> findReplyList(Comment comment);
     public List<String> findReplyContents(Comment comment);
     public void deleteReply(Reply reply);
+    public void saveReply(Reply reply);
 }

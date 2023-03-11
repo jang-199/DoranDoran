@@ -46,8 +46,11 @@ public class Post {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
-    @NotNull
-    @Column(name = "SWITCH_PIC")
+//    @NotNull
+//    @Column(name = "SWITCH_PIC")
+//    private ImgType switchPic;
+
+    @Enumerated(EnumType.STRING)
     private ImgType switchPic;
 
     @NotNull

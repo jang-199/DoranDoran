@@ -1,7 +1,6 @@
-package com.dorandoran.doranserver.dto;
+package com.dorandoran.doranserver.dto.postDetail;
 
-import com.dorandoran.doranserver.dto.commentdetail.CommentDetailDto;
-import com.dorandoran.doranserver.entity.PostHash;
+import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +20,11 @@ public class PostDetailDto {
     Boolean postLikeResult; //글 좋아요 유무
     Integer commentCnt; // 댓글 개수
     String backgroundPicUri; //배경사진 링크
+    String postNickname; //글 쓴 사람 닉네임
     String font;
     String fontColor;
     Integer fontSize;
-    Integer fondBold;
+    Integer fontBold;
     List<CommentDetailDto> commentDetailDto; //댓글
     List<String> postHashes; //글의 해시태그
 }

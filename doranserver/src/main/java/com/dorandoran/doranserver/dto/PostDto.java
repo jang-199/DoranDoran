@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -24,5 +23,5 @@ public class PostDto {
     String font;
     String fontColor;
     Integer fontSize;
-    Integer fondBold;
+    Integer fontBold;
 }

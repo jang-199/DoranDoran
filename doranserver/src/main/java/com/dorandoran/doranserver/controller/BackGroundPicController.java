@@ -4,6 +4,11 @@ import com.dorandoran.doranserver.entity.BackgroundPic;
 import com.dorandoran.doranserver.entity.UserUploadPic;
 import com.dorandoran.doranserver.service.BackGroundPicServiceImpl;
 import com.dorandoran.doranserver.service.UserUploadPicServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.MalformedURLException;
 import java.util.Optional;
 
+@Tag(name = "배경화면", description = "배경화면 관련 api")
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/api")
 @RestController
 @Controller
 public class BackGroundPicController {
@@ -32,11 +38,14 @@ public class BackGroundPicController {
     String userUploadPicServerPath;
     @Value("${background.Store.path}")
     String backgroundPicServerPath;
+    @Schema(description = "배경화면 전체 개수",defaultValue = "100")
     @Value("${background.cnt}")
     Integer backgroundPicCnt;
     private final BackGroundPicServiceImpl backGroundPicService;
     private final UserUploadPicServiceImpl userUploadPicService;
 
+    @Operation(summary = "배경화면 총 개수", description = "지원하는 배경화면의 전체 개수 조회 메서드")
+    @ApiResponse(responseCode = "200",description = "Successful",content = @Content(schema = @Schema(implementation = BackGroundPicController.class)))
     @GetMapping("/background/maxcount")
     ResponseEntity<Integer> backgroundPic() {
         return ResponseEntity.ok().body(backgroundPicCnt);

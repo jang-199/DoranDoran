@@ -13,4 +13,5 @@ public class CommentDto {
     Long postId;
     String email;
     String comment;
+    Boolean anonymity;
 }

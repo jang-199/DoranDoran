@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.Column;
 import java.util.List;
 
 @Data
@@ -20,6 +22,7 @@ public class PostDto {
     String backgroundImgName;
     List<String> hashTagName;
     MultipartFile file;
+    Boolean anonymity;
     String font;
     String fontColor;
     Integer fontSize;

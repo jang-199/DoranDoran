@@ -28,6 +28,8 @@ public class BackgroundPicDBInitializer {
 
     @Autowired
     UserUploadPicServiceImpl userUploadPicService;
+    @Autowired
+    ReplyService replyService;
 
     @Autowired
     CommentServiceImpl commentService;
@@ -65,155 +67,181 @@ public class BackgroundPicDBInitializer {
                     .ImgName((i % 100 + 1) + ".jpg")
                     .font("Jua")
                     .fontColor("black")
-                    .fontSize(48)
-                    .fontBold(900)
+                    .fontSize(20)
+                    .fontBold(400)
                     .build();
-            postService.savePost(post); //글 500개 생성
+            if (i%2 == 0){
+                post.setAnonymity(Boolean.TRUE);
+            }else {
+                post.setAnonymity(Boolean.FALSE);
+            }
+            postService.savePost(post); //글 50개 생성
 
             //popular에 데이터 추가하고 테스트 진행
-                PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
-                postLikeService.savePostLike(buildPostLike);
+            PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
+            postLikeService.savePostLike(buildPostLike);
 
-                Comment comment = Comment.builder()
-                        .comment("나는" + i + "야 반가워")
-                        .commentTime(LocalDateTime.now())
-                        .postId(postService.findSinglePost(i).get())
-                        .memberId(buildMember).build();
-                commentService.saveComment(comment);
+            Comment comment = Comment.builder()
+                    .comment("나는" + i + "야 반가워")
+                    .commentTime(LocalDateTime.now())
+                    .postId(postService.findSinglePost(i).get())
+                    .memberId(buildMember).build();
+            if (i%2 == 0){
+                comment.setAnonymity(Boolean.TRUE);
+            }else {
+                comment.setAnonymity(Boolean.FALSE);
+            }
+            commentService.saveComment(comment);
+
+            Reply reply = Reply.builder()
+                    .commentId(comment)
+                    .memberId(buildMember)
+                    .reply("대댓글" + i + "입니다")
+                    .ReplyTime(LocalDateTime.now())
+                    .build();
+
+            if (i%2 == 0){
+                reply.setAnonymity(Boolean.TRUE);
+            }else {
+                reply.setAnonymity(Boolean.FALSE);
+            }
+            replyService.saveReply(reply);
+
+
 
         }
 
 
     }
 
-    @PostConstruct
-    public void testData(){
-        UserUploadPic build8 = UserUploadPic.builder().imgName("6.jpg").serverPath(serverPath + "6.jpg").build();
-        userUploadPicService.saveUserUploadPic(build8);
-
-        PolicyTerms build = PolicyTerms.builder().policy1(Boolean.TRUE).policy2(Boolean.TRUE).policy3(Boolean.TRUE).build();
-        policyTermsCheck.policyTermsSave(build);
-
-        Member member1 = Member.builder()
-                .email("1")
-                .dateOfBirth(LocalDate.now())
-                .nickname("1")
-                .firebaseToken("1")
-                .signUpDate(LocalDateTime.now())
-                .policyTermsId(build)
-                .build();
-
-        Member member2 = Member.builder()
-                .email("2")
-                .dateOfBirth(LocalDate.now())
-                .nickname("2")
-                .firebaseToken("1")
-                .signUpDate(LocalDateTime.now())
-                .policyTermsId(build)
-                .build();
-
-        Member member3 = Member.builder()
-                .email("3")
-                .dateOfBirth(LocalDate.now())
-                .nickname("3")
-                .firebaseToken("1")
-                .signUpDate(LocalDateTime.now())
-                .policyTermsId(build)
-                .build();
-
-        memberService.saveMember(member1);
-        memberService.saveMember(member2);
-        memberService.saveMember(member3);
-
-        Post post1 = Post.builder().
-                postTime(LocalDateTime.now())
-                .postId(1L)
-                .forMe(Boolean.FALSE)
-                .content("1")
-                .latitude("127.1877412")
-                .longitude("127.1877412")
-                .switchPic(ImgType.DefaultBackground)
-                .ImgName("6.jpg")
-                .memberId(member1)
-                .font("Jua")
-                .fontColor("black")
-                .fontSize(48)
-                .fontBold(900)
-                .build();
-
-        Post post2 = Post.builder().
-                postTime(LocalDateTime.now())
-                .postId(2L)
-                .forMe(Boolean.FALSE)
-                .content("2")
-                .latitude("127.1877412")
-                .longitude("127.1877412")
-                .switchPic(ImgType.DefaultBackground)
-                .ImgName("6.jpg")
-                .memberId(member2)
-                .font("Jua")
-                .fontColor("black")
-                .fontSize(48)
-                .fontBold(900)
-                .build();
-
-        Post post3 = Post.builder().
-                postTime(LocalDateTime.now())
-                .postId(3L)
-                .forMe(Boolean.FALSE)
-                .content("3")
-                .latitude("127.1877412")
-                .longitude("127.1877412")
-                .switchPic(ImgType.UserUpload)
-                .ImgName("6.jpg")
-                .memberId(member3)
-                .font("Jua")
-                .fontColor("black")
-                .fontSize(48)
-                .fontBold(900)
-                .build();
-        postService.savePost(post1);
-        postService.savePost(post2);
-        postService.savePost(post3);
-
-        //멤버1
-        PostLike build1 = PostLike.builder().postId(post1).memberId(member1).build();
-
-        //멤버2
-        PostLike build2 = PostLike.builder().postId(post1).memberId(member2).build();
-        PostLike build3 = PostLike.builder().postId(post2).memberId(member2).build();
-
-        //멤버3
-        PostLike build4 = PostLike.builder().postId(post1).memberId(member3).build();
-        PostLike build5 = PostLike.builder().postId(post2).memberId(member3).build();
-        PostLike build6 = PostLike.builder().postId(post3).memberId(member3).build();
-
-        postLikeService.savePostLike(build1);
-        postLikeService.savePostLike(build2);
-        postLikeService.savePostLike(build3);
-        postLikeService.savePostLike(build4);
-        postLikeService.savePostLike(build5);
-        postLikeService.savePostLike(build6);
-
-
-    }
-
-    @PostConstruct
-    public void my(){
-        PolicyTerms build = PolicyTerms.builder().policy1(Boolean.TRUE).policy2(Boolean.TRUE).policy3(Boolean.TRUE).build();
-        policyTermsCheck.policyTermsSave(build);
-
-        Member member1 = Member.builder()
-                .email("4@gmail.com")
-                .dateOfBirth(LocalDate.now())
-                .nickname("1")
-                .firebaseToken("1")
-                .signUpDate(LocalDateTime.now())
-                .policyTermsId(build)
-                .build();
-
-        memberService.saveMember(member1);
-    }
+//    @PostConstruct
+//    public void testData(){
+//        UserUploadPic build8 = UserUploadPic.builder().imgName("6.jpg").serverPath(serverPath + "6.jpg").build();
+//        userUploadPicService.saveUserUploadPic(build8);
+//
+//        PolicyTerms build = PolicyTerms.builder().policy1(Boolean.TRUE).policy2(Boolean.TRUE).policy3(Boolean.TRUE).build();
+//        policyTermsCheck.policyTermsSave(build);
+//
+//        Member member1 = Member.builder()
+//                .email("1")
+//                .dateOfBirth(LocalDate.now())
+//                .nickname("1")
+//                .firebaseToken("1")
+//                .signUpDate(LocalDateTime.now())
+//                .policyTermsId(build)
+//                .build();
+//
+//        Member member2 = Member.builder()
+//                .email("2")
+//                .dateOfBirth(LocalDate.now())
+//                .nickname("2")
+//                .firebaseToken("1")
+//                .signUpDate(LocalDateTime.now())
+//                .policyTermsId(build)
+//                .build();
+//
+//        Member member3 = Member.builder()
+//                .email("3")
+//                .dateOfBirth(LocalDate.now())
+//                .nickname("3")
+//                .firebaseToken("1")
+//                .signUpDate(LocalDateTime.now())
+//                .policyTermsId(build)
+//                .build();
+//
+//        memberService.saveMember(member1);
+//        memberService.saveMember(member2);
+//        memberService.saveMember(member3);
+//
+//        Post post1 = Post.builder().
+//                postTime(LocalDateTime.now())
+//                .postId(1L)
+//                .forMe(Boolean.FALSE)
+//                .content("1")
+//                .latitude("127.1877412")
+//                .longitude("127.1877412")
+//                .switchPic(ImgType.DefaultBackground)
+//                .ImgName("6.jpg")
+//                .memberId(member1)
+//                .font("Jua")
+//                .fontColor("black")
+//                .fontSize(48)
+//                .fontBold(900)
+//                .build();
+//
+//        Post post2 = Post.builder().
+//                postTime(LocalDateTime.now())
+//                .postId(2L)
+//                .forMe(Boolean.FALSE)
+//                .content("2")
+//                .latitude("127.1877412")
+//                .longitude("127.1877412")
+//                .switchPic(ImgType.DefaultBackground)
+//                .ImgName("6.jpg")
+//                .memberId(member2)
+//                .font("Jua")
+//                .fontColor("black")
+//                .fontSize(48)
+//                .fontBold(900)
+//                .build();
+//
+//        Post post3 = Post.builder().
+//                postTime(LocalDateTime.now())
+//                .postId(3L)
+//                .forMe(Boolean.FALSE)
+//                .content("3")
+//                .latitude("127.1877412")
+//                .longitude("127.1877412")
+//                .switchPic(ImgType.UserUpload)
+//                .ImgName("6.jpg")
+//                .memberId(member3)
+//                .font("Jua")
+//                .fontColor("black")
+//                .fontSize(48)
+//                .fontBold(900)
+//                .build();
+//        postService.savePost(post1);
+//        postService.savePost(post2);
+//        postService.savePost(post3);
+//
+//        //멤버1
+//        PostLike build1 = PostLike.builder().postId(post1).memberId(member1).build();
+//
+//        //멤버2
+//        PostLike build2 = PostLike.builder().postId(post1).memberId(member2).build();
+//        PostLike build3 = PostLike.builder().postId(post2).memberId(member2).build();
+//
+//        //멤버3
+//        PostLike build4 = PostLike.builder().postId(post1).memberId(member3).build();
+//        PostLike build5 = PostLike.builder().postId(post2).memberId(member3).build();
+//        PostLike build6 = PostLike.builder().postId(post3).memberId(member3).build();
+//
+//        postLikeService.savePostLike(build1);
+//        postLikeService.savePostLike(build2);
+//        postLikeService.savePostLike(build3);
+//        postLikeService.savePostLike(build4);
+//        postLikeService.savePostLike(build5);
+//        postLikeService.savePostLike(build6);
+//
+//
+//    }
+//
+//    @PostConstruct
+//    public void my(){
+//        PolicyTerms build = PolicyTerms.builder().policy1(Boolean.TRUE).policy2(Boolean.TRUE).policy3(Boolean.TRUE).build();
+//        policyTermsCheck.policyTermsSave(build);
+//
+//        Member member1 = Member.builder()
+//                .email("4@gmail.com")
+//                .dateOfBirth(LocalDate.now())
+//                .nickname("1")
+//                .firebaseToken("1")
+//                .signUpDate(LocalDateTime.now())
+//                .policyTermsId(build)
+//                .build();
+//
+//        memberService.saveMember(member1);
+//    }
 
 
 }

@@ -267,9 +267,9 @@ public class PostController {
 
         //글 익명성 확인
         if (post.get().getAnonymity()){
-            postDetailDto.setPostNickname(post.get().getMemberId().getNickname());
-        }else {
             postDetailDto.setPostNickname(null);
+        }else {
+            postDetailDto.setPostNickname(post.get().getMemberId().getNickname());
         }
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
@@ -299,10 +299,10 @@ public class PostController {
                         .build();
                 //댓글 익명성 확인
                 if (comment.getAnonymity()) {
-                    build.setCommentNickname(comment.getMemberId().getNickname());
+                    build.setCommentNickname(null);
                 }
                 else {
-                    build.setCommentNickname(null);
+                    build.setCommentNickname(comment.getMemberId().getNickname());
                 }
 
                 for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment)) {
@@ -319,9 +319,9 @@ public class PostController {
                             .build();
                     //대댓글 익명성 확인
                     if (reply.getAnonymity()){
-                        replyDetailDtoBuild.setReplyNickname(reply.getMemberId().getNickname());
-                    }else {
                         replyDetailDtoBuild.setReplyNickname(null);
+                    }else {
+                        replyDetailDtoBuild.setReplyNickname(reply.getMemberId().getNickname());
                     }
                     replyDetailDtoList.add(replyDetailDtoBuild);
                 }

@@ -10,5 +10,6 @@ public class ReplyDto {
     Long commentId;
     String userEmail;
     String reply;
+    Boolean anonymity;
 }
 

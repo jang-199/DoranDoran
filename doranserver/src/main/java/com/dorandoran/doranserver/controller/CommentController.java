@@ -41,6 +41,7 @@ public class CommentController {
                 .commentTime(LocalDateTime.now())
                 .postId(post.get())
                 .memberId(member.get())
+                .anonymity(commentDto.getAnonymity())
                 .build();
         commentService.saveComment(comment);
         Optional<Post> singlePost = postService.findSinglePost(commentDto.getPostId());
@@ -108,6 +109,7 @@ public class CommentController {
             Reply buildReply = Reply.builder()
                     .reply(replyDto.getReply())
                     .ReplyTime(LocalDateTime.now())
+                    .anonymity(replyDto.getAnonymity())
                     .commentId(comment.get())
                     .memberId(member.get())
                     .build();

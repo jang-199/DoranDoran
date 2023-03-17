@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,6 +29,10 @@ public class Reply {
     @NotNull
     @Column(name = "REPLY_TIME")
     private LocalDateTime ReplyTime;
+
+    @Column(name = "ANONYMITY")
+    @ColumnDefault("True")
+    private Boolean anonymity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")

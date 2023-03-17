@@ -27,6 +27,10 @@ public class Comment {
     @Column(name = "COMMENT")
     private String comment;
 
+    @Column(name = "ANONYMITY")
+    @ColumnDefault("True")
+    private Boolean anonymity;
+
     @NotNull
     @Column(name = "COMMENT_TIME")
     private LocalDateTime commentTime;

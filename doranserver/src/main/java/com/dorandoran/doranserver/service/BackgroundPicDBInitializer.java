@@ -71,18 +71,16 @@ public class BackgroundPicDBInitializer {
                     .build();
             postService.savePost(post); //글 500개 생성
 
-            for (Long j = i; j >0 ; j--) {
+            //popular에 데이터 추가하고 테스트 진행
                 PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
                 postLikeService.savePostLike(buildPostLike);
 
                 Comment comment = Comment.builder()
                         .comment("나는" + i + "야 반가워")
                         .commentTime(LocalDateTime.now())
-                        .postId(postService.findSinglePost(j).get())
+                        .postId(postService.findSinglePost(i).get())
                         .memberId(buildMember).build();
                 commentService.saveComment(comment);
-            }
-            //popular에 데이터 추가하고 테스트 진행
 
         }
 

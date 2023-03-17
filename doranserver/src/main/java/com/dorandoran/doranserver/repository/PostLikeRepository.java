@@ -16,5 +16,4 @@ public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
     List<PostLike> findByMemberId_Email(String email);
     @Query("select p from PostLike p inner join Member m on m.memberId=p.memberId.memberId where m.email=:email and p.postId=:postId")
     Optional<PostLike> findLikeResult(@Param("email") String email, @Param("postId") Post postId);
-
 }

@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.MultipartException;
 
-import javax.naming.SizeLimitExceededException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,7 +59,7 @@ public class PostController {
                 .font(postDto.getFont())
                 .fontColor(postDto.getFontColor())
                 .fontSize(postDto.getFontSize())
-                .fontBold(postDto.getFondBold())
+                .fontBold(postDto.getFontBold())
                 .build();
 
         //location null 처리
@@ -258,7 +255,7 @@ public class PostController {
                 .font(post.get().getFont())
                 .fontColor(post.get().getFontColor())
                 .fontSize(post.get().getFontSize())
-                .fondBold(post.get().getFontBold())
+                .fontBold(post.get().getFontBold())
                 .postNickname(post.get().getMemberId().getNickname())
                 .build();
 

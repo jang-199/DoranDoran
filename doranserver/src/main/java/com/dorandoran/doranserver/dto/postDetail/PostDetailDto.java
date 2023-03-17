@@ -24,7 +24,7 @@ public class PostDetailDto {
     String font;
     String fontColor;
     Integer fontSize;
-    Integer fondBold;
+    Integer fontBold;
     List<CommentDetailDto> commentDetailDto; //댓글
     List<String> postHashes; //글의 해시태그
 }

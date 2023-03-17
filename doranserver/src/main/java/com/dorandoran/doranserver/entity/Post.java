@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -46,16 +47,16 @@ public class Post {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
-//    @NotNull
-//    @Column(name = "SWITCH_PIC")
-//    private ImgType switchPic;
-
     @Enumerated(EnumType.STRING)
     private ImgType switchPic;
 
     @NotNull
     @Column(name = "IMG_NAME")
     private String ImgName;
+
+    @Column(name = "ANONYMITY")
+    @ColumnDefault("True")
+    private Boolean anonymity;
 
     @Column(name = "FONT")
     private String font;

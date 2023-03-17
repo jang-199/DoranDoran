@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class PostController {
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
                 .memberId(memberEmail.get())
+                .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
                 .fontColor(postDto.getFontColor())
                 .fontSize(postDto.getFontSize())
@@ -79,8 +81,13 @@ public class PostController {
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
             try {
                 postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
-            }catch (Exception e){
-                log.info("업로드 사진 크기 exception 발생",e);
+            }catch (IOException e){
+                log.info("IO Exception 발생",e);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            catch (MaxUploadSizeExceededException e){
+                log.info("파일 업로드 크기 제한 exception",e);
+                return new ResponseEntity<>("파일 업로드 크기 제한", HttpStatus.BAD_REQUEST);
             }
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -256,8 +263,14 @@ public class PostController {
                 .fontColor(post.get().getFontColor())
                 .fontSize(post.get().getFontSize())
                 .fontBold(post.get().getFontBold())
-                .postNickname(post.get().getMemberId().getNickname())
                 .build();
+
+        //글 익명성 확인
+        if (post.get().getAnonymity()){
+            postDetailDto.setPostNickname(post.get().getMemberId().getNickname());
+        }else {
+            postDetailDto.setPostNickname(null);
+        }
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
         if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude().isBlank() || post.get().getLongitude().isBlank()) {
@@ -282,9 +295,16 @@ public class PostController {
                         .comment(comment.getComment())
                         .commentLike(commentLikeService.findCommentLikeCnt(comment))
                         .commentLikeResult(Boolean.FALSE)
-                        .commentNickname(comment.getMemberId().getNickname())
                         .commentTime(comment.getCommentTime())
                         .build();
+                //댓글 익명성 확인
+                if (comment.getAnonymity()) {
+                    build.setCommentNickname(comment.getMemberId().getNickname());
+                }
+                else {
+                    build.setCommentNickname(null);
+                }
+
                 for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment)) {
                     if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                         build.setCommentLikeResult(Boolean.TRUE);
@@ -294,10 +314,15 @@ public class PostController {
                 for (Reply reply : replyList) {
                     ReplyDetailDto replyDetailDtoBuild = ReplyDetailDto.builder()
                             .replyId(reply.getReplyId())
-                            .replyNickname(reply.getMemberId().getEmail())
                             .reply(reply.getReply())
                             .replyTime(reply.getReplyTime())
                             .build();
+                    //대댓글 익명성 확인
+                    if (reply.getAnonymity()){
+                        replyDetailDtoBuild.setReplyNickname(reply.getMemberId().getNickname());
+                    }else {
+                        replyDetailDtoBuild.setReplyNickname(null);
+                    }
                     replyDetailDtoList.add(replyDetailDtoBuild);
                 }
                 build.setReplies(replyDetailDtoList);

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 //폰트스타일
 final TextStyle whitestyle = TextStyle(
   color: Colors.white,
-  fontSize: 17.0,
+  fontSize: 17.sp,
   fontWeight: FontWeight.w500,
 );
 
+final TextStyle buttontextstyle=GoogleFonts.jua(
+      color: Colors.white,
+      fontSize: 14.sp,
+      fontWeight: FontWeight.w300,
+);
 //배경색상
 Color backgroundcolor = Color(0xFF000054);
 
@@ -16,10 +23,5 @@ Decoration gradient = BoxDecoration(
     gradient: LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [Color(0xFF001954), Color(0xff3F2E99)],
+  colors: [Color(0xffFFAE88), Color(0xff8F93EA) ],
 ));
-
-//00 시간 설절
-String getTimeFormat(int number) {
-  return number.toString().padLeft(2, '0');
-}

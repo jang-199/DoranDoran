@@ -1,27 +1,39 @@
 package com.dorandoran.doranserver.config;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
+
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+
 
 @Configuration
 public class Swagger3Config {
 
     @Bean
-    public OpenAPI openAPI() {
-        Info info = new Info()
-                .title("타이틀 입력")
-                .version("0.0.1")
-                .description("API에 대한 설명 부분");
+    public Docket api() {
+        return new Docket(DocumentationType.OAS_30)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.dorandoran.doranserver.controller"))
+                .paths(PathSelectors.any())
+                .build()
+                .apiInfo(apiInfo());
+    }
 
-        return new OpenAPI()
-                .components(new Components())
-                .info(info);
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("도란도란 API 문서")
+                .description("도란도란 서버가 제공하는 모든 API를 문서화한 페이지 입니다.")
+                .version("1.0")
+                .termsOfServiceUrl("https://www.example.com")
+                .contact(new Contact("대표 연락처", "https://github.com/jang-199", "jw1010110@gmail.com"))
+                .license("Apache License Version 2.0")
+                .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
+                .build();
     }
 }

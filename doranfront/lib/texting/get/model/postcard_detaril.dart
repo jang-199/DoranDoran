@@ -37,7 +37,7 @@ class postcardDetail {
         postTime: json["postTime"],
         location: json["location"],
         postLikeCnt: json["postLikeCnt"],
-        postLikeResult: json["likeResult"] ?? false,
+        postLikeResult: json["postLikeResult"] ?? false,
         commentCnt: json["commentCnt"],
         backgroundPicUri: json["backgroundPicUri"],
         postNickname: json["postNickname"],

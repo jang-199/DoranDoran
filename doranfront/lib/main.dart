@@ -1,8 +1,10 @@
+import 'package:dorandoran/texting/get/component/post_detail_inputcomment.dart';
 import 'package:dorandoran/texting/get/screen/post_detail.dart';
 import 'package:dorandoran/texting/write/screen/write.dart';
 import 'package:dorandoran/user/login/screen/kakao_login.dart';
 import 'package:dorandoran/user/login/screen/login_check.dart';
 import 'package:dorandoran/user/sign_up/screen/sign_up.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'texting/get/screen/home.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +45,7 @@ void main() async {
               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
               child: child!);
         },
-        home: PostDetail(),
+        home: Home(),
         //번영(영어.한국어)
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,

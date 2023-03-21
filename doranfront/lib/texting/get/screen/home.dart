@@ -51,7 +51,6 @@ class _HomeState extends State<Home> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (item?.length == 0 || item == null) {
                     item = snapshot.data!.map<Message_Card>((e) => Message_Card(
-                              movetocard: movetocard,
                               time: e.postTime,
                               heart: e.likeCnt,
                               chat: e.replyCnt,
@@ -68,7 +67,6 @@ class _HomeState extends State<Home> {
                   } else {
                     if (checknumber != lastnumber) {
                       item!.addAll(snapshot.data!.map<Message_Card>((e) => Message_Card(
-                                movetocard: movetocard,
                                 time: e.postTime,
                                 heart: e.likeCnt,
                                 chat: e.replyCnt,
@@ -168,7 +166,6 @@ class _HomeState extends State<Home> {
                                           0,
                                           latitude == null ? '' : '$latitude,$longtitude');
                                     });
-                                    print('새로고침');
                                     _refreshController.refreshCompleted();
                                   },
                                   elevation: 5.0,
@@ -202,8 +199,5 @@ class _HomeState extends State<Home> {
                     child: Center(child: CircularProgressIndicator()));
               }
             }));
-  }
-  void movetocard() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => PostDetail()));
   }
 }

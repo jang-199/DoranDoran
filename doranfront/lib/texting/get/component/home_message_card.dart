@@ -7,7 +7,6 @@ import 'package:dorandoran/texting/get/quest/like.dart';
 import '../screen/post_detail.dart'; //??
 
 class Message_Card extends StatefulWidget {
-  final VoidCallback movetocard;
   final String time;
   final int heart;
   final int? chat;
@@ -23,7 +22,6 @@ class Message_Card extends StatefulWidget {
 
   const Message_Card(
       {required this.postId,
-      required this.movetocard,
       required this.time,
       required this.heart,
       required this.chat,
@@ -49,7 +47,6 @@ Map<int, int> click = {0: 0};
 class _Message_CardState extends State<Message_Card> {
   @override
   void initState() {
-    //print("응애는초기화에요");
     setState(() {
       //  like=widget.likeresult;
       like.addAll({widget.postId: widget.likeresult});
@@ -63,7 +60,7 @@ class _Message_CardState extends State<Message_Card> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       elevation: 2, //그림자
       child: InkWell(
-        onTap: widget.movetocard,
+        onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => PostDetail(postId:widget.postId))),
       //  widget.movetocard
         child: Container(
           decoration: BoxDecoration(
@@ -111,7 +108,6 @@ class _Message_CardState extends State<Message_Card> {
                           IconButton(
                             onPressed: () {
                               setState(() {
-                                print(like);
                                 like[widget.postId] = !like[widget.postId]!;
                                 if (widget.likeresult == true &&
                                     like[widget.postId] == false) {

@@ -54,10 +54,7 @@ class _SignUpState extends State<SignUp> {
                             ),
                             SizedBox(width: 15.w),
                             TextButton(
-                                onPressed: (){
-                                  print("체크");
-                                  textchange(checkname(name.text.toString()),name.text.toString());
-                                },
+                                onPressed: ()=> textchange(checkname(name.text.toString()),name.text.toString()),
                                 child: Text("확인"),
                                 style: TextButton.styleFrom(
                                     primary: Colors.white,

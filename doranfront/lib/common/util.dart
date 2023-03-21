@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //00 시간 출력설정
 String getTimeFormat(int number) {
@@ -27,11 +28,11 @@ String timecount(String time) {
   daycheck =
       today.difference(DateTime(year, month, day, hour, min, second)).inDays;
   if (daycheck > 365) {
-    return "${(daycheck / 365).toInt()}년 전";
+    return "${(daycheck / 365).toInt()}년 전ㅤ";
   } else if (daycheck > 31) {
-    return "${(daycheck / 30).toInt()}달 전";
+    return "${(daycheck / 30).toInt()}달 전ㅤ";
   } else if (daycheck > 0) {
-    return "${daycheck.toInt()}일 전";
+    return "${daycheck.toInt()}일 전ㅤ";
   } else {
     daycheck = today
         .difference(DateTime(year, month, day, hour, min, second))
@@ -39,12 +40,13 @@ String timecount(String time) {
     if (daycheck > (60 * 60)) {
       return "${(daycheck / (60 * 60)).toInt()}시간 전";
     } else if (daycheck > 60) {
-      return "${(daycheck / 60).toInt()}분 전";
+      return "${(daycheck / 60).toInt()}분 전ㅤ";
     } else {
-      return "${daycheck.toInt()}초 전";
+      return "${daycheck.toInt()}초 전ㅤ";
     }
   }
 }
+
 
 //권한요청
 void permissionquest() async {
@@ -52,11 +54,6 @@ void permissionquest() async {
     Permission.locationWhenInUse,
     Permission.photos,
   ].request();
-  if (statuses.values.every((element) => element.isDenied)) {
-    print("실패 ㅠㅠ");
-  } else {
-    print("성공Vv");
-  }
 }
 
 //이름체크
@@ -78,7 +75,10 @@ String checkname(String name) {
 void getlocation() async {
   //현재위치 가져오기
   Position position = await Geolocator.getCurrentPosition();
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setString('latitude', position.latitude.toString());
     latitude = position.latitude.toString();
+  prefs.setString('longitude', position.longitude.toString());
     longtitude = position.longitude.toString();
 }
 
@@ -86,7 +86,6 @@ void getlocation() async {
 TextStyle selectfont(String font, String fontColor, int fontSize, int fontBold){
   Color color=fontColor=="black" ? Color(0xFF000000):Color(0xFFFFFFFF);
   TextStyle style = GoogleFonts.getFont(font, textStyle: TextStyle(fontSize: fontSize.sp, color:color, fontWeight: FontWeight.bold));
-  print("반환");
   return style;
 
 }

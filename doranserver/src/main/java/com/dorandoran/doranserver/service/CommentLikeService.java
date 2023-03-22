@@ -12,4 +12,5 @@ public interface CommentLikeService {
     public List<CommentLike> findByCommentId(Comment comment);
     public void saveCommentLike(CommentLike commentLike);
     public void deleteCommentLike(CommentLike commentLike);
+    public Boolean findCommentLikeResult(String userEmail, Comment commentId);
 }

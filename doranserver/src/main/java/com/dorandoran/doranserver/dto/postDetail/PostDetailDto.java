@@ -21,6 +21,7 @@ public class PostDetailDto {
     Integer commentCnt; // 댓글 개수
     String backgroundPicUri; //배경사진 링크
     String postNickname; //글 쓴 사람 닉네임
+    Boolean postAnonymity; //글 작성자 익명성 여부
     String font;
     String fontColor;
     Integer fontSize;

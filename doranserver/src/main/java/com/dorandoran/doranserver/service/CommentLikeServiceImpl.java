@@ -39,4 +39,13 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     public void deleteCommentLike(CommentLike commentLike) {
         commentLikeRepository.delete(commentLike);
     }
+
+    @Override
+    public Boolean findCommentLikeResult(String userEmail, Comment commentId) {
+        if(commentLikeRepository.findCommentLikeResult(userEmail,commentId).isPresent()){
+            return Boolean.TRUE;
+        }else {
+            return Boolean.FALSE;
+        }
+    }
 }

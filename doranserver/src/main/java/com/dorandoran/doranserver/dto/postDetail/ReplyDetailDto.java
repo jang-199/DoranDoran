@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ReplyDetailDto {
     Long replyId; //대댓글 id값
     String replyNickname; //대댓글 작성한 닉네임
+    Boolean replyAnonymity; //대댓글 작성자 익명성 여부
     String reply; //대댓글 내용
     LocalDateTime replyTime; //대댓글 작성 시간
 }

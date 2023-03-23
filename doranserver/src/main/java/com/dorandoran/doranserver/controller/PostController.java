@@ -259,18 +259,13 @@ public class PostController {
                 .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
                 .postLikeResult(postLikeService.findLikeResult(postRequestDetailDto.getUserEmail(), post.get()))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
+                .postAnonymity(post.get().getAnonymity())
+                .postNickname(post.get().getMemberId().getNickname())
                 .font(post.get().getFont())
                 .fontColor(post.get().getFontColor())
                 .fontSize(post.get().getFontSize())
                 .fontBold(post.get().getFontBold())
                 .build();
-
-        //글 익명성 확인
-        if (post.get().getAnonymity()){
-            postDetailDto.setPostNickname(post.get().getMemberId().getNickname());
-        }else {
-            postDetailDto.setPostNickname(null);
-        }
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
         if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude().isBlank() || post.get().getLongitude().isBlank()) {
@@ -294,35 +289,21 @@ public class PostController {
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
                         .commentLike(commentLikeService.findCommentLikeCnt(comment))
-                        .commentLikeResult(Boolean.FALSE)
+                        .commentLikeResult(commentLikeService.findCommentLikeResult(postRequestDetailDto.getUserEmail(),comment))
                         .commentTime(comment.getCommentTime())
+                        .commentNickname(comment.getMemberId().getNickname())
+                        .commentAnonymity(comment.getAnonymity())
                         .build();
-                //댓글 익명성 확인
-                if (comment.getAnonymity()) {
-                    build.setCommentNickname(comment.getMemberId().getNickname());
-                }
-                else {
-                    build.setCommentNickname(null);
-                }
-
-                for (CommentLike commentLike : commentLikeService.findCommentLikeListByCommentId(comment)) {
-                    if (commentLike.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
-                        build.setCommentLikeResult(Boolean.TRUE);
-                }
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 List<Reply> replyList = replyService.findReplyList(comment);
                 for (Reply reply : replyList) {
                     ReplyDetailDto replyDetailDtoBuild = ReplyDetailDto.builder()
                             .replyId(reply.getReplyId())
                             .reply(reply.getReply())
+                            .replyAnonymity(reply.getAnonymity())
+                            .replyNickname(reply.getMemberId().getNickname())
                             .replyTime(reply.getReplyTime())
                             .build();
-                    //대댓글 익명성 확인
-                    if (reply.getAnonymity()){
-                        replyDetailDtoBuild.setReplyNickname(reply.getMemberId().getNickname());
-                    }else {
-                        replyDetailDtoBuild.setReplyNickname(null);
-                    }
                     replyDetailDtoList.add(replyDetailDtoBuild);
                 }
                 build.setReplies(replyDetailDtoList);

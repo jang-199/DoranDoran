@@ -26,7 +26,7 @@ import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/api")
 @RestController
 @Slf4j
 public class PostController {

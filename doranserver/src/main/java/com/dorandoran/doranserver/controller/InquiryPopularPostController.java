@@ -7,9 +7,16 @@ import com.dorandoran.doranserver.service.CommentServiceImpl;
 import com.dorandoran.doranserver.service.DistanceService;
 import com.dorandoran.doranserver.service.PopularPostServiceImpl;
 import com.dorandoran.doranserver.service.PostLikeServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+@Tag(name = "인기글 관련 API", description = "InquiryPopularPostController")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("api")
@@ -34,8 +42,14 @@ public class InquiryPopularPostController {
     private final CommentServiceImpl commentService;
     private final DistanceService distanceService;
 
+    @Tag(name = "인기글 관련 API")
+    @Operation(summary = "인기글 조회",description = "댓글 개수가 10개 이상인 글을 조회하여 반환합니다.")
+    @ApiResponse(responseCode = "200",description = "조회된 글들 중 사용자가 요청한 인덱스에 해당하는 글 부터 20개의 글을 반환합니다.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,schema = @Schema(implementation = PostResponseDto.class)))
     @GetMapping("/post/popular")
-    ResponseEntity<?> inquirePopularPost(@RequestParam String userEmail, @RequestParam Long postCnt, @RequestParam String location){
+    ResponseEntity<ArrayList<PostResponseDto>> inquirePopularPost(@Parameter(description = "사용자 이메일",required = true) @RequestParam String userEmail,
+                                         @Parameter(description = "요청할 글 인덱스. 첫 조회 시에는 0을 입력.",required = true) @RequestParam Long postCnt,
+                                         @Parameter(description = "클라이언트 좌표",required = true) @RequestParam String location){
         log.info("{}",userEmail);
         log.info("{}",postCnt);
         log.info("{}",location);
@@ -55,7 +69,7 @@ public class InquiryPopularPostController {
         }
     }
 
-    private ResponseEntity<?> makePopularPostResponseList(String userEmail,
+    private ResponseEntity<ArrayList<PostResponseDto>> makePopularPostResponseList(String userEmail,
                                                           ArrayList<PostResponseDto> postResponseDtoList,
                                                           PostResponseDto.PostResponseDtoBuilder builder,
                                                           List<PopularPost> postList,

@@ -34,6 +34,9 @@ public class Reply {
     @ColumnDefault("True")
     private Boolean anonymity;
 
+    @Column(name = "CHECK_DELETE")
+    private Boolean checkDelete;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;

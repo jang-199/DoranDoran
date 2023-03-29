@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +39,10 @@ public class ReplyServiceImpl implements ReplyService{
     @Override
     public void saveReply(Reply reply) {
         replyRepository.save(reply);
+    }
+
+    @Override
+    public Optional<Reply> findReplyByReplyId(Long replyId) {
+        return replyRepository.findById(replyId);
     }
 }

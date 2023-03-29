@@ -60,8 +60,8 @@ public class BackgroundPicDBInitializer {
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")
                     .forMe(false)
-                    .latitude("127.1877412")
-                    .longitude("127.1877412")
+                    .latitude(127.1877412)
+                    .longitude(127.1877412)
                     .postTime(LocalDateTime.now())
                     .memberId(buildMember)
                     .switchPic(ImgType.DefaultBackground)
@@ -89,8 +89,10 @@ public class BackgroundPicDBInitializer {
                     .memberId(buildMember).build();
             if (i%2 == 0){
                 comment.setAnonymity(Boolean.TRUE);
+                comment.setCheckDelete(Boolean.TRUE);
             }else {
                 comment.setAnonymity(Boolean.FALSE);
+                comment.setCheckDelete(Boolean.FALSE);
             }
             commentService.saveComment(comment);
 
@@ -103,8 +105,10 @@ public class BackgroundPicDBInitializer {
 
             if (i%2 == 0){
                 reply.setAnonymity(Boolean.TRUE);
+                reply.setCheckDelete(Boolean.TRUE);
             }else {
                 reply.setAnonymity(Boolean.FALSE);
+                reply.setCheckDelete(Boolean.FALSE);
             }
             replyService.saveReply(reply);
 

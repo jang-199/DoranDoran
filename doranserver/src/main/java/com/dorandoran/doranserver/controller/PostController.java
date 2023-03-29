@@ -48,6 +48,7 @@ public class PostController {
     private final DistanceService distanceService;
     private final ReplyServiceImpl replyService;
     private final PopularPostServiceImpl popularPostService;
+    private final AnonymityMemberServiceImpl anonymityMemberService;
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
@@ -251,6 +252,7 @@ public class PostController {
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
         Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
 
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
@@ -285,7 +287,7 @@ public class PostController {
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (commentList.size() != 0) {
             for (Comment comment : commentList) {
-                CommentDetailDto build = CommentDetailDto.builder()
+                CommentDetailDto commentDetailDto = CommentDetailDto.builder()
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
                         .commentLike(commentLikeService.findCommentLikeCnt(comment))
@@ -293,7 +295,14 @@ public class PostController {
                         .commentTime(comment.getCommentTime())
                         .commentNickname(comment.getMemberId().getNickname())
                         .commentAnonymity(comment.getAnonymity())
+                        .CommentAnonymityNickname(null)
+                        .commentCheckDelete(comment.getCheckDelete())
                         .build();
+                if (anonymityMemberList.contains(comment.getMemberId().getEmail())){
+                    int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
+                    log.info("{}의 index값은 {}이다",comment.getMemberId().getEmail(), commentAnonymityIndex);
+                    commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
+                }
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 List<Reply> replyList = replyService.findReplyList(comment);
                 for (Reply reply : replyList) {
@@ -303,11 +312,18 @@ public class PostController {
                             .replyAnonymity(reply.getAnonymity())
                             .replyNickname(reply.getMemberId().getNickname())
                             .replyTime(reply.getReplyTime())
+                            .replyAnonymityNickname(null)
+                            .replyCheckDelete(reply.getCheckDelete())
                             .build();
+                    if (anonymityMemberList.contains(reply.getMemberId().getEmail())){
+                        int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+                        log.info("{}의 index값은 {}이다",reply.getMemberId().getEmail(), replyAnonymityIndex);
+                        replyDetailDtoBuild.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+                    }
                     replyDetailDtoList.add(replyDetailDtoBuild);
                 }
-                build.setReplies(replyDetailDtoList);
-                commentDetailDtoList.add(build);
+                commentDetailDto.setReplies(replyDetailDtoList);
+                commentDetailDtoList.add(commentDetailDto);
             }
         }
         postDetailDto.setCommentDetailDto(commentDetailDtoList);

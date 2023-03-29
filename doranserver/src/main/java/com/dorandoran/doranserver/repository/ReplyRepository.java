@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReplyRepository extends JpaRepository<Reply,Long> {
     @Query("select c from Reply c where c.commentId = :commentId")

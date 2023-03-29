@@ -66,12 +66,12 @@ public class PostController {
 
         //location null 처리
         if (postDto.getLocation().isBlank()) {
-            post.setLatitude("");
-            post.setLongitude("");
+            post.setLatitude(null);
+            post.setLongitude(null);
         } else {
             String[] userLocation = postDto.getLocation().split(",");
-            post.setLatitude(userLocation[0]);
-            post.setLongitude(userLocation[1]);
+            post.setLatitude(Double.valueOf(userLocation[0]));
+            post.setLongitude(Double.valueOf(userLocation[1]));
         }
 
         //파일 처리
@@ -203,10 +203,10 @@ public class PostController {
             //사용자 이미지 삭제 (imageName은 이미지 이름)
             if (post.get().getSwitchPic().equals(ImgType.UserUpload)) {
                 //window전용
-                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
+//                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
 
-                /*리눅스 되나..?
-                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.get().getImgName());*/
+                //리눅스
+                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.get().getImgName());
 
                 log.info("path : {}",path);
                 try {
@@ -268,14 +268,14 @@ public class PostController {
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude().isBlank() || post.get().getLongitude().isBlank()) {
+        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude()==null || post.get().getLongitude()==null) {
             postDetailDto.setLocation(null);
         } else {
             String[] userLocation = postRequestDetailDto.getLocation().split(",");
             Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                     Double.parseDouble(userLocation[1]),
-                    Double.parseDouble(post.get().getLatitude()),
-                    Double.parseDouble(post.get().getLongitude()));
+                    post.get().getLatitude(),
+                    post.get().getLongitude());
             postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
         }
 

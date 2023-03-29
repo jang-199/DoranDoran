@@ -39,9 +39,13 @@ public class InquiryClosePostController {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         String[] split = location.split(",");
         double Slat = Double.parseDouble(split[0])-0.1;
+        log.info("{}",Slat);
         double Llat = Double.parseDouble(split[0])+0.1;
+        log.info("{}",Llat);
         double Slon = Double.parseDouble(split[1])-0.1;
+        log.info("{}",Slon);
         double Llon = Double.parseDouble(split[1])+0.1;
+        log.info("{}",Llon);
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);

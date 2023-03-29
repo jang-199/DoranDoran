@@ -33,11 +33,11 @@ public class Post {
 
     @Nullable
     @Column(name = "LATITUDE")
-    private String latitude;
+    private Double latitude;
 
     @Nullable
     @Column(name = "LONGITUDE")
-    private String longitude;
+    private Double longitude;
 
     @NotNull
     @Column(name = "POST_TIME")

@@ -8,6 +8,12 @@ import com.dorandoran.doranserver.entity.PolicyTerms;
 import com.dorandoran.doranserver.service.MemberServiceImpl;
 import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
 import com.dorandoran.doranserver.service.SignUpImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -24,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Tag(name = "회원가입 관련 API",description = "SignUpController")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("api")
@@ -35,11 +42,16 @@ public class SignUpController {
     private final PolicyTermsCheckImpl policyTermsCheck;
     private final MemberServiceImpl memberService;
 
+    @Tag(name = "회원가입 관련 API")
+    @Operation(summary = "닉네임 중복 체크", description = "요청한 닉네임을 이미 가입된 회원들의 닉네임과 비교하여 중복을 체크합니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200",description = "사용가능한 닉네임"),
+            @ApiResponse(responseCode = "400",description = "중복된 닉네임")
+    })
     @PostMapping("/check-nickname")
-    ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
+    ResponseEntity<?> CheckNickname(@Parameter(description = "중복 체크할 닉네임") @RequestBody NicknameDto nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
-        if (nickname.isPresent()) {
+        if (nickname.isPresent() || nicknameDto.getNickname().isBlank()) {
             log.info("bad req response");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -47,6 +59,11 @@ public class SignUpController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Tag(name = "회원가입 관련 API")
+    @Operation(summary = "가입된 회원 체크", description = "요청한 이메일을 조회하여 가입 유무를 체크합니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200",description = "가입된 회원"),
+            @ApiResponse(responseCode = "400",description = "가입되지 않은 회원")
+    })
     @PostMapping("/check/registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
         Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
@@ -57,9 +74,13 @@ public class SignUpController {
         }
     }
 
-    //회원가입(출생년도, 닉네임, udid)
+    @Tag(name = "회원가입 관련 API")
+    @Operation(summary = "회원가입", description = "회원가입 API입니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200",description = "회원 가입 성공"),
+            @ApiResponse(responseCode = "400",description = "회원가입 실패")
+    })
     @PostMapping("/signup")
-    ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+    ResponseEntity<?> SignUp(@Parameter(description = "가입할 회원 정보") @RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 

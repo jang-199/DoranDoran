@@ -31,6 +31,9 @@ public class Comment {
     @ColumnDefault("True")
     private Boolean anonymity;
 
+    @Column(name = "CHECK_DELETE")
+    private Boolean checkDelete;
+
     @NotNull
     @Column(name = "COMMENT_TIME")
     private LocalDateTime commentTime;

@@ -54,10 +54,14 @@ public class InquiryClosePostController {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         String[] split = location.split(",");
         double Slat = Double.parseDouble(split[0])-0.1;
+        log.info("{}",Slat);
         double Llat = Double.parseDouble(split[0])+0.1;
+        log.info("{}",Llat);
         double Slon = Double.parseDouble(split[1])-0.1;
+        log.info("{}",Slon);
         double Llon = Double.parseDouble(split[1])+0.1;
-        log.info("Slat:{},Llat:{},Slon:{},Llon:{}",Slat,Llat,Slon,Llon);
+        log.info("{}",Llon);
+
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
@@ -77,22 +81,22 @@ public class InquiryClosePostController {
 
             Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
 
-            Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
-                    Double.parseDouble(split[1]),
-                    Double.parseDouble(e.getLatitude()),
-                    Double.parseDouble(e.getLongitude()));
+//            Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
+//                    Double.parseDouble(split[1]),
+//                    Double.parseDouble(e.getLatitude()),
+//                    Double.parseDouble(e.getLongitude()));
 
-            builder.postId(e.getPostId())
-                    .contents(e.getContent())
-                    .postTime(e.getPostTime())
-                    .location(distance.intValue())
-                    .likeCnt(lIkeCnt)
-                    .likeResult(likeResult)
-                    .ReplyCnt(commentAndReplyCntByPostId)
-                    .font(e.getFont())
-                    .fontColor(e.getFontColor())
-                    .fontSize(e.getFontSize())
-                    .fondBold(e.getFontBold());
+//            builder.postId(e.getPostId())
+//                    .contents(e.getContent())
+//                    .postTime(e.getPostTime())
+//                    .location(distance.intValue())
+//                    .likeCnt(lIkeCnt)
+//                    .likeResult(likeResult)
+//                    .ReplyCnt(commentAndReplyCntByPostId)
+//                    .font(e.getFont())
+//                    .fontColor(e.getFontColor())
+//                    .fontSize(e.getFontSize())
+//                    .fondBold(e.getFontBold());
 
 
             if (e.getSwitchPic() == ImgType.UserUpload) {

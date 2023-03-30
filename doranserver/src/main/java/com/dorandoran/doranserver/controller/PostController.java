@@ -48,6 +48,7 @@ public class PostController {
     private final DistanceService distanceService;
     private final ReplyServiceImpl replyService;
     private final PopularPostServiceImpl popularPostService;
+    private final AnonymityMemberServiceImpl anonymityMemberService;
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
@@ -66,12 +67,12 @@ public class PostController {
 
         //location null 처리
         if (postDto.getLocation().isBlank()) {
-            post.setLatitude("");
-            post.setLongitude("");
+            post.setLatitude(null);
+            post.setLongitude(null);
         } else {
             String[] userLocation = postDto.getLocation().split(",");
-            post.setLatitude(userLocation[0]);
-            post.setLongitude(userLocation[1]);
+            post.setLatitude(Double.valueOf(userLocation[0]));
+            post.setLongitude(Double.valueOf(userLocation[1]));
         }
 
         //파일 처리
@@ -203,10 +204,10 @@ public class PostController {
             //사용자 이미지 삭제 (imageName은 이미지 이름)
             if (post.get().getSwitchPic().equals(ImgType.UserUpload)) {
                 //window전용
-                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
+//                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
 
-                /*리눅스 되나..?
-                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.get().getImgName());*/
+                //리눅스
+                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.get().getImgName());
 
                 log.info("path : {}",path);
                 try {
@@ -251,6 +252,7 @@ public class PostController {
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
         Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
 
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
@@ -268,14 +270,14 @@ public class PostController {
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude().isBlank() || post.get().getLongitude().isBlank()) {
+        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude()==null || post.get().getLongitude()==null) {
             postDetailDto.setLocation(null);
         } else {
             String[] userLocation = postRequestDetailDto.getLocation().split(",");
             Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                     Double.parseDouble(userLocation[1]),
-                    Double.parseDouble(post.get().getLatitude()),
-                    Double.parseDouble(post.get().getLongitude()));
+                    post.get().getLatitude(),
+                    post.get().getLongitude());
             postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
         }
 
@@ -285,7 +287,7 @@ public class PostController {
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (commentList.size() != 0) {
             for (Comment comment : commentList) {
-                CommentDetailDto build = CommentDetailDto.builder()
+                CommentDetailDto commentDetailDto = CommentDetailDto.builder()
                         .commentId(comment.getCommentId())
                         .comment(comment.getComment())
                         .commentLike(commentLikeService.findCommentLikeCnt(comment))
@@ -293,7 +295,14 @@ public class PostController {
                         .commentTime(comment.getCommentTime())
                         .commentNickname(comment.getMemberId().getNickname())
                         .commentAnonymity(comment.getAnonymity())
+                        .CommentAnonymityNickname(null)
+                        .commentCheckDelete(comment.getCheckDelete())
                         .build();
+                if (anonymityMemberList.contains(comment.getMemberId().getEmail())){
+                    int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
+                    log.info("{}의 index값은 {}이다",comment.getMemberId().getEmail(), commentAnonymityIndex);
+                    commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
+                }
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 List<Reply> replyList = replyService.findReplyList(comment);
                 for (Reply reply : replyList) {
@@ -303,11 +312,18 @@ public class PostController {
                             .replyAnonymity(reply.getAnonymity())
                             .replyNickname(reply.getMemberId().getNickname())
                             .replyTime(reply.getReplyTime())
+                            .replyAnonymityNickname(null)
+                            .replyCheckDelete(reply.getCheckDelete())
                             .build();
+                    if (anonymityMemberList.contains(reply.getMemberId().getEmail())){
+                        int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+                        log.info("{}의 index값은 {}이다",reply.getMemberId().getEmail(), replyAnonymityIndex);
+                        replyDetailDtoBuild.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+                    }
                     replyDetailDtoList.add(replyDetailDtoBuild);
                 }
-                build.setReplies(replyDetailDtoList);
-                commentDetailDtoList.add(build);
+                commentDetailDto.setReplies(replyDetailDtoList);
+                commentDetailDtoList.add(commentDetailDto);
             }
         }
         postDetailDto.setCommentDetailDto(commentDetailDtoList);

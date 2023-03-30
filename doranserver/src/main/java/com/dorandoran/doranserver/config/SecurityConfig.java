@@ -27,6 +27,19 @@ public class SecurityConfig {
 //                .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
-
     }
+
+    private static final String[] PERMIT_URL_ARRAY = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**"
+    };
+
+    /**
+     * configure
+     * @param http
+     * @throws Exception
+     */
 }
+
+

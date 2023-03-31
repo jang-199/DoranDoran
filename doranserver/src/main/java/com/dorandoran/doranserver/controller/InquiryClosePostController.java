@@ -81,22 +81,22 @@ public class InquiryClosePostController {
 
             Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
 
-//            Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
-//                    Double.parseDouble(split[1]),
-//                    Double.parseDouble(e.getLatitude()),
-//                    Double.parseDouble(e.getLongitude()));
+            Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
+                    Double.parseDouble(split[1]),
+                    e.getLatitude(),
+                    e.getLongitude());
 
-//            builder.postId(e.getPostId())
-//                    .contents(e.getContent())
-//                    .postTime(e.getPostTime())
-//                    .location(distance.intValue())
-//                    .likeCnt(lIkeCnt)
-//                    .likeResult(likeResult)
-//                    .ReplyCnt(commentAndReplyCntByPostId)
-//                    .font(e.getFont())
-//                    .fontColor(e.getFontColor())
-//                    .fontSize(e.getFontSize())
-//                    .fondBold(e.getFontBold());
+            builder.postId(e.getPostId())
+                    .contents(e.getContent())
+                    .postTime(e.getPostTime())
+                    .location(distance.intValue())
+                    .likeCnt(lIkeCnt)
+                    .likeResult(likeResult)
+                    .ReplyCnt(commentAndReplyCntByPostId)
+                    .font(e.getFont())
+                    .fontColor(e.getFontColor())
+                    .fontSize(e.getFontSize())
+                    .fondBold(e.getFontBold());
 
 
             if (e.getSwitchPic() == ImgType.UserUpload) {

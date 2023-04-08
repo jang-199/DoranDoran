@@ -4,8 +4,14 @@ import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
 import com.dorandoran.doranserver.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name = "댓글 관련 API", description = "CommentController")
 @Controller
 @Slf4j
 @RequestMapping("/api")
@@ -31,8 +38,13 @@ public class CommentController {
     private final PopularPostServiceImpl popularPostService;
     private final AnonymityMemberService anonymityMemberService;
 
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "댓글 생성", description = "댓글을 생성, " +
+                                                   "요청한 글에 달린 댓글이 10개 이상 시 인기 있는 글을 추가," +
+                                                   "익명으로 작성 시 익명 테이블에 추가하는 API입니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "댓글 생성 성공")})
     @PostMapping("/comment")
-    ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
+    ResponseEntity<?> comment(@Parameter(description = "댓글 저장 시 필요한 데이터") @RequestBody CommentDto commentDto) {
         Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
@@ -75,15 +87,13 @@ public class CommentController {
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     * 대댓글 삭제 -> 댓글 공감 삭제 -> 댓글 삭제
-     * 삭제하려는 사용자 email과 작성한 댓글의 사용자 email이 다를 경우 bad request
-     * @param commentDeleteDto
-     * @return
-     */
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "댓글 삭제", description = "댓글 삭제하는 API로 실제로 삭제하는 것이 아닌 숨김 처리를 통해 사용자가 보지 못하게 한다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "댓글 삭제 성공"),
+                   @ApiResponse(responseCode = "400", description = "댓글 작성 사용자와 삭제 요청한 사용자가 다를 시 실패")})
     @PostMapping("/comment-delete")
     @Transactional
-    public ResponseEntity<?> deleteComment(@RequestBody CommentDeleteDto commentDeleteDto){
+    public ResponseEntity<?> deleteComment(@Parameter(description = "댓글 삭제 시 필요한 데이터") @RequestBody CommentDeleteDto commentDeleteDto){
         Optional<Comment> comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
         if (comment.get().getMemberId().getEmail().equals(commentDeleteDto.getUserEmail())) {
             //댓글 checkDelete 삭제로 표시
@@ -97,8 +107,11 @@ public class CommentController {
         }
     }
 
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "댓글 공감", description = "댓글 공감하는 API로 기존의 댓글 공감 했을 시 취소합니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "댓글 공감이나 공감 취소 성공")})
     @PostMapping("/comment-like")
-    ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
+    ResponseEntity<?> commentLike(@Parameter(description = "댓글 공감 시 필요한 데이터")@RequestBody CommentLikeDto commentLikeDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Optional<Member> member = memberService.findByEmail(commentLikeDto.getUserEmail());
 
@@ -120,8 +133,12 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "대댓글 작성", description = "대댓글 작성, 익명 선택 시 익명 테이블에 저장하는 API입니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "댓글 작성 성공"),
+                   @ApiResponse(responseCode = "400", description = "댓글 작성 실패")})
     @PostMapping("/reply")
-    public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
+    public ResponseEntity<?> reply(@Parameter(description = "대댓글 작성 시 필요한 데이터") @RequestBody ReplyDto replyDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
         Optional<Member> member = memberService.findByEmail(replyDto.getUserEmail());
 
@@ -161,9 +178,13 @@ public class CommentController {
         }
     }
 
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "대댓글 삭제", description = "대댓글을 삭제하는 API로 실제로 삭제하는 것이 아닌 숨김 처리를 통해 사용자가 보지 못하게 한다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "대댓글 삭제 성공"),
+                    @ApiResponse(responseCode = "400", description = "대댓글 작성 사용자와 삭제 요청한 사용자가 다를 시 실패")})
     @PostMapping("/reply-delete")
     @Transactional
-    public ResponseEntity<?> replyDelete(@RequestBody ReplyDeleteDto replyDeleteDto){
+    public ResponseEntity<?> replyDelete(@Parameter(description = "대댓글 삭제 시 필요한 데이터")@RequestBody ReplyDeleteDto replyDeleteDto){
         Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId()).orElseThrow(() -> new CannotFindReplyException("에러 발생"));
         if (reply.getMemberId().getEmail().equals(replyDeleteDto.getUserEmail())){
             //대댓글 checkDelete 삭제로 표시
@@ -176,5 +197,4 @@ public class CommentController {
             return new ResponseEntity<>("대댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
         }
     }
-
 }

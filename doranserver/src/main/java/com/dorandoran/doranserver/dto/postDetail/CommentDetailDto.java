@@ -20,7 +20,6 @@ public class CommentDetailDto {
     String commentNickname; //댓글 쓴 사람 닉네임
     String CommentAnonymityNickname; //익명일 때 닉네임
     Boolean commentCheckDelete; //댓글 삭제 여부
-    Boolean commentAnonymity; //댓글 작성자 익명성 여부
     LocalDateTime commentTime; //댓글 작성 시간
     List<ReplyDetailDto> replies; //대댓글
 }

@@ -7,12 +7,18 @@ import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
@@ -24,6 +30,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Tag(name = "글 관련 API",description = "PostController")
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -50,8 +57,13 @@ public class PostController {
     private final PopularPostServiceImpl popularPostService;
     private final AnonymityMemberServiceImpl anonymityMemberService;
 
+    @Tag(name = "글 관련 API")
+    @Operation(summary = "글 생성", description = "글을 생성하는 API입니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "글 생성, 요청한 사진이 있을 시 사진 저장, 해시 태그 저장 성공"),
+                   @ApiResponse(responseCode = "400", description = "사진 저장 실패")
+    })
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto postDto) {
+    ResponseEntity<?> Post(@Parameter(description = "글 저장 시 필요한 데이터") PostDto postDto) {
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
         Post post = Post.builder()
                 .content(postDto.getContent())
@@ -155,8 +167,14 @@ public class PostController {
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
      */
+    @Tag(name = "글 관련 API")
+    @Operation(summary = "글 삭제", description = "요청한 글을 삭제하는 API입니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "글 삭제 성공"),
+                   @ApiResponse(responseCode = "400", description = "글 작성한 사용자와 삭제 요청한 사용자가 다를 시 실패")
+    })
+    @Transactional
     @PostMapping("/post-delete")
-    public ResponseEntity<?> postDelete(@RequestBody PostDeleteDto postDeleteDto) throws IOException {
+    public ResponseEntity<?> postDelete(@Parameter(description = "글 삭제 시 필요한 데이터") @RequestBody PostDeleteDto postDeleteDto) throws IOException {
         Optional<Post> post = postService.findSinglePost(postDeleteDto.getPostId());
         List<Comment> commentList = commentService.findCommentByPost(post.get());
 
@@ -226,8 +244,11 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Tag(name = "글 관련 API")
+    @Operation(summary = "글 공감", description = "요청한 글에 공감을 추가하는 API로 기존에 공감이 돼 있으면 공감을 취소합니다.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "글 공감이나 취소 성공")})
     @PostMapping("/post-like")
-    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
+    ResponseEntity<?> postLike(@Parameter(description = "글 공감에 필요한 데이터")@RequestBody PostLikeDto postLikeDto) {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
         Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
@@ -248,6 +269,7 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Tag(name = "글 관련 API")
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
@@ -294,7 +316,6 @@ public class PostController {
                         .commentLikeResult(commentLikeService.findCommentLikeResult(postRequestDetailDto.getUserEmail(),comment))
                         .commentTime(comment.getCommentTime())
                         .commentNickname(comment.getMemberId().getNickname())
-                        .commentAnonymity(comment.getAnonymity())
                         .CommentAnonymityNickname(null)
                         .commentCheckDelete(comment.getCheckDelete())
                         .build();
@@ -309,7 +330,6 @@ public class PostController {
                     ReplyDetailDto replyDetailDtoBuild = ReplyDetailDto.builder()
                             .replyId(reply.getReplyId())
                             .reply(reply.getReply())
-                            .replyAnonymity(reply.getAnonymity())
                             .replyNickname(reply.getMemberId().getNickname())
                             .replyTime(reply.getReplyTime())
                             .replyAnonymityNickname(null)

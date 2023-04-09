@@ -53,7 +53,7 @@ public class CommentController {
         Optional<Post> singlePost = postService.findSinglePost(commentDto.getPostId());
         if (singlePost.isPresent()) {
             List<Comment> commentByPost = commentService.findCommentByPost(singlePost.get());
-            if (commentByPost.size() >= 10) {
+            if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost.get()).size() == 0) {
                 PopularPost build = PopularPost.builder().postId(singlePost.get()).build();
                 popularPostService.savePopularPost(build);
             }

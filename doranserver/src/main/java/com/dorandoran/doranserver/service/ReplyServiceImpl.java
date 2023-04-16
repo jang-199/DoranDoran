@@ -4,6 +4,8 @@ import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Reply;
 import com.dorandoran.doranserver.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,11 +29,6 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
-    public List<String> findReplyContents(Comment comment) {
-        return replyRepository.findReplyContents(comment);
-    }
-
-    @Override
     public void deleteReply(Reply reply) {
         replyRepository.delete(reply);
     }
@@ -44,5 +41,17 @@ public class ReplyServiceImpl implements ReplyService{
     @Override
     public Optional<Reply> findReplyByReplyId(Long replyId) {
         return replyRepository.findById(replyId);
+    }
+
+    @Override
+    public List<Reply> findFirstReplies(Comment comment) {
+        PageRequest of = PageRequest.of(0, 10);
+        return replyRepository.findFirstReplies(comment, of);
+    }
+
+    @Override
+    public List<Reply> findNextReplies(Long commentId, Long replyId) {
+        PageRequest of = PageRequest.of(0, 10);
+        return replyRepository.findNextReplies(commentId, replyId, of);
     }
 }

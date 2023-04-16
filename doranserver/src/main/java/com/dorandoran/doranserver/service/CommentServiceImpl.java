@@ -8,6 +8,8 @@ import com.dorandoran.doranserver.repository.CommentRepository;
 import com.dorandoran.doranserver.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -71,5 +73,17 @@ public class CommentServiceImpl implements CommentService {
         }
         //댓글 삭제
         deleteComment(comment.get());
+    }
+
+    @Override
+    public List<Comment> findFirstComments(Post post) {
+        PageRequest of = PageRequest.of(0, 10);
+        return commentRepository.findFirstComments(post, of);
+    }
+
+    @Override
+    public List<Comment> findNextComments(Long postId, Long commentId) {
+        PageRequest of = PageRequest.of(0, 10);
+        return commentRepository.findNextComments(postId, commentId, of);
     }
 }

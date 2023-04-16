@@ -304,7 +304,7 @@ public class PostController {
         }
 
         //댓글 builder
-        List<Comment> commentList = commentService.findCommentByPost(post.get());
+        List<Comment> commentList = commentService.findFirstComments(post.get());
 
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (commentList.size() != 0) {
@@ -325,7 +325,7 @@ public class PostController {
                     commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
                 }
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
-                List<Reply> replyList = replyService.findReplyList(comment);
+                List<Reply> replyList = replyService.findFirstReplies(comment);
                 for (Reply reply : replyList) {
                     ReplyDetailDto replyDetailDtoBuild = ReplyDetailDto.builder()
                             .replyId(reply.getReplyId())

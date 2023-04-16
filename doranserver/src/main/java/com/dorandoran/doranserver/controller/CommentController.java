@@ -1,6 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
+import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
 import com.dorandoran.doranserver.service.*;
@@ -12,17 +14,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Tag(name = "댓글 관련 API", description = "CommentController")
 @Controller
@@ -37,6 +40,45 @@ public class CommentController {
     private final ReplyServiceImpl replyService;
     private final PopularPostServiceImpl popularPostService;
     private final AnonymityMemberService anonymityMemberService;
+
+    @GetMapping("/comment")
+    public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
+                                            @RequestParam("commentId") Long commentId,
+                                            @RequestParam("userEmail") String userEmail) {
+        Optional<Post> post = postService.findSinglePost(postId);
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
+        List<Comment> comments = commentService.findNextComments(postId, commentId);
+        List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
+        if (comments.size() != 0) {
+            for (Comment comment : comments) {
+                Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
+                Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
+
+                //대댓글 10개 저장
+                List<Reply> replies = replyService.findFirstReplies(comment);
+                List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
+                for (Reply reply : replies) {
+                    ReplyDetailDto replyDetailDto = new ReplyDetailDto(reply);
+                    if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
+                        int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+                        log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
+                        replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+                    }
+                    replyDetailDtoList.add(replyDetailDto);
+                }
+
+                CommentDetailDto commentDetailDto = new CommentDetailDto(comment, commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
+                    int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
+                    log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
+                    commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
+                }
+                commentDetailDtoList.add(commentDetailDto);
+            }
+        }
+
+        return ResponseEntity.ok().body(commentDetailDtoList);
+    }
 
     @Tag(name = "댓글 관련 API")
     @Operation(summary = "댓글 생성", description = "댓글을 생성, " +
@@ -87,6 +129,7 @@ public class CommentController {
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     @Tag(name = "댓글 관련 API")
     @Operation(summary = "댓글 삭제", description = "댓글 삭제하는 API로 실제로 삭제하는 것이 아닌 숨김 처리를 통해 사용자가 보지 못하게 한다.")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "댓글 삭제 성공"),
@@ -131,6 +174,28 @@ public class CommentController {
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/reply")
+    public ResponseEntity<?> inquiryReply(@RequestParam("postId") Long postId,
+                                          @RequestParam("commentId") Long commentId,
+                                          @RequestParam("replyId") Long replyId){
+        Optional<Post> post = postService.findSinglePost(postId);
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
+        List<Reply> replies = replyService.findNextReplies(commentId, replyId);
+
+        List<ReplyDetailDto> replyDtoList = new ArrayList<>();
+        for (Reply reply : replies) {
+            ReplyDetailDto replyDetailDto = new ReplyDetailDto(reply);
+            if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
+                int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+                log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
+                replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+            }
+            replyDtoList.add(replyDetailDto);
+        }
+
+        return ResponseEntity.ok().body(replyDtoList);
     }
 
     @Tag(name = "댓글 관련 API")
@@ -197,4 +262,6 @@ public class CommentController {
             return new ResponseEntity<>("대댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
         }
     }
+
+
 }

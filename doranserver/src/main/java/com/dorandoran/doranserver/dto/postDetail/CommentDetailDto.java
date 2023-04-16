@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.dto.postDetail;
 
+import com.dorandoran.doranserver.entity.Comment;
+import com.dorandoran.doranserver.entity.Reply;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,4 +24,16 @@ public class CommentDetailDto {
     Boolean commentCheckDelete; //댓글 삭제 여부
     LocalDateTime commentTime; //댓글 작성 시간
     List<ReplyDetailDto> replies; //대댓글
+
+    public CommentDetailDto(Comment comment, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replies) {
+        this.commentId = comment.getCommentId();
+        this.comment = comment.getComment();
+        this.commentLike = commentLikeCnt;
+        this.commentLikeResult = commentLikeResult;
+        this.commentNickname = comment.getMemberId().getNickname();
+        this.CommentAnonymityNickname = null;
+        this.commentCheckDelete = comment.getCheckDelete();
+        this.commentTime = comment.getCommentTime();
+        this.replies = replies;
+    }
 }

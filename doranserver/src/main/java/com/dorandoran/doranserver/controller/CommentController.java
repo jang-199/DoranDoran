@@ -2,12 +2,15 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.PostDetailDto;
 import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
 import com.dorandoran.doranserver.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +45,15 @@ public class CommentController {
     private final PopularPostServiceImpl popularPostService;
     private final AnonymityMemberService anonymityMemberService;
 
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "댓글 최대 10개 조회", description = "댓글 pk값을 통해서 현재 조회되지 않은 댓글을 최대 10개를 반환하는 API입니다." +
+            "\n\n Ex.현재 조회된 댓글의 최소 Pk값이 25라면 그 전의 PK값인 20,22,23의 댓글을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "최대 10개의 댓글을 반환합니다.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,schema = @Schema(implementation = CommentDetailDto.class)))
     @GetMapping("/comment")
-    public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
-                                            @RequestParam("commentId") Long commentId,
-                                            @RequestParam("userEmail") String userEmail) {
+    public ResponseEntity<?> inquiryComment(@Parameter(description = "글 pk값", required = true) @RequestParam("postId") Long postId,
+                                            @Parameter(description = "현재 조회된 최소 댓글 pk값", required = true) @RequestParam("commentId") Long commentId,
+                                            @Parameter(description = "사용자 email", required = true) @RequestParam("userEmail") String userEmail) {
         Optional<Post> post = postService.findSinglePost(postId);
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
         List<Comment> comments = commentService.findNextComments(postId, commentId);
@@ -176,10 +185,15 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Tag(name = "댓글 관련 API")
+    @Operation(summary = "대댓글 최대 10개 조회", description = "대댓글 pk값을 통해서 현재 조회되지 않은 댓글을 최대 10개를 반환하는 API입니다." +
+            "\n\n Ex.현재 조회된 대댓글의 최소 Pk값이 25라면 그 전의 PK값인 20,22,23의 댓글을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "최대 10개의 대댓글을 반환합니다.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,schema = @Schema(implementation = ReplyDetailDto.class)))
     @GetMapping("/reply")
-    public ResponseEntity<?> inquiryReply(@RequestParam("postId") Long postId,
-                                          @RequestParam("commentId") Long commentId,
-                                          @RequestParam("replyId") Long replyId){
+    public ResponseEntity<?> inquiryReply(@Parameter(description = "글 pk값", required = true) @RequestParam("postId") Long postId,
+                                          @Parameter(description = "대댓글이 작성된 댓글 pk 값", required = true) @RequestParam("commentId") Long commentId,
+                                          @Parameter(description = "현재 조회된 최소 대댓글 pk값", required = true) @RequestParam("replyId") Long replyId){
         Optional<Post> post = postService.findSinglePost(postId);
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);

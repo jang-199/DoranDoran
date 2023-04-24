@@ -9,6 +9,8 @@ import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -270,9 +273,13 @@ public class PostController {
     }
 
     @Tag(name = "글 관련 API")
+    @Operation(summary = "글 상세보기", description = "글에 대한 상세정보를 반환하는 API입니다.")
+    @ApiResponse(responseCode = "200", description = "글 상세보기 반환 성공",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,schema = @Schema(implementation = PostDetailDto.class)))
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
     @PostMapping("/post/detail")
-    ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
+    ResponseEntity<?> postDetails(@Parameter(description = "글 상세보기에 필요한 데이터")
+                                  @RequestBody PostRequestDetailDto postRequestDetailDto) {
         Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
 

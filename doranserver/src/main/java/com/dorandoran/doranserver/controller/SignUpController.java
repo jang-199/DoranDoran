@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.dto.CheckRegisteredMemberDto;
 import com.dorandoran.doranserver.dto.NicknameDto;
 import com.dorandoran.doranserver.dto.SignUpDto;
+import com.dorandoran.doranserver.dto.UserInfoDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
 import com.dorandoran.doranserver.service.MemberServiceImpl;
@@ -68,7 +69,12 @@ public class SignUpController {
     ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
         Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
         if (byEmail.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(
+                    UserInfoDto.builder()
+                            .email(byEmail.get().getEmail())
+                            .nickName(byEmail.get().getNickname())
+                            .build(),
+                    HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -117,7 +123,7 @@ public class SignUpController {
 
                 signUp.saveMember(member);
 
-                return new ResponseEntity<>(member.getEmail(), HttpStatus.OK);
+                return new ResponseEntity<>(UserInfoDto.builder().email(member.getEmail()).nickName(member.getNickname()).build(), HttpStatus.OK);
             }
 
         } catch (HttpClientErrorException e) {

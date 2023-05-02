@@ -49,5 +49,5 @@ public class PostResponseDto {
     Integer fontSize;
 
     @Schema(description = "글 굵기",example = "400")
-    Integer fondBold;
+    Integer fontBold;
 }

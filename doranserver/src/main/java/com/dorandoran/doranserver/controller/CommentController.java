@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ public class CommentController {
                     }
                     replyDetailDtoList.add(replyDetailDto);
                 }
-
+                Collections.reverse(replyDetailDtoList);
                 CommentDetailDto commentDetailDto = new CommentDetailDto(comment, commentLikeCnt, commentLikeResult, replyDetailDtoList);
                 if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
                     int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
@@ -85,7 +86,7 @@ public class CommentController {
                 commentDetailDtoList.add(commentDetailDto);
             }
         }
-
+        Collections.reverse(commentDetailDtoList);
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
@@ -208,6 +209,7 @@ public class CommentController {
             }
             replyDtoList.add(replyDetailDto);
         }
+        Collections.reverse(replyDtoList);
 
         return ResponseEntity.ok().body(replyDtoList);
     }

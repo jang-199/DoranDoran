@@ -2,7 +2,6 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
-import com.dorandoran.doranserver.dto.postDetail.PostDetailDto;
 import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
@@ -16,8 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Tag(name = "댓글 관련 API", description = "CommentController")
 @Controller

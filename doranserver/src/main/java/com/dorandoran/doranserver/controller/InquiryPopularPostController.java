@@ -30,7 +30,7 @@ import java.util.List;
 @Tag(name = "인기글 관련 API", description = "InquiryPopularPostController")
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/api")
 @RestController
 @Controller
 public class InquiryPopularPostController {

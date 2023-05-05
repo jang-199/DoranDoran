@@ -96,7 +96,7 @@ public class InquiryClosePostController {
                     .font(e.getFont())
                     .fontColor(e.getFontColor())
                     .fontSize(e.getFontSize())
-                    .fondBold(e.getFontBold());
+                    .fontBold(e.getFontBold());
 
 
             if (e.getSwitchPic() == ImgType.UserUpload) {

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ public class CommentController {
                     }
                     replyDetailDtoList.add(replyDetailDto);
                 }
-
+                Collections.reverse(replyDetailDtoList);
                 CommentDetailDto commentDetailDto = new CommentDetailDto(comment, commentLikeCnt, commentLikeResult, replyDetailDtoList);
                 if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
                     int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
@@ -85,7 +86,7 @@ public class CommentController {
                 commentDetailDtoList.add(commentDetailDto);
             }
         }
-
+        Collections.reverse(commentDetailDtoList);
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
@@ -109,6 +110,7 @@ public class CommentController {
                 .memberId(member.get())
                 .anonymity(commentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
+                .secretMode(commentDto.getSecretMode())
                 .build();
         commentService.saveComment(comment);
 
@@ -193,7 +195,8 @@ public class CommentController {
     @GetMapping("/reply")
     public ResponseEntity<?> inquiryReply(@Parameter(description = "글 pk값", required = true) @RequestParam("postId") Long postId,
                                           @Parameter(description = "대댓글이 작성된 댓글 pk 값", required = true) @RequestParam("commentId") Long commentId,
-                                          @Parameter(description = "현재 조회된 최소 대댓글 pk값", required = true) @RequestParam("replyId") Long replyId){
+                                          @Parameter(description = "현재 조회된 최소 대댓글 pk값", required = true) @RequestParam("replyId") Long replyId,
+                                          @Parameter(description = "사용자 email", required = true) @RequestParam("userEmail") String userEmail){
         Optional<Post> post = postService.findSinglePost(postId);
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
@@ -208,6 +211,7 @@ public class CommentController {
             }
             replyDtoList.add(replyDetailDto);
         }
+        Collections.reverse(replyDtoList);
 
         return ResponseEntity.ok().body(replyDtoList);
     }
@@ -232,6 +236,7 @@ public class CommentController {
                     .commentId(comment.get())
                     .memberId(member.get())
                     .checkDelete(Boolean.FALSE)
+                    .secretMode(replyDto.getSecretMode())
                     .build();
 
             replyService.saveReply(buildReply);
@@ -276,6 +281,4 @@ public class CommentController {
             return new ResponseEntity<>("대댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
         }
     }
-
-
 }

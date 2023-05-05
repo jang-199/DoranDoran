@@ -101,7 +101,7 @@ public class InquiryPopularPostController {
                         .font(popularPost.getPostId().getFont())
                         .fontColor(popularPost.getPostId().getFontColor())
                         .fontSize(popularPost.getPostId().getFontSize())
-                        .fondBold(popularPost.getPostId().getFontBold());
+                        .fontBold(popularPost.getPostId().getFontBold());
             }
 
             if (popularPost.getPostId().getSwitchPic() == ImgType.UserUpload) {

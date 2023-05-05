@@ -349,10 +349,12 @@ public class PostController {
                     }
                     replyDetailDtoList.add(replyDetailDtoBuild);
                 }
+                Collections.reverse(replyDetailDtoList);
                 commentDetailDto.setReplies(replyDetailDtoList);
                 commentDetailDtoList.add(commentDetailDto);
             }
         }
+        Collections.reverse(commentDetailDtoList);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 
         //해시태그 builder

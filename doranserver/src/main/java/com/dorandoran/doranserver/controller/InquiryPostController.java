@@ -94,7 +94,7 @@ public class InquiryPostController {
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
-                        .fondBold(post.getFontBold());
+                        .fontBold(post.getFontBold());
             }
 
             if (post.getSwitchPic() == ImgType.UserUpload) {

@@ -38,6 +38,9 @@ public class Comment {
     @Column(name = "COMMENT_TIME")
     private LocalDateTime commentTime;
 
+    @Column(name = "SECRET_MODE")
+    private Boolean secretMode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;

@@ -21,4 +21,6 @@ public class CommentDto {
     String comment;
     @Schema(description = "사용자 닉네임 익명성 여부", example = "true")
     Boolean anonymity;
+    @Schema(description = "비밀댓글 여부", example = "true")
+    Boolean secretMode;
 }

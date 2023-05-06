@@ -106,14 +106,13 @@ public class BackgroundPicDBInitializer {
             if (i%2 == 0){
                 reply.setAnonymity(Boolean.TRUE);
                 reply.setCheckDelete(Boolean.TRUE);
+                reply.setSecretMode(Boolean.TRUE);
             }else {
                 reply.setAnonymity(Boolean.FALSE);
                 reply.setCheckDelete(Boolean.FALSE);
+                reply.setSecretMode(Boolean.FALSE);
             }
             replyService.saveReply(reply);
-
-
-
         }
 
 

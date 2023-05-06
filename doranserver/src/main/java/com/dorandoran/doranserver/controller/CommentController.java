@@ -56,6 +56,7 @@ public class CommentController {
                                             @Parameter(description = "현재 조회된 최소 댓글 pk값", required = true) @RequestParam("commentId") Long commentId,
                                             @Parameter(description = "사용자 email", required = true) @RequestParam("userEmail") String userEmail) {
         Optional<Post> post = postService.findSinglePost(postId);
+        log.info("글쓴이 email : {}", post.get().getMemberId().getEmail());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
         List<Comment> comments = commentService.findNextComments(postId, commentId);
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
@@ -64,11 +65,30 @@ public class CommentController {
                 Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
                 Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
 
-                //대댓글 10개 저장
+                //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstReplies(comment);
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 for (Reply reply : replies) {
-                    ReplyDetailDto replyDetailDto = new ReplyDetailDto(reply);
+                    ReplyDetailDto replyDetailDto = null;
+                    //비밀 대댓글에 따른 저장 로직
+                    if (reply.getSecretMode() == Boolean.TRUE) {
+                        log.info("{}는 비밀 댓글로직 실행", reply.getReplyId());
+                        if (userEmail.equals(post.get().getMemberId().getEmail())) {
+                            //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
+                            replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                            log.info("글쓴이입니다.");
+                        } else {
+                            //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
+                            replyDetailDto =
+                                    (reply.getMemberId().getEmail().equals(userEmail))
+                                            ? new ReplyDetailDto(reply, reply.getReply())
+                                            : new ReplyDetailDto(reply, "비밀 댓글입니다.");
+                            log.info("글쓴이가 아닙니다.");
+                        }
+                    }else {
+                        log.info("{}는 비밀 댓글로직 실행 안함",reply.getReplyId());
+                        replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                    }
                     if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
                         int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
                         log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
@@ -77,7 +97,24 @@ public class CommentController {
                     replyDetailDtoList.add(replyDetailDto);
                 }
                 Collections.reverse(replyDetailDtoList);
-                CommentDetailDto commentDetailDto = new CommentDetailDto(comment, commentLikeCnt, commentLikeResult, replyDetailDtoList);
+
+                //비밀 댓글에 따른 저장 로직
+                CommentDetailDto commentDetailDto = null;
+                if (comment.getSecretMode() == Boolean.TRUE) {
+                    if (userEmail.equals(post.get().getMemberId().getEmail())) {
+                        //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
+                        commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                    } else {
+                        //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
+                        commentDetailDto =
+                                (comment.getMemberId().getEmail() == userEmail)
+                                        ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList)
+                                        : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                    }
+                }else {
+                    commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                }
+
                 if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
                     int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
                     log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
@@ -203,13 +240,22 @@ public class CommentController {
 
         List<ReplyDetailDto> replyDtoList = new ArrayList<>();
         for (Reply reply : replies) {
-            ReplyDetailDto replyDetailDto = new ReplyDetailDto(reply);
-            if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
-                int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
-                log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
-                replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+            ReplyDetailDto replyDetailDto = null;
+            //비밀 대댓글에 따른 저장 로직
+            if (reply.getSecretMode() == Boolean.TRUE) {
+                if (userEmail.equals(post.get().getMemberId().getEmail())) {
+                    //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
+                    replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                } else {
+                    //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
+                    replyDetailDto =
+                            (reply.getMemberId().getEmail() == userEmail)
+                                    ? new ReplyDetailDto(reply, reply.getReply())
+                                    : new ReplyDetailDto(reply, "비밀 댓글입니다.");
+                }
+            }else {
+                replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
             }
-            replyDtoList.add(replyDetailDto);
         }
         Collections.reverse(replyDtoList);
 

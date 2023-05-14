@@ -36,9 +36,9 @@ public class CommentDetailDto {
     @Schema(description = "대댓글 상세 정보 list")
     List<ReplyDetailDto> replies; //대댓글
 
-    public CommentDetailDto(Comment comment, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replies) {
+    public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();
-        this.comment = comment.getComment();
+        this.comment = content;
         this.commentLike = commentLikeCnt;
         this.commentLikeResult = commentLikeResult;
         this.commentNickname = comment.getMemberId().getNickname();

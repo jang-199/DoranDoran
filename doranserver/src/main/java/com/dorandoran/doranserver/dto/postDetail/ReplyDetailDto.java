@@ -28,10 +28,10 @@ public class ReplyDetailDto {
     @Schema(description = "대댓글 작성 시간")
     LocalDateTime replyTime; //대댓글 작성 시간
 
-    public ReplyDetailDto(Reply reply) {
+    public ReplyDetailDto(Reply reply, String content) {
         this.replyId = reply.getReplyId();
         this.replyNickname = reply.getMemberId().getNickname();
-        this.reply = reply.getReply();
+        this.reply = content;
         this.replyAnonymityNickname = null;
         this.replyCheckDelete = reply.getCheckDelete();
         this.replyTime = reply.getReplyTime();

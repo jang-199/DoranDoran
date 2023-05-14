@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.entity.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +22,7 @@ import java.util.Set;
 @Service
 public class TokenProvider {
     private final JwtProperties jwtProperties;
-    private SecretKey secretKey = Keys.hmacShaKeyFor("hjsdoran2023asadfsadfasdfsadfsafdsafsfsadfsdfasdfa".getBytes(StandardCharsets.UTF_8));
+
 
     public String generateToken(Member user, Duration expireAt) {
         Date now = new Date();
@@ -38,13 +39,13 @@ public class TokenProvider {
                 .setExpiration(expiry)
                 .setSubject(user.getEmail())
                 .claim("email",user.getEmail())
-                .signWith(secretKey,SignatureAlgorithm.HS256)
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public Boolean validToken(String jwtToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(jwtToken);//복호화
+            Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8))).build().parseClaimsJws(jwtToken);//복호화
             return true;
         } catch (Exception e) {
             return false;
@@ -63,7 +64,7 @@ public class TokenProvider {
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(secretKey)
+        return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

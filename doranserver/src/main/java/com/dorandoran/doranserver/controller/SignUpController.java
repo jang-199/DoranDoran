@@ -11,7 +11,6 @@ import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
 import com.dorandoran.doranserver.service.SignUpImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +33,7 @@ import java.util.Optional;
 @Tag(name = "회원가입 관련 API",description = "SignUpController")
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/api")
 @RestController
 @Controller
 public class SignUpController {

@@ -30,7 +30,7 @@ import java.util.List;
 @Tag(name = "인기글 관련 API", description = "InquiryPopularPostController")
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("api")
+@RequestMapping("/api")
 @RestController
 @Controller
 public class InquiryPopularPostController {
@@ -79,6 +79,10 @@ public class InquiryPopularPostController {
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(popularPost.getPostId());
             if (location.isBlank() || popularPost.getPostId().getLongitude() == null || popularPost.getPostId().getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
+                        .font(popularPost.getPostId().getFont())
+                        .fontColor(popularPost.getPostId().getFontColor())
+                        .fontSize(popularPost.getPostId().getFontSize())
+                        .fontBold(popularPost.getPostId().getFontBold())
                         .postId(popularPost.getPostId().getPostId())
                         .contents(popularPost.getPostId().getContent())
                         .postTime(popularPost.getPostId().getPostTime())

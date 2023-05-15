@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.config;
+package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

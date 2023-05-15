@@ -41,6 +41,8 @@ public class PostDetailDto {
     Integer fontSize;
     @Schema(description = "글자 굵기", example = "50")
     Integer fontBold;
+    @Schema(description = "댓글 작성 유무", example = "true")
+    Boolean checkWrite;
     @Schema(description = "댓글 상세정보 list")
     List<CommentDetailDto> commentDetailDto; //댓글
     @Schema(description = "글의 해시태그 list")

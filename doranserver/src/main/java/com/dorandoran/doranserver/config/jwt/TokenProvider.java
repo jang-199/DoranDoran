@@ -25,17 +25,15 @@ public class TokenProvider {
 
 
     public String generateToken(Member user, Duration expireAt) {
-        Date now = new Date();
-        return makeToken(new Date(now.getTime() + expireAt.toMillis()), user);
+        return makeToken(new Date(new Date().getTime() + expireAt.toMillis()), user);
     }
 
     private String makeToken(Date expiry, Member user) {
-        Date now = new Date();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE,Header.JWT_TYPE)
                 .setIssuer(jwtProperties.getIssuer())
-                .setIssuedAt(now)
+                .setIssuedAt(new Date())
                 .setExpiration(expiry)
                 .setSubject(user.getEmail())
                 .claim("email",user.getEmail())
@@ -45,7 +43,9 @@ public class TokenProvider {
 
     public Boolean validToken(String jwtToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8))).build().parseClaimsJws(jwtToken);//복호화
+            Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .parseClaimsJws(jwtToken);//복호화
             return true;
         } catch (Exception e) {
             return false;

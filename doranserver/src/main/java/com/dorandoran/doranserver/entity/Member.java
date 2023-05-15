@@ -47,8 +47,12 @@ public class Member implements UserDetails {
     @JoinColumn(name = "POLICY_TERMS_ID")
     private PolicyTerms policyTermsId;
 
+    @NotNull
+    @Column(name = "REFRESH_TOKEN")
+    private String refreshToken;
+
     @Builder
-    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId) {
+    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken) {
         this.memberId = memberId;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
@@ -56,6 +60,7 @@ public class Member implements UserDetails {
         this.signUpDate = signUpDate;
         this.firebaseToken = firebaseToken;
         this.policyTermsId = policyTermsId;
+        this.refreshToken = refreshToken;
     }
 
     @Override

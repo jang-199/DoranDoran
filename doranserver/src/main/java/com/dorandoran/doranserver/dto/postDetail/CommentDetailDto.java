@@ -33,8 +33,11 @@ public class CommentDetailDto {
     Boolean commentCheckDelete; //댓글 삭제 여부
     @Schema(description = "댓글 작성 시간")
     LocalDateTime commentTime; //댓글 작성 시간
+    @Schema(description = "대댓글의 수")
+    int countReply;
     @Schema(description = "대댓글 상세 정보 list")
     List<ReplyDetailDto> replies; //대댓글
+
 
     public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();
@@ -45,6 +48,7 @@ public class CommentDetailDto {
         this.CommentAnonymityNickname = null;
         this.commentCheckDelete = comment.getCheckDelete();
         this.commentTime = comment.getCommentTime();
+        this.countReply = comment.getCountReply();
         this.replies = replies;
     }
 }

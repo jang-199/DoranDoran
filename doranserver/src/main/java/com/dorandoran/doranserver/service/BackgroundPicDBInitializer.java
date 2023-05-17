@@ -86,7 +86,9 @@ public class BackgroundPicDBInitializer {
                     .comment("나는" + i + "야 반가워")
                     .commentTime(LocalDateTime.now())
                     .postId(postService.findSinglePost(i).get())
-                    .memberId(buildMember).build();
+                    .memberId(buildMember)
+                    .countReply(1)
+                    .build();
             if (i%2 == 0){
                 comment.setAnonymity(Boolean.TRUE);
                 comment.setCheckDelete(Boolean.TRUE);

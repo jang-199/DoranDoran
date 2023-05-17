@@ -14,5 +14,6 @@ public interface ReplyService {
     public void saveReply(Reply reply);
     public Optional<Reply> findReplyByReplyId(Long replyId);
     public List<Reply> findFirstReplies(Comment comment);
+    public List<Reply> findFirstRepliesFetchMember(Comment comment);
     public List<Reply> findNextReplies(Long commentId, Long replyId);
 }

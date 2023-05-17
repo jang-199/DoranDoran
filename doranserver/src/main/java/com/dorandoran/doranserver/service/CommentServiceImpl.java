@@ -83,6 +83,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public List<Comment> findFirstCommentsFetchMember(Post post) {
+        PageRequest of = PageRequest.of(0, 10);
+        return commentRepository.findFirstCommentsFetchMember(post, of);
+    }
+
+    @Override
     public List<Comment> findNextComments(Long postId, Long commentId) {
         PageRequest of = PageRequest.of(0, 10);
         return commentRepository.findNextComments(postId, commentId, of);

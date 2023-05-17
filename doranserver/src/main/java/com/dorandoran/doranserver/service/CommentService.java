@@ -18,5 +18,6 @@ public interface CommentService {
     public void deleteComment(Comment comment);
     public void deleteAllCommentByPost(Optional<Comment> comment, List<CommentLike> commentLikeList, List<Reply> replyList);
     public List<Comment> findFirstComments(Post post);
+    public List<Comment> findFirstCommentsFetchMember(Post post);
     public List<Comment> findNextComments(Long postId, Long commentId);
 }

@@ -41,6 +41,9 @@ public class Comment {
     @Column(name = "SECRET_MODE")
     private Boolean secretMode;
 
+    @Column(name = "COUNT_REPLY")
+    private int countReply;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;

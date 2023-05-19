@@ -252,6 +252,13 @@ public class CommentController {
             }else {
                 replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
             }
+
+            if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
+                int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+                log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
+                replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+            }
+            replyDtoList.add(replyDetailDto);
         }
         Collections.reverse(replyDtoList);
 

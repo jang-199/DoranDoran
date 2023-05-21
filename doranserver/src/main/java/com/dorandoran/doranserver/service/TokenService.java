@@ -5,6 +5,7 @@ import com.dorandoran.doranserver.entity.Member;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
+import java.time.Period;
 
 @RequiredArgsConstructor
 public class TokenService {
@@ -17,6 +18,22 @@ public class TokenService {
         }
 
         Member member = memberService.findByRefreshToken(refreshToken);
-        return tokenProvider.generateToken(member, Duration.ofHours(12));
+        return tokenProvider.generateAccessToken(member, Duration.ofDays(1));
     }
+
+    public String createNewRefreshToken(String refreshToken) {
+        if (!tokenProvider.validToken(refreshToken)) {
+            throw new IllegalArgumentException("Unexpected RefreshToken");
+        }
+        Member member = memberService.findByRefreshToken(refreshToken);
+
+        String newRefreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
+
+        member.setRefreshToken(newRefreshToken);
+
+        return newRefreshToken;
+    }
+
+
+
 }

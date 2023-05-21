@@ -1,5 +1,8 @@
 package com.dorandoran.doranserver.config;
 
+import com.dorandoran.doranserver.dto.TokenDto;
+import com.dorandoran.doranserver.dto.UserInfoDto;
+import com.fasterxml.classmate.TypeResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +19,9 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class Swagger3Config {
 
     @Bean
-    public Docket api() {
+    public Docket api(TypeResolver typeResolver) {
         return new Docket(DocumentationType.OAS_30)
+                .additionalModels(typeResolver.resolve(UserInfoDto.class))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.dorandoran.doranserver.controller"))
                 .paths(PathSelectors.any())

@@ -34,7 +34,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
-@Controller
 public class SignUpController {
 
     private final SignUpImpl signUp;

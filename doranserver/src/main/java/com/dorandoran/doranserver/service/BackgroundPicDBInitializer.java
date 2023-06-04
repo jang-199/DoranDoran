@@ -18,7 +18,8 @@ import java.util.Date;
 @Component
 public class BackgroundPicDBInitializer {
 
-    @Autowired BackGroundPicServiceImpl backGroundPicService;
+    @Autowired
+    BackGroundPicServiceImpl backGroundPicService;
     @Autowired
     PostServiceImpl postService;
     @Autowired
@@ -35,11 +36,14 @@ public class BackgroundPicDBInitializer {
 
     @Autowired
     CommentServiceImpl commentService;
+    @Autowired
+    HashTagServiceImpl hashTagService;
 
     @Value("${background.cnt}")
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
+
     @PostConstruct
     public void init() {
 
@@ -49,6 +53,8 @@ public class BackgroundPicDBInitializer {
         }
 
         for (Long i = 1L; i <= 50L; i++) {
+            HashTag build1 = HashTag.builder().hashTagName("해시태그" + i).hashTagCount(i).build();
+            hashTagService.saveHashTag(build1);
             PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
             policyTermsCheck.policyTermsSave(build);
             Member buildMember = Member.builder().policyTermsId(build)
@@ -72,9 +78,9 @@ public class BackgroundPicDBInitializer {
                     .fontSize(20)
                     .fontBold(400)
                     .build();
-            if (i%2 == 0){
+            if (i % 2 == 0) {
                 post.setAnonymity(Boolean.TRUE);
-            }else {
+            } else {
                 post.setAnonymity(Boolean.FALSE);
             }
             postService.savePost(post); //글 50개 생성
@@ -90,10 +96,10 @@ public class BackgroundPicDBInitializer {
                     .memberId(buildMember)
                     .countReply(1)
                     .build();
-            if (i%2 == 0){
+            if (i % 2 == 0) {
                 comment.setAnonymity(Boolean.TRUE);
                 comment.setCheckDelete(Boolean.TRUE);
-            }else {
+            } else {
                 comment.setAnonymity(Boolean.FALSE);
                 comment.setCheckDelete(Boolean.FALSE);
             }
@@ -106,20 +112,22 @@ public class BackgroundPicDBInitializer {
                     .ReplyTime(LocalDateTime.now())
                     .build();
 
-            if (i%2 == 0){
+            if (i % 2 == 0) {
                 reply.setAnonymity(Boolean.TRUE);
                 reply.setCheckDelete(Boolean.TRUE);
                 reply.setSecretMode(Boolean.TRUE);
-            }else {
+            } else {
                 reply.setAnonymity(Boolean.FALSE);
                 reply.setCheckDelete(Boolean.FALSE);
                 reply.setSecretMode(Boolean.FALSE);
             }
             replyService.saveReply(reply);
+
+
+
         }
-
-
     }
+}
 
 
 //    @PostConstruct

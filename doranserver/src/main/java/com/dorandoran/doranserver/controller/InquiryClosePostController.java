@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "근처글 관련 API", description = "InquiryClosePostController")
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController

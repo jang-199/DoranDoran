@@ -18,12 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +35,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
-@Controller
 public class InquiryPostController {
 
     @Value("${doran.ip.address}")
@@ -48,8 +50,12 @@ public class InquiryPostController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,schema = @Schema(implementation = PostResponseDto.class)))
     @GetMapping("/post")
     ResponseEntity<ArrayList<PostResponseDto>> inquirePost(@Parameter(description = "사용자 이메일",required = true) @RequestParam String userEmail,
-                                  @Parameter(description = "요청할 글 인덱스. 첫 조회 시에는 0을 입력.",required = true) @RequestParam Long postCnt,
-                                  @Parameter(description = "클라이언트 좌표",required = true) @RequestParam String location) {
+                                                           @Parameter(description = "요청할 글 인덱스. 첫 조회 시에는 0을 입력.",required = true) @RequestParam Long postCnt,
+                                                           @Parameter(description = "클라이언트 좌표",required = true) @RequestParam String location,
+                                                           @AuthenticationPrincipal UserDetails userDetails) {
+        log.info("getAuthorities : {}",userDetails.getAuthorities());
+        log.info("getUsername : {}",userDetails.getUsername());
+
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 

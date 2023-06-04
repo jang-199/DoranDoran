@@ -17,6 +17,11 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    public Member findByRefreshToken(String refreshToken) {
+        return memberRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new IllegalArgumentException("Unexpected User"));
+    }
+
+    @Override
     public void saveMember(Member member) {
         memberRepository.save(member);
     }

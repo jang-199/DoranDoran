@@ -34,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Tag(name = "글 관련 API",description = "PostController")
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController

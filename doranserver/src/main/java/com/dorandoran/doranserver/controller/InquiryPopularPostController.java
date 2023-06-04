@@ -32,7 +32,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
-@Controller
 public class InquiryPopularPostController {
 
     @Value("${doran.ip.address}")

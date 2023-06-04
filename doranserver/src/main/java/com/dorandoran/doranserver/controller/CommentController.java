@@ -103,7 +103,7 @@ public class CommentController {
                     } else {
                         //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                         commentDetailDto =
-                                (comment.getMemberId().getEmail() == userEmail)
+                                        (comment.getMemberId().getEmail().equals(userEmail))
                                         ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList)
                                         : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, replyDetailDtoList);
                     }
@@ -245,19 +245,27 @@ public class CommentController {
                 } else {
                     //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                     replyDetailDto =
-                            (reply.getMemberId().getEmail() == userEmail)
+                            (reply.getMemberId().getEmail().equals(userEmail))
                                     ? new ReplyDetailDto(reply, reply.getReply())
                                     : new ReplyDetailDto(reply, "비밀 댓글입니다.");
                 }
             }else {
                 replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
             }
+
+            if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
+                int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+                log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
+                replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+            }
+            replyDtoList.add(replyDetailDto);
         }
         Collections.reverse(replyDtoList);
 
         return ResponseEntity.ok().body(replyDtoList);
     }
 
+    @Transactional
     @Tag(name = "댓글 관련 API")
     @Operation(summary = "대댓글 작성", description = "대댓글 작성, 익명 선택 시 익명 테이블에 저장하는 API입니다.")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "댓글 작성 성공"),
@@ -268,6 +276,7 @@ public class CommentController {
         Optional<Member> member = memberService.findByEmail(replyDto.getUserEmail());
 
         if (comment.isPresent() && member.isPresent()) {
+            comment.get().setCountReply(comment.get().getCountReply()+1);
             List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());
             Long nextIndex = anonymityMembers.size() + 1L;
 

@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Reply;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,9 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
             "where r.commentId.commentId = :commentId  and r.replyId < :replyId " +
             "order by r.replyId desc")
     List<Reply> findNextReplies(@Param("commentId") Long commentId, @Param("replyId") Long replyId, Pageable pageable);
+
+    @Query("select r from Reply r join fetch r.memberId m " +
+            "where r.commentId = :commentId " +
+            "order by r.replyId desc")
+    List<Reply> findFirstRepliesFetchMember(@Param("commentId") Comment comment, Pageable pageable);
 }

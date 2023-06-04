@@ -309,19 +309,28 @@ public class PostController {
             postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
         }
 
+        boolean checkWrite = Boolean.FALSE;
         //댓글 builder
-        List<Comment> comments = commentService.findFirstComments(post.get());
+        List<Comment> comments = commentService.findFirstCommentsFetchMember(post.get());
 
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
             for (Comment comment : comments) {
                 Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
                 Boolean commentLikeResult = commentLikeService.findCommentLikeResult(postRequestDetailDto.getUserEmail(), comment);
+                //댓글 작성 유무 확인
+                if (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
+                    checkWrite = Boolean.TRUE;
 
                 //대댓글 10개 저장 로직
-                List<Reply> replies = replyService.findFirstReplies(comment);
+                List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
+                log.info("대댓글 로직 실행");
                 for (Reply reply : replies) {
+                    //대댓글 작성 유무 확인
+                    if (reply.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
+                        checkWrite = Boolean.TRUE;
+
                     ReplyDetailDto replyDetailDto = null;
                     //비밀 대댓글에 따른 저장 로직
                     if (reply.getSecretMode() == Boolean.TRUE) {
@@ -360,7 +369,7 @@ public class PostController {
                     } else {
                         //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                         commentDetailDto =
-                                (comment.getMemberId().getEmail() == postRequestDetailDto.getUserEmail())
+                                (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                                         ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList)
                                         : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, replyDetailDtoList);
                     }
@@ -378,6 +387,7 @@ public class PostController {
         }
         Collections.reverse(commentDetailDtoList);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
+        postDetailDto.setCheckWrite(checkWrite);
 
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();

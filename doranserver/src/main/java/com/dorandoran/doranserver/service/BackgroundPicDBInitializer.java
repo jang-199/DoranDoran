@@ -1,44 +1,127 @@
-//
-//package com.dorandoran.doranserver.service;
-//
-//import com.dorandoran.doranserver.entity.*;
-//import com.dorandoran.doranserver.entity.imgtype.ImgType;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.context.ApplicationContext;
-//import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-//import org.springframework.stereotype.Component;
-//
-//import javax.annotation.PostConstruct;
-//import java.time.LocalDate;
-//import java.time.LocalDateTime;
-//import java.util.Date;
-//
-//@Component
-//public class BackgroundPicDBInitializer {
-//
-//    @Autowired BackGroundPicServiceImpl backGroundPicService;
-//    @Autowired
-//    PostServiceImpl postService;
-//    @Autowired
-//    MemberServiceImpl memberService;
-//    @Autowired
-//    PolicyTermsCheckImpl policyTermsCheck;
-//    @Autowired
-//    PostLikeServiceImpl postLikeService;
-//
-//    @Autowired
-//    UserUploadPicServiceImpl userUploadPicService;
-//    @Autowired
-//    ReplyService replyService;
-//
-//    @Autowired
-//    CommentServiceImpl commentService;
-//
-//    @Value("${background.cnt}")
-//    Integer max;
-//    @Value("${background.Store.path}")
-//    String serverPath;
+
+
+package com.dorandoran.doranserver.service;
+
+import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.entity.imgtype.ImgType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+@Component
+public class BackgroundPicDBInitializer {
+
+    @Autowired BackGroundPicServiceImpl backGroundPicService;
+    @Autowired
+    PostServiceImpl postService;
+    @Autowired
+    MemberServiceImpl memberService;
+    @Autowired
+    PolicyTermsCheckImpl policyTermsCheck;
+    @Autowired
+    PostLikeServiceImpl postLikeService;
+
+    @Autowired
+    UserUploadPicServiceImpl userUploadPicService;
+    @Autowired
+    ReplyService replyService;
+
+    @Autowired
+    CommentServiceImpl commentService;
+
+    @Value("${background.cnt}")
+    Integer max;
+    @Value("${background.Store.path}")
+    String serverPath;
+    @PostConstruct
+    public void init() {
+
+        for (int i = 0; i < 100; i++) {
+            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".jpg").imgName((i + 1) + ".jpg").build();
+            backGroundPicService.saveBackgroundPic(build);
+        }
+
+        for (Long i = 1L; i <= 50L; i++) {
+            PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
+            policyTermsCheck.policyTermsSave(build);
+            Member buildMember = Member.builder().policyTermsId(build)
+                    .email(i + "@gmail.com")
+                    .dateOfBirth(LocalDate.now())
+                    .firebaseToken("firebasetoken")
+                    .nickname("nickname" + i)
+                    .signUpDate(LocalDateTime.now()).build();
+            memberService.saveMember(buildMember);//회원 500명 생성
+
+            Post post = Post.builder().content("회원" + i + "의 글입니다.")
+                    .forMe(false)
+                    .latitude(127.1877412)
+                    .longitude(127.1877412)
+                    .postTime(LocalDateTime.now())
+                    .memberId(buildMember)
+                    .switchPic(ImgType.DefaultBackground)
+                    .ImgName((i % 100 + 1) + ".jpg")
+                    .font("Jua")
+                    .fontColor("black")
+                    .fontSize(20)
+                    .fontBold(400)
+                    .build();
+            if (i%2 == 0){
+                post.setAnonymity(Boolean.TRUE);
+            }else {
+                post.setAnonymity(Boolean.FALSE);
+            }
+            postService.savePost(post); //글 50개 생성
+
+            //popular에 데이터 추가하고 테스트 진행
+            PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
+            postLikeService.savePostLike(buildPostLike);
+
+            Comment comment = Comment.builder()
+                    .comment("나는" + i + "야 반가워")
+                    .commentTime(LocalDateTime.now())
+                    .postId(postService.findSinglePost(i).get())
+                    .memberId(buildMember)
+                    .countReply(1)
+                    .build();
+            if (i%2 == 0){
+                comment.setAnonymity(Boolean.TRUE);
+                comment.setCheckDelete(Boolean.TRUE);
+            }else {
+                comment.setAnonymity(Boolean.FALSE);
+                comment.setCheckDelete(Boolean.FALSE);
+            }
+            commentService.saveComment(comment);
+
+            Reply reply = Reply.builder()
+                    .commentId(comment)
+                    .memberId(buildMember)
+                    .reply("대댓글" + i + "입니다")
+                    .ReplyTime(LocalDateTime.now())
+                    .build();
+
+            if (i%2 == 0){
+                reply.setAnonymity(Boolean.TRUE);
+                reply.setCheckDelete(Boolean.TRUE);
+                reply.setSecretMode(Boolean.TRUE);
+            }else {
+                reply.setAnonymity(Boolean.FALSE);
+                reply.setCheckDelete(Boolean.FALSE);
+                reply.setSecretMode(Boolean.FALSE);
+            }
+            replyService.saveReply(reply);
+        }
+
+
+    }
+
+
 //    @PostConstruct
 //    public void init() {
 //

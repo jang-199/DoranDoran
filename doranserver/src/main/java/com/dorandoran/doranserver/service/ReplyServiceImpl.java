@@ -50,6 +50,12 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
+    public List<Reply> findFirstRepliesFetchMember(Comment comment) {
+        PageRequest of = PageRequest.of(0, 10);
+        return replyRepository.findFirstRepliesFetchMember(comment, of);
+    }
+
+    @Override
     public List<Reply> findNextReplies(Long commentId, Long replyId) {
         PageRequest of = PageRequest.of(0, 10);
         return replyRepository.findNextReplies(commentId, replyId, of);

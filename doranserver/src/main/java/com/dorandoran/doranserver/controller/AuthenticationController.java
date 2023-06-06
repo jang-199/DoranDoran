@@ -44,11 +44,13 @@ public class AuthenticationController {
 
         if (!tokenProvider.validToken(tokenDto.getAccessToken()) && tokenProvider.validToken(tokenDto.getRefreshToken())) { //Access 유효 x & Refresh 유효
             if (tokenProvider.isExpired(tokenDto.getAccessToken())) { //Access 만료
+                log.info("Access 발급");
                 String newAccessToken = tokenService.createNewAccessToken(tokenDto.getRefreshToken()); //AccessToken 발급
                 responseTokenDto.setAccessToken(newAccessToken);
 
                 //refresh token expired check
                 if (tokenProvider.getExpiryDuration(tokenDto.getRefreshToken()).compareTo(Duration.ofDays(21)) < 0) { //21일 보다 만료 기간이 작음
+                    log.info("Refresh 발급");
                     String newRefreshToken = tokenService.createNewRefreshToken(tokenDto.getRefreshToken()); //RefreshToken 발급
                     responseTokenDto.setRefreshToken(newRefreshToken);
                 }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Period;
-
 @Service
 @RequiredArgsConstructor
 public class TokenService {

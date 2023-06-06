@@ -31,4 +31,9 @@ public class PostHashServiceImpl implements PostHashService{
     public void deletePostHash(PostHash postHash) {
         postHashRepository.delete(postHash);
     }
+
+    @Override
+    public Optional<PostHash> findTopOfPostHash(HashTag hashTag) {
+        return postHashRepository.findTopByHashTagIdOrderByPoshHashIdDesc(hashTag);
+    }
 }

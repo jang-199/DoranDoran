@@ -64,6 +64,17 @@ public class BackgroundPicDBInitializer {
                     .signUpDate(LocalDateTime.now())
                     .refreshToken("refresh").build();
             memberService.saveMember(buildMember);//회원 50명 생성
+            if(i == 1L){
+                Member build1 = Member.builder()
+                        .policyTermsId(build)
+                        .email("9643us@naver.com")
+                        .dateOfBirth(LocalDate.now())
+                        .firebaseToken("firebasetoken")
+                        .nickname("nickname" + i)
+                        .signUpDate(LocalDateTime.now())
+                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg0NDA5NDA1LCJleHAiOjE2OTk5NjE0MDUsInN1YiI6Ijk2NDN1c0BuYXZlci5jb20iLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.vCIAAArYtRL4aKTjxxddHlY5PcJ6E_QQMO2Fuj-XKyM").build();
+                memberService.saveMember(build1);
+            }
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")
                     .forMe(false)
@@ -125,7 +136,6 @@ public class BackgroundPicDBInitializer {
 
             HashTag build1 = HashTag.builder().hashTagName("해시태그" + i).hashTagCount(i).build();
             hashTagService.saveHashTag(build1);
-
         }
     }
 }

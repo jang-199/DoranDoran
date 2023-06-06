@@ -10,7 +10,8 @@ import javax.persistence.*;
 @Data
 @Builder
 public class MemberHash {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MEMBER_HASH_ID")
     private Long memberHashId;
 

@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .antMatchers("/api/check-nickname").permitAll()
                         .antMatchers("/api/check/registered").permitAll()
                         .antMatchers("/api/signup").permitAll()
+                        .antMatchers("/api/token").permitAll()
                         .antMatchers("/api/**").authenticated()
                         .anyRequest().permitAll();
 

@@ -56,8 +56,9 @@ public class BackgroundPicDBInitializer {
                     .dateOfBirth(LocalDate.now())
                     .firebaseToken("firebasetoken")
                     .nickname("nickname" + i)
-                    .signUpDate(LocalDateTime.now()).build();
-            memberService.saveMember(buildMember);//회원 500명 생성
+                    .signUpDate(LocalDateTime.now())
+                    .refreshToken("refresh").build();
+            memberService.saveMember(buildMember);//회원 50명 생성
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")
                     .forMe(false)
@@ -120,6 +121,7 @@ public class BackgroundPicDBInitializer {
 
 
     }
+}
 
 
 //    @PostConstruct

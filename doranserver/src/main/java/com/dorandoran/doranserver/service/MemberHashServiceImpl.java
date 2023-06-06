@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,4 +21,18 @@ public class MemberHashServiceImpl implements MemberHashService{
         return byMember;
     }
 
+    @Override
+    public void saveMemberHash(MemberHash memberHash) {
+        memberHashRepository.save(memberHash);
+    }
+
+    @Override
+    public void deleteMemberHash(MemberHash memberHash) {
+        memberHashRepository.delete(memberHash);
+    }
+
+    @Override
+    public Optional<MemberHash> findMemberHashByEmailAndHashTag(String userEmail, String hashTag) {
+        return memberHashRepository.findMemberHashByEmailAndHashTag(userEmail, hashTag);
+    }
 }

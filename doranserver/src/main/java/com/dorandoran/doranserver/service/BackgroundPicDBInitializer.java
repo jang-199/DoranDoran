@@ -18,7 +18,8 @@ import java.util.Date;
 @Component
 public class BackgroundPicDBInitializer {
 
-    @Autowired BackGroundPicServiceImpl backGroundPicService;
+    @Autowired
+    BackGroundPicServiceImpl backGroundPicService;
     @Autowired
     PostServiceImpl postService;
     @Autowired
@@ -35,11 +36,14 @@ public class BackgroundPicDBInitializer {
 
     @Autowired
     CommentServiceImpl commentService;
+    @Autowired
+    HashTagServiceImpl hashTagService;
 
     @Value("${background.cnt}")
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
+
     @PostConstruct
     public void init() {
 
@@ -51,7 +55,8 @@ public class BackgroundPicDBInitializer {
         for (Long i = 1L; i <= 50L; i++) {
             PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
             policyTermsCheck.policyTermsSave(build);
-            Member buildMember = Member.builder().policyTermsId(build)
+            Member buildMember = Member.builder()
+                    .policyTermsId(build)
                     .email(i + "@gmail.com")
                     .dateOfBirth(LocalDate.now())
                     .firebaseToken("firebasetoken")
@@ -59,6 +64,17 @@ public class BackgroundPicDBInitializer {
                     .signUpDate(LocalDateTime.now())
                     .refreshToken("refresh").build();
             memberService.saveMember(buildMember);//회원 50명 생성
+            if(i == 1L){
+                Member build1 = Member.builder()
+                        .policyTermsId(build)
+                        .email("9643us@naver.com")
+                        .dateOfBirth(LocalDate.now())
+                        .firebaseToken("firebasetoken")
+                        .nickname("nickname" + i)
+                        .signUpDate(LocalDateTime.now())
+                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg0NDA5NDA1LCJleHAiOjE2OTk5NjE0MDUsInN1YiI6Ijk2NDN1c0BuYXZlci5jb20iLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.vCIAAArYtRL4aKTjxxddHlY5PcJ6E_QQMO2Fuj-XKyM").build();
+                memberService.saveMember(build1);
+            }
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")
                     .forMe(false)
@@ -73,9 +89,9 @@ public class BackgroundPicDBInitializer {
                     .fontSize(20)
                     .fontBold(400)
                     .build();
-            if (i%2 == 0){
+            if (i % 2 == 0) {
                 post.setAnonymity(Boolean.TRUE);
-            }else {
+            } else {
                 post.setAnonymity(Boolean.FALSE);
             }
             postService.savePost(post); //글 50개 생성
@@ -91,10 +107,10 @@ public class BackgroundPicDBInitializer {
                     .memberId(buildMember)
                     .countReply(1)
                     .build();
-            if (i%2 == 0){
+            if (i % 2 == 0) {
                 comment.setAnonymity(Boolean.TRUE);
                 comment.setCheckDelete(Boolean.TRUE);
-            }else {
+            } else {
                 comment.setAnonymity(Boolean.FALSE);
                 comment.setCheckDelete(Boolean.FALSE);
             }
@@ -107,19 +123,20 @@ public class BackgroundPicDBInitializer {
                     .ReplyTime(LocalDateTime.now())
                     .build();
 
-            if (i%2 == 0){
+            if (i % 2 == 0) {
                 reply.setAnonymity(Boolean.TRUE);
                 reply.setCheckDelete(Boolean.TRUE);
                 reply.setSecretMode(Boolean.TRUE);
-            }else {
+            } else {
                 reply.setAnonymity(Boolean.FALSE);
                 reply.setCheckDelete(Boolean.FALSE);
                 reply.setSecretMode(Boolean.FALSE);
             }
             replyService.saveReply(reply);
+
+            HashTag build1 = HashTag.builder().hashTagName("해시태그" + i).hashTagCount(i).build();
+            hashTagService.saveHashTag(build1);
         }
-
-
     }
 }
 

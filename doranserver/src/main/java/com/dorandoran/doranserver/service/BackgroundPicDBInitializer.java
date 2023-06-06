@@ -53,16 +53,17 @@ public class BackgroundPicDBInitializer {
         }
 
         for (Long i = 1L; i <= 50L; i++) {
-            HashTag build1 = HashTag.builder().hashTagName("해시태그" + i).hashTagCount(i).build();
-            hashTagService.saveHashTag(build1);
             PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
             policyTermsCheck.policyTermsSave(build);
-            Member buildMember = Member.builder().policyTermsId(build)
+            Member buildMember = Member.builder()
+                    .policyTermsId(build)
                     .email(i + "@gmail.com")
                     .dateOfBirth(LocalDate.now())
                     .firebaseToken("firebasetoken")
                     .nickname("nickname" + i)
-                    .signUpDate(LocalDateTime.now()).build();
+                    .signUpDate(LocalDateTime.now())
+                    .refreshToken("refreshToken")
+                    .build();
             memberService.saveMember(buildMember);//회원 500명 생성
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")
@@ -123,7 +124,8 @@ public class BackgroundPicDBInitializer {
             }
             replyService.saveReply(reply);
 
-
+            HashTag build1 = HashTag.builder().hashTagName("해시태그" + i).hashTagCount(i).build();
+            hashTagService.saveHashTag(build1);
 
         }
     }

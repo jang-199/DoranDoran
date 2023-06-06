@@ -3,8 +3,11 @@ package com.dorandoran.doranserver.service;
 import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.repository.HashTagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,7 +28,12 @@ public class HashTagServiceImpl implements HashTagService{
 
     @Override
     public Optional<HashTag> findByHashTagName(String hashTag) {
-        Optional<HashTag> byHashTagName = hashTagRepository.findByHashTagName(hashTag);
-        return byHashTagName;
+        return hashTagRepository.findByHashTagName(hashTag);
+    }
+
+    @Override
+    public List<HashTag> findTop5BySearchHashTag(String hashTag) {
+        PageRequest of = PageRequest.of(0, 5);
+        return hashTagRepository.findTop5BySearchHashTag(of, hashTag);
     }
 }

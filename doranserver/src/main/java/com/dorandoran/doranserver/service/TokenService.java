@@ -3,10 +3,12 @@ package com.dorandoran.doranserver.service;
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.entity.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Period;
 
+@Service
 @RequiredArgsConstructor
 public class TokenService {
     private final TokenProvider tokenProvider;

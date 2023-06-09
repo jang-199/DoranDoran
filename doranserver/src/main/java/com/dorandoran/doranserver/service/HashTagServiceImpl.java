@@ -36,4 +36,9 @@ public class HashTagServiceImpl implements HashTagService{
         PageRequest of = PageRequest.of(0, 5);
         return hashTagRepository.findTop5BySearchHashTag(of, hashTag);
     }
+
+    @Override
+    public List<HashTag> findByHashTagNameList(List<String> hashTag) {
+        return hashTagRepository.findByHashTagNameList(hashTag);
+    }
 }

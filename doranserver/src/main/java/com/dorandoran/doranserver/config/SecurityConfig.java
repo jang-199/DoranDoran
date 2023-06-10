@@ -35,6 +35,8 @@ public class SecurityConfig {
                         .antMatchers("/api/check/registered").permitAll()
                         .antMatchers("/api/signup").permitAll()
                         .antMatchers("/api/token").permitAll()
+                        .antMatchers("/api/background/**").permitAll()
+                        .antMatchers("/api/userpic/**").permitAll()
                         .antMatchers("/api/**").authenticated()
                         .anyRequest().permitAll();
 

@@ -1,10 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
-import ch.qos.logback.core.joran.conditional.IfAction;
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.TokenDto;
-import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.service.MemberServiceImpl;
 import com.dorandoran.doranserver.service.TokenService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
-import java.time.Period;
-import java.util.Optional;
 
 @Tag(name = "회원가입 관련 API",description = "SignUpController")
 @Slf4j

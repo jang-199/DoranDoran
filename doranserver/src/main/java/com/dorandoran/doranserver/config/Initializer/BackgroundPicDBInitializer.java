@@ -5,6 +5,7 @@ package com.dorandoran.doranserver.config.Initializer;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Component
 public class BackgroundPicDBInitializer {
 
@@ -80,9 +82,9 @@ public class BackgroundPicDBInitializer {
                         .email("9643us@naver.com")
                         .dateOfBirth(LocalDate.now())
                         .firebaseToken("firebasetoken")
-                        .nickname("nickname" + i)
+                        .nickname("xcvfdsfs")
                         .signUpDate(LocalDateTime.now())
-                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg0NDA5NDA1LCJleHAiOjE2OTk5NjE0MDUsInN1YiI6Ijk2NDN1c0BuYXZlci5jb20iLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.vCIAAArYtRL4aKTjxxddHlY5PcJ6E_QQMO2Fuj-XKyM").build();
+                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg2MzE4NzMzLCJleHAiOjE3MDE4NzA3MzMsInN1YiI6InhjdmZkc2ZzIiwiZW1haWwiOiI5NjQzdXNAbmF2ZXIuY29tIn0.f1pSfnAwWoOyrK4fa6vBtVh9zZ_8jw99mu7aA8J90Xg").build();
                 memberService.saveMember(build1);
             }
 
@@ -148,11 +150,12 @@ public class BackgroundPicDBInitializer {
             hashTagService.saveHashTag(build1);
 
             Random random = new Random();
-            for (int a = 0; a < random.nextInt(14); a++) {
+            for (int a = 0; a <= random.nextInt(2); a++) {
 
-                for (int a1 = 0; a1 < random.nextInt(1); a1++) {
-                    postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTagService.findByHashTagName(tagList.get(a+a1)).get()).build());
-                }
+                int a1 = random.nextInt(14);
+                log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)).get());
+                postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTagService.findByHashTagName(tagList.get(a+a1)).get()).build());
+
             }
         }
 

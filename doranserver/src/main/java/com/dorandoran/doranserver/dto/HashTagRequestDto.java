@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -14,8 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class HashTagRequestDto {
-    @Schema(description = "즐겨찾기에 추가하는 해시태그")
+    @Schema(description = "즐겨찾기에 추가/삭제하는 해시태그")
     List<String> hashTagList;
-    //임의로 넣어둠
-    String token;
 }

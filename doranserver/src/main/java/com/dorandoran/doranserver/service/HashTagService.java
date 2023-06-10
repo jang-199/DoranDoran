@@ -10,4 +10,5 @@ public interface HashTagService {
     public Boolean duplicateCheckHashTag(String hashTag);
     public Optional<HashTag> findByHashTagName(String hashTag);
     public List<HashTag> findTop5BySearchHashTag(String hashTag);
+    public List<HashTag> findByHashTagNameList(List<String> hashTag);
 }

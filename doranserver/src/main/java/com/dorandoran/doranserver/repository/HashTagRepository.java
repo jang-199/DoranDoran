@@ -14,4 +14,7 @@ public interface HashTagRepository extends JpaRepository<HashTag,Long> {
 
     @Query("select h from HashTag h where h.hashTagName like :hashTag% order by h.hashTagCount desc")
     List<HashTag> findTop5BySearchHashTag(Pageable pageable, @Param("hashTag") String hashTag);
+
+    @Query("select h from HashTag h where h.hashTagName in (:hashTag)")
+    List<HashTag> findByHashTagNameList (@Param("hashTag") List<String> hashTag);
 }

@@ -11,4 +11,5 @@ public interface MemberHashService {
     void deleteMemberHash(MemberHash memberHash);
     Optional<MemberHash> findMemberHashByEmailAndHashTag(String userEmail, String hashTag);
     List<MemberHash> findHashByMember(Member member);
+    List<String> findHashByEmail(String userEmail);
 }

@@ -17,6 +17,8 @@ public class HashTagResponseDto {
     String hashTagName;
     @Schema(description = "해시태그가 사용된 횟수")
     Long hashTagCount;
+    @Schema(description = "해시태그가 현재 즐겨찾기 목록에 있는지 확인")
+    Boolean hashTagCheck;
 
     public HashTagResponseDto(HashTag hashTag) {
         this.hashTagName = hashTag.getHashTagName();

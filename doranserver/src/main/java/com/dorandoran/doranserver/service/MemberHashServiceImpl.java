@@ -22,6 +22,11 @@ public class MemberHashServiceImpl implements MemberHashService{
     }
 
     @Override
+    public List<String> findHashByEmail(String userEmail) {
+        return memberHashRepository.findByMember_Email(userEmail);
+    }
+
+    @Override
     public void saveMemberHash(MemberHash memberHash) {
         memberHashRepository.save(memberHash);
     }

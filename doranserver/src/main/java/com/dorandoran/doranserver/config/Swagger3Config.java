@@ -1,6 +1,5 @@
 package com.dorandoran.doranserver.config;
 
-import com.dorandoran.doranserver.dto.TokenDto;
 import com.dorandoran.doranserver.dto.UserInfoDto;
 import com.fasterxml.classmate.TypeResolver;
 import org.springframework.context.annotation.Bean;

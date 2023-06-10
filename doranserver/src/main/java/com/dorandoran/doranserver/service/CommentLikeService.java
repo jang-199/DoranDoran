@@ -4,7 +4,6 @@ import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.CommentLike;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CommentLikeService {
     public Integer findCommentLikeCnt(Comment comment);

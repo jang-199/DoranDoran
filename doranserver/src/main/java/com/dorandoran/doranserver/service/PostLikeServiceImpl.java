@@ -1,6 +1,5 @@
 package com.dorandoran.doranserver.service;
 
-import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.PostLike;
 import com.dorandoran.doranserver.repository.PostLikeRepository;

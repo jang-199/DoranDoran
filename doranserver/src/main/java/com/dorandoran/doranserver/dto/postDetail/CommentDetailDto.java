@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.dto.postDetail;
 
 import com.dorandoran.doranserver.entity.Comment;
-import com.dorandoran.doranserver.entity.Reply;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

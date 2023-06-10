@@ -1,6 +1,5 @@
 package com.dorandoran.doranserver.dto.postDetail;
 
-import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

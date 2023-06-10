@@ -2,7 +2,6 @@ package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Reply;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;

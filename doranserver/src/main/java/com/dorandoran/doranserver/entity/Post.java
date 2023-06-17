@@ -1,6 +1,8 @@
 package com.dorandoran.doranserver.entity;
 
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,8 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 @Entity

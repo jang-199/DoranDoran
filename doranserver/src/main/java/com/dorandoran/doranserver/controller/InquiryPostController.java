@@ -7,12 +7,6 @@ import com.dorandoran.doranserver.service.CommentServiceImpl;
 import com.dorandoran.doranserver.service.DistanceService;
 import com.dorandoran.doranserver.service.PostLikeServiceImpl;
 import com.dorandoran.doranserver.service.PostServiceImpl;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-@Tag(name = "새로운 글 관련 API", description = "InquiryPostController")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -42,14 +35,10 @@ public class InquiryPostController {
     private final CommentServiceImpl commentService;
     private final DistanceService distanceService;
 
-    @Tag(name = "새로운 글 관련 API")
-    @Operation(summary = "모든 새로운 글 조회",description = "새롭게 작성된 모든 글을 조회하여 반환합니다.")
-    @ApiResponse(responseCode = "200",description = "조회된 글들 중 사용자가 요청한 인덱스에 해당하는 글 부터 20개를 반환합니다.",
-            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,schema = @Schema(implementation = PostResponseDto.class)))
     @GetMapping("/post")
-    ResponseEntity<ArrayList<PostResponseDto>> inquirePost(@Parameter(description = "사용자 이메일",required = true) @RequestParam String userEmail,
-                                                           @Parameter(description = "요청할 글 인덱스. 첫 조회 시에는 0을 입력.",required = true) @RequestParam Long postCnt,
-                                                           @Parameter(description = "클라이언트 좌표",required = true) @RequestParam String location,
+    ResponseEntity<ArrayList<PostResponseDto>> inquirePost(@RequestParam String userEmail,
+                                                           @RequestParam Long postCnt,
+                                                           @RequestParam String location,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
         log.info("getAuthorities : {}",userDetails.getAuthorities());
         log.info("getUsername : {}",userDetails.getUsername());

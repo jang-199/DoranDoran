@@ -1,8 +1,8 @@
 package com.dorandoran.doranserver.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor

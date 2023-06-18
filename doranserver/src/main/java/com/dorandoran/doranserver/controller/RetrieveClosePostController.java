@@ -10,7 +10,6 @@ import com.dorandoran.doranserver.service.PostServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,7 @@ import java.util.List;
 @RequestMapping("/api")
 @RestController
 @Slf4j
-public class InquiryClosePostController {
+public class RetrieveClosePostController {
 
     private final PostServiceImpl postService;
     private final DistanceService distanceService;
@@ -34,9 +33,9 @@ public class InquiryClosePostController {
     String ipAddress;
 
     @GetMapping("/post/close")
-    ResponseEntity<ArrayList<PostResponseDto>> inquiryPost(@RequestParam String userEmail,
-                                  @RequestParam Long postCnt,
-                                  @RequestParam String location) {
+    ResponseEntity<ArrayList<PostResponseDto>> retrievePost(@RequestParam String userEmail,
+                                                            @RequestParam Long postCnt,
+                                                            @RequestParam String location) {
         log.info(location);
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         String[] split = location.split(",");

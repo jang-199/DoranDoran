@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
-public class InquiryInterestedPostController {
+public class RetrieveInterestedPostController {
 
     private final MemberHashServiceImpl memberHashService;
     private final MemberServiceImpl memberService;
@@ -33,7 +33,7 @@ public class InquiryInterestedPostController {
     String ipAddress;
 
     @GetMapping("/interestedPost")
-    ResponseEntity<Map> inquiryInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
+    ResponseEntity<Map> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
         log.info(userDetails.getUsername());
         log.info(userDetails.getAuthorities().toString());
 

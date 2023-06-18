@@ -1,69 +1,83 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.entity.Post;
+import com.dorandoran.doranserver.entity.PostHash;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
-import com.dorandoran.doranserver.service.CommentServiceImpl;
-import com.dorandoran.doranserver.service.DistanceService;
-import com.dorandoran.doranserver.service.PostLikeServiceImpl;
-import com.dorandoran.doranserver.service.PostServiceImpl;
+import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@Slf4j
 @RestController
-public class InquiryPostController {
+@RequestMapping("/api")
+public class RetrieveHashTagPostController {
 
-    @Value("${doran.ip.address}")
-    String ipAddress;
-    private final PostServiceImpl postService;
+    private final HashTagServiceImpl hashTagService;
+    private final PostHashServiceImpl postHashService;
     private final PostLikeServiceImpl postLikeService;
     private final CommentServiceImpl commentService;
     private final DistanceService distanceService;
 
-    @GetMapping("/post")
-    ResponseEntity<ArrayList<PostResponseDto>> inquirePost(@RequestParam String userEmail,
-                                                           @RequestParam Long postCnt,
-                                                           @RequestParam String location,
-                                                           @AuthenticationPrincipal UserDetails userDetails) {
-        log.info("getAuthorities : {}",userDetails.getAuthorities());
-        log.info("getUsername : {}",userDetails.getUsername());
+    @Value("${doran.ip.address}")
+    String ipAddress;
+
+    @GetMapping(value = {"/hashtag/{tagName}/{postCnt}/{location}","/hashtag/{tagName}/{postCnt}"})
+    ResponseEntity<ArrayList<PostResponseDto>> retrievePostByHashTag(@PathVariable(name = "tagName") String name,
+                                                                     @PathVariable(name = "postCnt") Long postCnt,
+                                                                     @PathVariable(name = "location",required = false) String location,
+                                                                     @AuthenticationPrincipal UserDetails userDetails) {
+
+        String encodeTagName = URLDecoder.decode(name, StandardCharsets.UTF_8);
+        String encodeLocation;
+        if (location != null) {
+            encodeLocation = URLDecoder.decode(location, StandardCharsets.UTF_8);
+        }else {
+            encodeLocation = "";
+        }
+        String encodeEmail = URLDecoder.decode(userDetails.getUsername(), StandardCharsets.UTF_8);
+
+        log.info("{}",encodeTagName);
+        log.info("{}",encodeEmail);
 
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
+        HashTag hashTag = hashTagService.findByHashTagName(encodeTagName)
+                .orElseThrow(() -> new RuntimeException("검색한 해시태그가 없습니다."));//hashtag로 키 값 검색
+
+
+
         if (postCnt == 0) { //first find
-            List<Post> firstPost = postService.findFirstPost();
-            return makePostResponseList(userEmail, postResponseDtoList, builder, firstPost, location);
+            List<PostHash> postHashes = postHashService.inquiryFirstPostHash(hashTag);
+            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
+
         } else {
-            List<Post> postList = postService.findPost(postCnt);
-            return makePostResponseList(userEmail, postResponseDtoList, builder, postList, location);
+            List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, postCnt);
+            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makePostResponseList(String userEmail,
-                                                   ArrayList<PostResponseDto> postResponseDtoList,
-                                                   PostResponseDto.PostResponseDtoBuilder builder,
-                                                   List<Post> postList,
-                                                   String location) {
+    private ResponseEntity<ArrayList<PostResponseDto>> makeResponseList(String encodeLocation, String encodeEmail, ArrayList<PostResponseDto> postResponseDtoList, PostResponseDto.PostResponseDtoBuilder builder, List<PostHash> postHashes) {
+        List<Post> postList = postHashes.stream().map((postHash -> postHash.getPostId())).collect(Collectors.toList());
+
         for (Post post : postList) {
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
-            if (location.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
+            if (encodeLocation.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
@@ -75,7 +89,7 @@ public class InquiryPostController {
                         .ReplyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt);
             } else {
-                String[] userLocation = location.split(",");
+                String[] userLocation = encodeLocation.split(",");
 
                 Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                         Double.parseDouble(userLocation[1]),
@@ -101,7 +115,7 @@ public class InquiryPostController {
                 builder.backgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
             }
 
-            builder.likeResult(postLikeService.findLikeResult(userEmail, post));
+            builder.likeResult(postLikeService.findLikeResult(encodeEmail, post));
             postResponseDtoList.add(builder.build());
         }
         return ResponseEntity.ok().body(postResponseDtoList);

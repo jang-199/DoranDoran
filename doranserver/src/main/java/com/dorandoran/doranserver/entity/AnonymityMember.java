@@ -1,11 +1,11 @@
 package com.dorandoran.doranserver.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 
 @Entity
 @Data
@@ -13,7 +13,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 public class AnonymityMember {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long anonymityMemberId;
 
     @Column(name = "USER_EMAIL")

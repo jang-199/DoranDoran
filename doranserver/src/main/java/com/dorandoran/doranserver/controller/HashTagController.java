@@ -9,12 +9,6 @@ import com.dorandoran.doranserver.entity.MemberHash;
 import com.dorandoran.doranserver.service.HashTagServiceImpl;
 import com.dorandoran.doranserver.service.MemberHashServiceImpl;
 import com.dorandoran.doranserver.service.MemberServiceImpl;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Tag(name = "해시태그 관련 API", description = "HashTagController")
 @RestController
 @RequestMapping("api")
 @RequiredArgsConstructor
@@ -39,13 +32,8 @@ public class HashTagController {
     private final MemberServiceImpl memberService;
     private final MemberHashServiceImpl memberHashService;
 
-    @Tag(name = "해시태그 관련 API")
-    @Operation(summary = "해시태그 최대 5개 조회", description = "요청한 해시태그로 시작하는 해시태그들 중 많이 사용된 5개를 반환하는 API입니다." +
-            "\n\n" + "Ex. 홍으로 해당 api을 요청하면 홍길동, 홍당무, 홍시, 홍단, 홍기처럼 홍으로 시작하는 해시태그들을 반환합니다.")
-    @ApiResponse(responseCode = "200", description = "최대 5개의 해시태그를 리턴합니다.",
-    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = HashTagResponseDto.class)))
     @GetMapping("/hashTag")
-    public ResponseEntity<?> searchHashTag(@Parameter(description = "검색 요청하는 해시태그", required = true) @RequestParam("hashTag") String reqHashTag,
+    public ResponseEntity<?> searchHashTag(@RequestParam("hashTag") String reqHashTag,
                                            @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
@@ -64,11 +52,8 @@ public class HashTagController {
         return ResponseEntity.ok().body(hashTagResponseDtos);
     }
 
-    @Tag(name = "해시태그 관련 API")
-    @Operation(summary = "사용자 즐겨찾기 해시태그 추가", description = "요청한 해시태그들을 사용자 즐겨찾기 해시태그 목록에 추가하는 API입니다.")
-    @ApiResponse(responseCode = "200", description = "사용자 즐겨찾기 해시태그가 추가됩니다.")
     @PostMapping("/hashTag")
-    public ResponseEntity<?> saveHashTag(@Parameter(description = "추가하려는 해시태그들") @RequestBody HashTagRequestDto hashTagRequestDto,
+    public ResponseEntity<?> saveHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Optional<Member> member = memberService.findByEmail(userEmail);
@@ -94,11 +79,9 @@ public class HashTagController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Tag(name = "해시태그 관련 API")
-    @Operation(summary = "사용자 즐겨찾기 해시태그 삭제", description = "요청한 해시태그들을 사용자 즐겨찾기 해시태그 목록에서 삭제하는 API입니다.")
-    @ApiResponse(responseCode = "200", description = "사용자 즐겨찾기 해시태그가 삭제됩니다.")
+
     @DeleteMapping("/hashTag")
-    public ResponseEntity<?> deleteHashTag(@Parameter(description = "삭제하려는 해시태그들") @RequestBody HashTagRequestDto hashTagRequestDto,
+    public ResponseEntity<?> deleteHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
                                            @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         List<String> hashTagList = hashTagRequestDto.getHashTagList();

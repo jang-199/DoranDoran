@@ -17,7 +17,7 @@ public class MemberHashServiceImpl implements MemberHashService{
 
     @Override
     public List<MemberHash> findHashByMember(Member member) {
-        List<MemberHash> byMember = memberHashRepository.findByMember(member);
+        List<MemberHash> byMember = memberHashRepository.findByMemberOrderByMemberHashId(member);
         return byMember;
     }
 

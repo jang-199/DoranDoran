@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,33 +25,31 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
-        httpSecurity
-                .authorizeRequests()
-                .mvcMatchers("/swagger-resources/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**").permitAll(); //swagger 3 관련 Url 접근 허가
 
-        httpSecurity.authorizeRequests()
-                        .antMatchers("/api/check-nickname").permitAll()
-                        .antMatchers("/api/check/registered").permitAll()
-                        .antMatchers("/api/signup").permitAll()
-                        .antMatchers("/api/token").permitAll()
-                        .antMatchers("/api/background/**").permitAll()
-                        .antMatchers("/api/userpic/**").permitAll()
-                        .antMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll();
+        httpSecurity.authorizeHttpRequests(request->request
+                .requestMatchers("/api/check-nickname").permitAll()
+                .requestMatchers("/api/check/registered").permitAll()
+                .requestMatchers("/api/signup").permitAll()
+                .requestMatchers("/api/token").permitAll()
+                .requestMatchers("/api/background/**").permitAll()
+                .requestMatchers("/api/userpic/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll());
 
-        httpSecurity.csrf().disable()
-                .httpBasic().disable()
-                .formLogin().disable()
-                .logout().disable(); //Jwt authorization 을 위한 formLogin 비활성화
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable); //Jwt authorization 을 위한 formLogin 비활성화
 
-        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //Jwt authorization 을 위한 session 비활성화
+        httpSecurity.sessionManagement((sessionMg)->sessionMg
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        ); //Jwt authorization 을 위한 session 비활성화
 
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); //Authentication Header 확인하는 커스텀 필터 등록
 
-        httpSecurity.exceptionHandling()
-                .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("/api/**"));
+        httpSecurity.exceptionHandling((except)->except
+                .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("/api/**"))
+        );
 
         return httpSecurity.build();
     }

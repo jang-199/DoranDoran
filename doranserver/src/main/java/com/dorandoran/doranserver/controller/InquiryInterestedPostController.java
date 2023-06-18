@@ -39,20 +39,22 @@ public class InquiryInterestedPostController {
 
         String username = userDetails.getUsername();
         Optional<Member> byEmail = memberService.findByEmail(username);
-        List<MemberHash> hashByMember = memberHashService.findHashByMember(byEmail.orElseThrow(()->new RuntimeException("userName not found err")));
-
-
-        List<HashTag> hashTagList = hashByMember.stream()
+        List<MemberHash> hashByMember = memberHashService.findHashByMember( //즐겨찾기한 해시태그 리스트(맴버해시)
+                byEmail.orElseThrow(()->new RuntimeException("userName not found err"))
+        );
+        log.info("{}",hashByMember);
+        List<HashTag> hashTagList = hashByMember.stream() //맴버해시에서 해시태그 id 추출
                 .map(m -> m.getHashTagId())
                 .collect(Collectors.toList());
 
         List<Optional<PostHash>> optionalPostHashList = hashTagList.stream()
                 .map(hashTag -> postHashService.findTopOfPostHash(hashTag))
                 .collect(Collectors.toList());
+        log.info("{}",optionalPostHashList);
 
 
 
-        HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new HashMap<>();
+        HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new LinkedHashMap<>();
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
             if (optionalPostHash.isPresent()) {

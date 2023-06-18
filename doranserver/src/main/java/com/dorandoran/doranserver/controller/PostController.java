@@ -53,6 +53,7 @@ public class PostController {
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
+        log.info("{}",memberEmail.get());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())

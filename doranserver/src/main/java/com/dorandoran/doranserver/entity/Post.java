@@ -44,7 +44,7 @@ public class Post {
     @Column(name = "POST_TIME")
     private LocalDateTime postTime;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 

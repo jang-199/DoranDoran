@@ -94,11 +94,10 @@ public class InquiryPostController {
                         .fontBold(post.getFontBold());
             }
 
+            String[] split = post.getImgName().split("[.]");
             if (post.getSwitchPic() == ImgType.UserUpload) {
-                String[] split = post.getImgName().split("[.]");
                 builder.backgroundPicUri(ipAddress + ":8080/api/userpic/" + split[0]);
             } else {
-                String[] split = post.getImgName().split("[.]");
                 builder.backgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
             }
 

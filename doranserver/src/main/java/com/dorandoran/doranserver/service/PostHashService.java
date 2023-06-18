@@ -13,4 +13,8 @@ public interface PostHashService {
     public void deletePostHash(PostHash postHash);
 
     Optional<PostHash> findTopOfPostHash(HashTag hashTag);
+
+    List<PostHash> inquiryFirstPostHash(HashTag hashTag);
+    List<PostHash> inquiryPostHash(HashTag hashTag, Long postCnt);
+
 }

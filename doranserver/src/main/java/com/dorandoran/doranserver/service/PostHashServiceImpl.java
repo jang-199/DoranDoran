@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.entity.PostHash;
 import com.dorandoran.doranserver.repository.PostHashRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,4 +37,18 @@ public class PostHashServiceImpl implements PostHashService{
     public Optional<PostHash> findTopOfPostHash(HashTag hashTag) {
         return postHashRepository.findTopByHashTagIdOrderByPoshHashIdDesc(hashTag);
     }
+
+    @Override
+    public List<PostHash> inquiryFirstPostHash(HashTag hashTag) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postHashRepository.findFirstPostHash(hashTag, of);
+    }
+
+    @Override
+    public List<PostHash> inquiryPostHash(HashTag hashTag, Long postCnt) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postHashRepository.findPostHash(hashTag, postCnt, of);
+    }
+
+
 }

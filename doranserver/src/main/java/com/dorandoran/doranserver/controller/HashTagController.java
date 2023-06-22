@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
+import com.dorandoran.doranserver.dto.HashTagListDto;
 import com.dorandoran.doranserver.dto.HashTagRequestDto;
 import com.dorandoran.doranserver.dto.HashTagResponseDto;
 import com.dorandoran.doranserver.entity.HashTag;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api")
@@ -97,5 +99,30 @@ public class HashTagController {
             }
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/hashTag-popular")
+    public ResponseEntity<?> popularHashTag(){
+        List<String> hashTag = hashTagService.findPopularHashTagTop5();
+        if (hashTag.size() == 0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            HashTagListDto hashTagList = HashTagListDto.builder().hashTagList(hashTag).build();
+            log.info("인기 있는 태그 검색");
+            return ResponseEntity.ok().body(hashTagList);
+        }
+    }
+
+    @GetMapping("/hashTag-member")
+    public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        List<String> memberHash = memberHashService.findHashByEmail(userEmail);
+        if (memberHash.size() == 0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            HashTagListDto hashTagList = HashTagListDto.builder().hashTagList(memberHash).build();
+            log.info("{}의 관심 있는 태그 검색",userEmail);
+            return ResponseEntity.ok().body(hashTagList);
+        }
     }
 }

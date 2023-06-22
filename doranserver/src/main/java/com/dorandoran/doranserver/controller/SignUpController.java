@@ -48,10 +48,16 @@ public class SignUpController {
     ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
         Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
         if (byEmail.isPresent()) {
+            Member member = byEmail.get();
+            String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
+            String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
+            byEmail.get().setRefreshToken(refreshToken);
+            memberService.saveMember(member);
             return new ResponseEntity<>(
                     UserInfoDto.builder()
-                            .email(byEmail.get().getEmail())
-                            .nickName(byEmail.get().getNickname())
+                            .email(member.getEmail())
+                            .nickName(member.getNickname())
+                            .tokenDto(new TokenDto(refreshToken,accessToken))
                             .build(),
                     HttpStatus.OK);
         } else {

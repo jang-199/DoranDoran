@@ -3,10 +3,7 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.dto.PostResponseDto;
 import com.dorandoran.doranserver.entity.PopularPost;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
-import com.dorandoran.doranserver.service.CommentServiceImpl;
-import com.dorandoran.doranserver.service.DistanceService;
-import com.dorandoran.doranserver.service.PopularPostServiceImpl;
-import com.dorandoran.doranserver.service.PostLikeServiceImpl;
+import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +24,9 @@ public class RetrievePopularPostController {
 
     @Value("${doran.ip.address}")
     String ipAddress;
-    private final PopularPostServiceImpl popularPostService;
-    private final PostLikeServiceImpl postLikeService;
-    private final CommentServiceImpl commentService;
+    private final PopularPostService popularPostService;
+    private final PostLikeService postLikeService;
+    private final CommentService commentService;
     private final DistanceService distanceService;
 
     @GetMapping("/post/popular")

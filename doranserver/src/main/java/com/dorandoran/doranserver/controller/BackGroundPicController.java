@@ -3,6 +3,8 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.entity.BackgroundPic;
 import com.dorandoran.doranserver.entity.UserUploadPic;
 import com.dorandoran.doranserver.service.BackGroundPicServiceImpl;
+import com.dorandoran.doranserver.service.BackgroundPicService;
+import com.dorandoran.doranserver.service.UserUploadPicService;
 import com.dorandoran.doranserver.service.UserUploadPicServiceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -36,8 +38,8 @@ public class BackGroundPicController {
 
     @Value("${background.cnt}")
     Integer backgroundPicCnt;
-    private final BackGroundPicServiceImpl backGroundPicService;
-    private final UserUploadPicServiceImpl userUploadPicService;
+    private final BackgroundPicService backGroundPicService;
+    private final UserUploadPicService userUploadPicService;
 
 
     @GetMapping("/background/maxcount")

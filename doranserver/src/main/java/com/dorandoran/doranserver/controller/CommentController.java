@@ -26,12 +26,12 @@ import java.util.Optional;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class CommentController {
-    private final MemberServiceImpl memberService;
-    private final PostServiceImpl postService;
-    private final CommentServiceImpl commentService;
-    private final CommentLikeServiceImpl commentLikeService;
-    private final ReplyServiceImpl replyService;
-    private final PopularPostServiceImpl popularPostService;
+    private final MemberService memberService;
+    private final PostService postService;
+    private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
+    private final ReplyService replyService;
+    private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
 
     @GetMapping("/comment")

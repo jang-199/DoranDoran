@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 @RestController
 public class RetrieveInterestedPostController {
 
-    private final MemberHashServiceImpl memberHashService;
-    private final MemberServiceImpl memberService;
-    private final PostHashServiceImpl postHashService;
-    private final PostLikeServiceImpl postLikeService;
-    private final CommentServiceImpl commentService;
+    private final MemberHashService memberHashService;
+    private final MemberService memberService;
+    private final PostHashService postHashService;
+    private final PostLikeService postLikeService;
+    private final CommentService commentService;
 
     @Value("${doran.ip.address}")
     String ipAddress;
@@ -51,8 +51,6 @@ public class RetrieveInterestedPostController {
                 .map(hashTag -> postHashService.findTopOfPostHash(hashTag))
                 .collect(Collectors.toList());
         log.info("{}",optionalPostHashList);
-
-
 
         HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new LinkedHashMap<>();
 

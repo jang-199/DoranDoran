@@ -48,7 +48,7 @@ public class RetrieveHashTagPostController {
         }else {
             encodeLocation = "";
         }
-        String encodeEmail = URLDecoder.decode(userDetails.getUsername(), StandardCharsets.UTF_8);
+        String encodeEmail = userDetails.getUsername();
 
         log.info("{}",encodeTagName);
         log.info("{}",encodeEmail);

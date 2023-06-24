@@ -20,8 +20,8 @@ import java.util.Optional;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
-    private final ReplyServiceImpl replyService;
-    private final CommentLikeServiceImpl commentLikeService;
+    private final ReplyService replyService;
+    private final CommentLikeService commentLikeService;
 
     @Override
     public void saveComment(Comment comment) {

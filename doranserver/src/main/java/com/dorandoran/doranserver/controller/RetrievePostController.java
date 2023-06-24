@@ -3,10 +3,7 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.dto.PostResponseDto;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
-import com.dorandoran.doranserver.service.CommentServiceImpl;
-import com.dorandoran.doranserver.service.DistanceService;
-import com.dorandoran.doranserver.service.PostLikeServiceImpl;
-import com.dorandoran.doranserver.service.PostServiceImpl;
+import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +26,9 @@ public class RetrievePostController {
 
     @Value("${doran.ip.address}")
     String ipAddress;
-    private final PostServiceImpl postService;
-    private final PostLikeServiceImpl postLikeService;
-    private final CommentServiceImpl commentService;
+    private final PostService postService;
+    private final PostLikeService postLikeService;
+    private final CommentService commentService;
     private final DistanceService distanceService;
 
     @GetMapping("/post")

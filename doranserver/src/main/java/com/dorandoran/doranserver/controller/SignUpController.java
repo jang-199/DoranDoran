@@ -4,9 +4,7 @@ import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
-import com.dorandoran.doranserver.service.MemberServiceImpl;
-import com.dorandoran.doranserver.service.PolicyTermsCheckImpl;
-import com.dorandoran.doranserver.service.SignUpImpl;
+import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -27,9 +25,9 @@ import java.util.Optional;
 @RestController
 public class SignUpController {
 
-    private final SignUpImpl signUp;
-    private final PolicyTermsCheckImpl policyTermsCheck;
-    private final MemberServiceImpl memberService;
+    private final SignUp signUp;
+    private final PolicyTermsCheck policyTermsCheck;
+    private final MemberService memberService;
     private final TokenProvider tokenProvider;
 
     @PostMapping("/check-nickname")

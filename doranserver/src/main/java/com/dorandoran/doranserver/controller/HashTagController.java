@@ -7,9 +7,7 @@ import com.dorandoran.doranserver.dto.HashTagResponseDto;
 import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberHash;
-import com.dorandoran.doranserver.service.HashTagServiceImpl;
-import com.dorandoran.doranserver.service.MemberHashServiceImpl;
-import com.dorandoran.doranserver.service.MemberServiceImpl;
+import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,9 +28,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class HashTagController {
     private final TokenProvider tokenProvider;
-    private final HashTagServiceImpl hashTagService;
-    private final MemberServiceImpl memberService;
-    private final MemberHashServiceImpl memberHashService;
+    private final HashTagService hashTagService;
+    private final MemberService memberService;
+    private final MemberHashService memberHashService;
 
     @GetMapping("/hashTag")
     public ResponseEntity<?> searchHashTag(@RequestParam("hashTag") String reqHashTag,

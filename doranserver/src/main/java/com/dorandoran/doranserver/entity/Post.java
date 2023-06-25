@@ -75,6 +75,6 @@ public class Post {
     private Integer fontBold;
 
     public void addReportCount(){
-        reportCount = this.reportCount + 1;
+        this.reportCount = this.reportCount + 1;
     }
 }

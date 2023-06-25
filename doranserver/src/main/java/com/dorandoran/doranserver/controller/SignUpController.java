@@ -74,6 +74,7 @@ public class SignUpController {
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(userEmail));
+        log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, member.getNickname(), changeNicknameDto.getNickname());
         member.setNickname(changeNicknameDto.getNickname());
         return new ResponseEntity<>(HttpStatus.OK);
     }

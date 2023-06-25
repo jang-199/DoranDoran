@@ -69,7 +69,7 @@ public class SignUpController {
     }
 
     @Transactional
-    @PostMapping("/change/nickname")
+    @PatchMapping("/change/nickname")
     ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();

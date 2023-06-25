@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -64,6 +67,17 @@ public class SignUpController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Transactional
+    @PostMapping("/change/nickname")
+    ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
+                                     @AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(userEmail));
+        member.setNickname(changeNicknameDto.getNickname());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @PostMapping("/signup")
     ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴

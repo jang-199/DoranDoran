@@ -5,6 +5,7 @@ import com.dorandoran.doranserver.entity.PostLike;
 import com.dorandoran.doranserver.repository.PostLikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,18 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public List<PostLike> findByPost(Post post) {
         return postLikeRepository.findByPostId(post);
+    }
+
+    @Override
+    public List<PostLike> findFirstMyLikedPosts(String email) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postLikeRepository.findFirstMyLikedPosts(email, of);
+    }
+
+    @Override
+    public List<PostLike> findMyLikedPosts(String email, Long position) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postLikeRepository.findMyLikedPosts(email,position,of);
     }
 
 }

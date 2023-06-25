@@ -34,7 +34,7 @@ public class RetrieveAllPostsController {
     private final PostService postService;
     private final PostLikeService postLikeService;
 
-    @GetMapping("/allPosts/{position}")
+    @GetMapping("/all-posts/{position}")
     ResponseEntity<LinkedList<PostResponseDto>> getAllPosts(@PathVariable("position") Long position,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
 

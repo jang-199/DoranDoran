@@ -12,6 +12,8 @@ public interface PostLikeService {
     public List<PostLike> findByMemberId(String email);
     public void deletePostLike(PostLike postLike);
     public List<PostLike> findByPost(Post post);
+    List<PostLike> findFirstMyLikedPosts(String email);
+    List<PostLike> findMyLikedPosts(String email, Long position);
 
 
 }

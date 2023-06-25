@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.entity;
 
+import com.dorandoran.doranserver.entity.osType.OsType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -51,6 +52,9 @@ public class Member implements UserDetails {
     @NotNull
     @Column(name = "REFRESH_TOKEN")
     private String refreshToken;
+
+    @Enumerated(EnumType.STRING)
+    private OsType osType;
 
     @Builder
     public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken) {

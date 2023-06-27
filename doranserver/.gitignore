@@ -23,6 +23,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 **/src/main/resources/dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json
+**/src/main/resources/dorandoran-374312-firebase-adminsdk-1efcc-31bcc99fe9.json
 <<<<<<< HEAD
 **/src/test
 =======

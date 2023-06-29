@@ -12,5 +12,5 @@ public interface HashTagService {
     public Optional<HashTag> findByHashTagName(String hashTag);
     public List<HashTag> findTop5BySearchHashTag(String hashTag);
     public List<HashTag> findByHashTagNameList(List<String> hashTag);
-    public List<String> findPopularHashTagTop5();
+    public List<HashTag> findPopularHashTagTop5();
 }

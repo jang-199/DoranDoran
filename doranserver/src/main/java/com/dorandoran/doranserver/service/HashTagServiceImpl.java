@@ -43,7 +43,7 @@ public class HashTagServiceImpl implements HashTagService{
     }
 
     @Override
-    public List<String> findPopularHashTagTop5() {
+    public List<HashTag> findPopularHashTagTop5() {
         PageRequest of = PageRequest.of(0, 5);
         return hashTagRepository.findPopularHashTagTop5(of);
     }

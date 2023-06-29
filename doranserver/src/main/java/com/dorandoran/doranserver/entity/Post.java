@@ -59,6 +59,9 @@ public class Post {
     @ColumnDefault("True")
     private Boolean anonymity;
 
+    @Column(name = "REPORT_COUNT")
+    private int reportCount;
+
     @Column(name = "FONT")
     private String font;
 
@@ -70,4 +73,8 @@ public class Post {
 
     @Column(name = "FONT_BOLD")
     private Integer fontBold;
+
+    public void addReportCount(){
+        this.reportCount = this.reportCount + 1;
+    }
 }

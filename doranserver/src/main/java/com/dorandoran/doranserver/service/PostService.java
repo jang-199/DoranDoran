@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
 
 import java.util.List;
@@ -17,4 +18,7 @@ public interface PostService {
     public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude);
 
     public List<Post> findClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,Long startPost);
+
+    List<Post> findFirstMyPost(Member member);
+    List<Post> findMyPost(Member member, Long startPost);
 }

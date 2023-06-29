@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,18 @@ public class PostServiceImpl implements PostService {
     public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost) {
         PageRequest of = PageRequest.of(0, 20);
         return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
+    }
+
+    @Override
+    public List<Post> findFirstMyPost(Member member) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postRepository.findMyFirstPost(member, of);
+    }
+
+    @Override
+    public List<Post> findMyPost(Member member, Long startPost) {
+        PageRequest of = PageRequest.of(0, 20);
+        return postRepository.findMyPost(member, startPost, of);
     }
 
 

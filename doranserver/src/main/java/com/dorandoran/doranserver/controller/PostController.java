@@ -37,18 +37,18 @@ public class PostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
-    private final MemberServiceImpl memberService;
-    private final UserUploadPicServiceImpl userUploadPicService;
-    private final PostLikeServiceImpl postLikeService;
-    private final HashTagServiceImpl hashTagService;
-    private final PostServiceImpl postService;
-    private final PostHashServiceImpl postHashService;
-    private final CommentServiceImpl commentService;
-    private final CommentLikeServiceImpl commentLikeService;
+    private final MemberService memberService;
+    private final UserUploadPicService userUploadPicService;
+    private final PostLikeService postLikeService;
+    private final HashTagService hashTagService;
+    private final PostService postService;
+    private final PostHashService postHashService;
+    private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
     private final DistanceService distanceService;
-    private final ReplyServiceImpl replyService;
-    private final PopularPostServiceImpl popularPostService;
-    private final AnonymityMemberServiceImpl anonymityMemberService;
+    private final ReplyService replyService;
+    private final PopularPostService popularPostService;
+    private final AnonymityMemberService anonymityMemberService;
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {

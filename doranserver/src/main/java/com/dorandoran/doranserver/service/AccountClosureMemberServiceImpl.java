@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -49,6 +50,7 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
     }
 
     @Scheduled(cron = "0 0 4 * * *",zone = "Asia/Seoul")
+    @Transactional
     @Override
     public void deleteScheduledClosureMember() {
         //약관0, 즐겨찾기 태그0, 해시태그0 , 글공감, 글 , 만약 사용자 사진 있음 삭제,
@@ -61,20 +63,21 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                     Member member = ac.getClosureMemberId(); //ToDo delete
 
-                    PolicyTerms policyTermsId = member.getPolicyTermsId();
-                    policyTermsRepository.delete(policyTermsId);
-
                     List<MemberHash> memberHashList = memberHashService.findHashByMember(member);
                     memberHashRepository.deleteAll(memberHashList);
 
                     List<PostLike> postLikeList = postLikeService.findByMemberId(member.getEmail());
                     postLikeRepository.deleteAll(postLikeList);
 
-                    List<Comment> commentList = commentRepository.findAllByMember(member);
-                    commentRepository.deleteAll(commentList);
+
 
                     List<Reply> replyList = replyRepository.findAllByMember(member);
                     replyRepository.deleteAll(replyList);
+
+                    List<Comment> commentList = commentRepository.findAllByMember(member);
+                    commentRepository.deleteAll(commentList);
+
+
 
                     List<CommentLike> commentLikeList = commentLikeRepository.findAllByMember(member);
                     commentLikeRepository.deleteAll(commentLikeList);
@@ -83,16 +86,19 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                     postList.forEach(post -> {
                         List<PostHash> postHashList = postHashRepository.findPostHashByPostId(post);
-                        postHashList.stream().filter(postHash -> postHash.getHashTagId().getHashTagCount() > 1)
+
+                        postHashRepository.deleteAll(postHashList);
+
+                        postHashList.stream().filter(postHash -> postHash.getHashTagId().getHashTagCount() >= 1)
                                 .forEach(postHash -> {
                                     postHash.getHashTagId().setHashTagCount(postHash.getHashTagId().getHashTagCount() - 1);
                                     hashTagService.saveHashTag(postHash.getHashTagId());
                                 });
 
-                        postHashList.stream().filter(postHash -> postHash.getHashTagId().getHashTagCount() <= 1)
+                        postHashList.stream().filter(postHash -> postHash.getHashTagId().getHashTagCount() <= 0)
                                 .forEach(postHash -> hashTagRepository.delete(postHash.getHashTagId()));
 
-                        postHashRepository.deleteAll(postHashList);
+
 
                         List<PopularPost> popularPostList = popularPostRepository.findByPostId(post);
                         popularPostRepository.deleteAll(popularPostList);
@@ -108,14 +114,20 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                             log.info(post.getImgName() + "이 존재하지 않습니다.");
                         }
 
+
                         List<Comment> commentListByPost = commentRepository.findAllByPost(post);
+
+
+
                         commentListByPost.forEach(comment -> {
                             List<Reply> replyListByComment = replyRepository.findAllByComment(comment);
                             replyRepository.deleteAll(replyListByComment);
                             List<CommentLike> commentLikeListByComment = commentLikeRepository.findAllByComment(comment);
                             commentLikeRepository.deleteAll(commentLikeListByComment);
                         });
+
                         commentRepository.deleteAll(commentListByPost);
+
 
                         List<PostLike> postLIkeListByPost = postLikeRepository.findByPostId(post);
                         postLikeRepository.deleteAll(postLIkeListByPost);
@@ -123,13 +135,20 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                         List<AnonymityMember> anonymityMemberList = anonymityMemberRepository.findAllByPost(post);
                         anonymityMemberRepository.deleteAll(anonymityMemberList);
 
+
+
                         //Todo 신고된 글 삭제 구현 예정
                     });
                     postRepository.deleteAll(postList);
 
+                    accountClosureMemberRepository.delete(ac);
+
                     memberRepository.delete(member);
 
-                    accountClosureMemberRepository.delete(ac);
+                    PolicyTerms policyTermsId = member.getPolicyTermsId(); //맴버 지우고
+                    policyTermsRepository.delete(policyTermsId);
+
+
                 });
     }
 }

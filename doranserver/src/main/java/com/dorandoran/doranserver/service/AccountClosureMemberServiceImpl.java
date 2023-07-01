@@ -48,7 +48,7 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
         accountClosureMemberRepository.save(accountClosureMember);
     }
 
-    @Scheduled(cron = "0 0 4 * *",zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 4 * * *",zone = "Asia/Seoul")
     @Override
     public void deleteScheduledClosureMember() {
         //약관0, 즐겨찾기 태그0, 해시태그0 , 글공감, 글 , 만약 사용자 사진 있음 삭제,

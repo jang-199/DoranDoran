@@ -4,11 +4,15 @@ import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
+import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -50,6 +54,7 @@ public class SignUpController {
             String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
             String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
             byEmail.get().setRefreshToken(refreshToken);
+            byEmail.get().setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
 
             if (byEmail.get().getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
                 byEmail.get().setClosureDate(null);
@@ -66,6 +71,18 @@ public class SignUpController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Transactional
+    @PatchMapping("/change/nickname")
+    ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
+                                     @AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(userEmail));
+        log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, member.getNickname(), changeNicknameDto.getNickname());
+        member.setNickname(changeNicknameDto.getNickname());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @PostMapping("/signup")
     ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
@@ -105,6 +122,7 @@ public class SignUpController {
                         .nickname(loginDto.getNickName())
                         .policyTermsId(policyTerms)
                         .email(email)
+                        .osType(loginDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
                         .refreshToken("Dummy").build();
 
                 String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6)); //약 6개월 기간의 refreshToken create

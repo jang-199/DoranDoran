@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.dto;
 
+import com.dorandoran.doranserver.entity.osType.OsType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,4 +25,6 @@ public class SignUpDto {
     String firebaseToken;
 
     String kakaoAccessToken;
+
+    OsType osType;
 }

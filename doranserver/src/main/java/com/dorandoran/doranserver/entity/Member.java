@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.entity;
 
+import com.dorandoran.doranserver.entity.osType.OsType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -59,8 +60,10 @@ public class Member implements UserDetails {
         this.closureDate = LocalDate.now();
     }
 
+    @Enumerated(EnumType.STRING)
+    private OsType osType;
     @Builder
-    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken, LocalDate closureDate) {
+    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken, LocalDate closureDate, OsType osType) {
         this.memberId = memberId;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
@@ -70,6 +73,7 @@ public class Member implements UserDetails {
         this.policyTermsId = policyTermsId;
         this.refreshToken = refreshToken;
         this.closureDate = closureDate;
+        this.osType = osType;
     }
 
     @Override

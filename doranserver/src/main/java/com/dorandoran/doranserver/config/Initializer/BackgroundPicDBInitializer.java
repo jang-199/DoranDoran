@@ -4,6 +4,7 @@ package com.dorandoran.doranserver.config.Initializer;
 
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
+import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,11 @@ public class BackgroundPicDBInitializer {
                     .nickname("nickname" + i)
                     .signUpDate(LocalDateTime.now())
                     .refreshToken("refresh").build();
+            if (i % 2 == 0) {
+                buildMember.setOsType(OsType.Ios);
+            } else {
+                buildMember.setOsType(OsType.Aos);
+            }
             memberService.saveMember(buildMember);//회원 50명 생성
 
             if(i == 1L){ //1번은 테스트용 계정 생성
@@ -84,7 +90,9 @@ public class BackgroundPicDBInitializer {
                         .firebaseToken("firebasetoken")
                         .nickname("xcvfdsfs")
                         .signUpDate(LocalDateTime.now())
-                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg2MzE4NzMzLCJleHAiOjE3MDE4NzA3MzMsInN1YiI6InhjdmZkc2ZzIiwiZW1haWwiOiI5NjQzdXNAbmF2ZXIuY29tIn0.f1pSfnAwWoOyrK4fa6vBtVh9zZ_8jw99mu7aA8J90Xg").build();
+                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg2MzE4NzMzLCJleHAiOjE3MDE4NzA3MzMsInN1YiI6InhjdmZkc2ZzIiwiZW1haWwiOiI5NjQzdXNAbmF2ZXIuY29tIn0.f1pSfnAwWoOyrK4fa6vBtVh9zZ_8jw99mu7aA8J90Xg")
+                        .build();
+                build1.setOsType(OsType.Ios);
                 memberService.saveMember(build1);
             }
 

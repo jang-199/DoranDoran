@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.HashTagListDto;
+import com.dorandoran.doranserver.dto.HashTagPopularDto;
 import com.dorandoran.doranserver.dto.HashTagRequestDto;
 import com.dorandoran.doranserver.dto.HashTagResponseDto;
 import com.dorandoran.doranserver.entity.HashTag;
@@ -101,11 +102,13 @@ public class HashTagController {
 
     @GetMapping("/hashTag-popular")
     public ResponseEntity<?> popularHashTag(){
-        List<String> hashTag = hashTagService.findPopularHashTagTop5();
+        List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
         if (hashTag.size() == 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
-            HashTagListDto hashTagList = HashTagListDto.builder().hashTagList(hashTag).build();
+            List<HashTagPopularDto> hashTagList = hashTag.stream()
+                    .map(h -> new HashTagPopularDto(h))
+                    .collect(Collectors.toList());
             log.info("인기 있는 태그 검색");
             return ResponseEntity.ok().body(hashTagList);
         }

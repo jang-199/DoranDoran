@@ -54,4 +54,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findMyPost(@Param("member") Member member,
                           @Param("pos") Long pos,
                           PageRequest pageRequest);
+
+    @Query("select p from Post p where p.memberId = :member")
+    List<Post> findAllByMember(@Param("member") Member member);
 }

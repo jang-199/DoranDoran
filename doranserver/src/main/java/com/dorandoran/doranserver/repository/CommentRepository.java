@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Comment;
+import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findNextComments(@Param("postId") Long postId,
                                    @Param("commentId") Long commentId,
                                    Pageable pageable);
+
+    @Query("select c from Comment c where c.memberId = :member")
+    List<Comment> findAllByMember(@Param("member") Member member);
+    @Query("select c from Comment c where c.postId = :post")
+    List<Comment> findAllByPost(@Param("post") Post post);
 }

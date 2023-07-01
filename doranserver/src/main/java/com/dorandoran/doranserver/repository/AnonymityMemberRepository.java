@@ -12,4 +12,7 @@ public interface AnonymityMemberRepository extends JpaRepository<AnonymityMember
 
     @Query("select a.userEmail from AnonymityMember a where a.postId = :postId")
     List<String> findAllUserEmail(@Param("postId") Post post);
+
+    @Query("select a from AnonymityMember a where a.postId = :post")
+    List<AnonymityMember> findAllByPost(@Param("post") Post post);
 }

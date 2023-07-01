@@ -50,6 +50,10 @@ public class SignUpController {
             String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
             String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
             byEmail.get().setRefreshToken(refreshToken);
+
+            if (byEmail.get().getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
+                byEmail.get().setClosureDate(null);
+            }
             memberService.saveMember(member);
             return new ResponseEntity<>(
                     UserInfoDto.builder()

@@ -52,8 +52,15 @@ public class Member implements UserDetails {
     @Column(name = "REFRESH_TOKEN")
     private String refreshToken;
 
+    @Column(name = "CLOSURE_DATE")
+    private LocalDate closureDate;
+
+    public void setAccountClosureRequestTime() {
+        this.closureDate = LocalDate.now();
+    }
+
     @Builder
-    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken) {
+    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken, LocalDate closureDate) {
         this.memberId = memberId;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
@@ -62,6 +69,7 @@ public class Member implements UserDetails {
         this.firebaseToken = firebaseToken;
         this.policyTermsId = policyTermsId;
         this.refreshToken = refreshToken;
+        this.closureDate = closureDate;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
+import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,11 @@ public class SignUpController {
             String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
             String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
             byEmail.get().setRefreshToken(refreshToken);
+            byEmail.get().setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
+
+            if (byEmail.get().getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
+                byEmail.get().setClosureDate(null);
+            }
             memberService.saveMember(member);
             return new ResponseEntity<>(
                     UserInfoDto.builder()
@@ -116,6 +122,7 @@ public class SignUpController {
                         .nickname(loginDto.getNickName())
                         .policyTermsId(policyTerms)
                         .email(email)
+                        .osType(loginDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
                         .refreshToken("Dummy").build();
 
                 String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6)); //약 6개월 기간의 refreshToken create

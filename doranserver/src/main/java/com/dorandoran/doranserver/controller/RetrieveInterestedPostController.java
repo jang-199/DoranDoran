@@ -33,7 +33,7 @@ public class RetrieveInterestedPostController {
     String ipAddress;
 
     @GetMapping("/interestedPost")
-    ResponseEntity<Map> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
+    ResponseEntity<LinkedList<Map>> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
         log.info(userDetails.getUsername());
         log.info(userDetails.getAuthorities().toString());
 
@@ -53,6 +53,7 @@ public class RetrieveInterestedPostController {
         log.info("{}",optionalPostHashList);
 
         HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new LinkedHashMap<>();
+        LinkedList<Map> mapLinkedList = new LinkedList<>();
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
             if (optionalPostHash.isPresent()) {
@@ -75,7 +76,8 @@ public class RetrieveInterestedPostController {
                 stringPostResponseDtoHashMap.put(optionalPostHash.get().getHashTagId().getHashTagName(), responseDto);
             }
         }
+        mapLinkedList.add(stringPostResponseDtoHashMap);
 
-        return ResponseEntity.ok(stringPostResponseDtoHashMap);
+        return ResponseEntity.ok(mapLinkedList);
     }
 }

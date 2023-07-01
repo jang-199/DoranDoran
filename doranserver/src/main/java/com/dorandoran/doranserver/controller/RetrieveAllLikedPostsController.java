@@ -35,8 +35,8 @@ public class RetrieveAllLikedPostsController {
     private final PostLikeService postLikeService;
 
     @GetMapping("liked-posts/{position}")
-    public Object getAllLikedPosts(@PathVariable("position") Long position,
-                                   @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<LinkedList<PostResponseDto>> getAllLikedPosts(@PathVariable("position") Long position,
+                                                                        @AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
 

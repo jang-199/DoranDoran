@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Comment;
+import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Reply;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReplyRepository extends JpaRepository<Reply,Long> {
-    @Query("select c from Reply c where c.commentId = :commentId")
+    @Query("select r from Reply r where r.commentId = :commentId")
     List<Reply> findReplyCntByComment(@Param("commentId") Comment comment);
 
     @Query("select r from Reply r " +
@@ -30,4 +31,9 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
             "where r.commentId = :commentId " +
             "order by r.replyId desc")
     List<Reply> findFirstRepliesFetchMember(@Param("commentId") Comment comment, Pageable pageable);
+
+    @Query("select r from Reply r where r.memberId = :member")
+    List<Reply> findAllByMember(@Param("member") Member member);
+    @Query("select r from Reply r where r.commentId = :comment")
+    List<Reply> findAllByComment(@Param("comment") Comment comment);
 }

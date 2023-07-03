@@ -47,6 +47,8 @@ public class BackgroundPicDBInitializer {
     @Autowired
     PostHashServiceImpl postHashService;
 
+    @Autowired
+    AccountClosureMemberService accountClosureMemberService;
     @Value("${background.cnt}")
     Integer max;
     @Value("${background.Store.path}")
@@ -73,6 +75,7 @@ public class BackgroundPicDBInitializer {
                     .dateOfBirth(LocalDate.now())
                     .firebaseToken("firebasetoken")
                     .nickname("nickname" + i)
+                    .closureDate(LocalDate.of(2000,12,12))
                     .signUpDate(LocalDateTime.now())
                     .refreshToken("refresh").build();
             if (i % 2 == 0) {
@@ -81,19 +84,27 @@ public class BackgroundPicDBInitializer {
                 buildMember.setOsType(OsType.Aos);
             }
             memberService.saveMember(buildMember);//회원 50명 생성
+            AccountClosureMember build2 = AccountClosureMember.builder().closureMemberId(buildMember).build();
+            accountClosureMemberService.saveClosureMember(build2);
+
 
             if(i == 1L){ //1번은 테스트용 계정 생성
+                PolicyTerms build3 = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
+                policyTermsCheck.policyTermsSave(build3);
                 Member build1 = Member.builder()
-                        .policyTermsId(build)
+                        .policyTermsId(build3)
                         .email("9643us@naver.com")
                         .dateOfBirth(LocalDate.now())
                         .firebaseToken("firebasetoken")
+                        .closureDate(LocalDate.of(2000,12,12))
                         .nickname("xcvfdsfs")
                         .signUpDate(LocalDateTime.now())
                         .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjg2MzE4NzMzLCJleHAiOjE3MDE4NzA3MzMsInN1YiI6InhjdmZkc2ZzIiwiZW1haWwiOiI5NjQzdXNAbmF2ZXIuY29tIn0.f1pSfnAwWoOyrK4fa6vBtVh9zZ_8jw99mu7aA8J90Xg")
                         .build();
                 build1.setOsType(OsType.Ios);
                 memberService.saveMember(build1);
+                AccountClosureMember build4 = AccountClosureMember.builder().closureMemberId(build1).build();
+                accountClosureMemberService.saveClosureMember(build4);
             }
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")
@@ -154,15 +165,15 @@ public class BackgroundPicDBInitializer {
             }
             replyService.saveReply(reply);
 
-            HashTag build1 = HashTag.builder().hashTagName("해시태그" + i).hashTagCount(i).build();
-            hashTagService.saveHashTag(build1);
-
             Random random = new Random();
             for (int a = 0; a <= random.nextInt(2); a++) {
 
-                int a1 = random.nextInt(14);
+                int a1 = random.nextInt(15);
                 log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)).get());
-                postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTagService.findByHashTagName(tagList.get(a+a1)).get()).build());
+                HashTag hashTag = hashTagService.findByHashTagName(tagList.get(a + a1)).get();
+                hashTag.setHashTagCount(hashTag.getHashTagCount()+1L);
+                hashTagService.saveHashTag(hashTag);
+                postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTag).build());
 
             }
         }

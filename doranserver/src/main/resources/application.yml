@@ -1,0 +1,84 @@
+#DataBase url
+spring:
+  datasource:
+    url: ENC(p8otTcp58Q+rOHfJfqqsMiF9DDa6g5JpHL0bQ8ZVa8dq4aqDYZl37OncznrZriHl)
+    username: ENC(jv+BZOnlnNCqTF6+zFgGAg==)
+    password: ENC(+87UUAfv9l4q44I54hGRxQ==)
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 3MB
+      resolve-lazily: true
+#servlet default encoding utf-8
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+  servlet:
+    encoding:
+      force: true
+#linux server path
+background:
+  Store:
+    path: ENC(9QEeqickxWCf+Y92WqaPrsgC1Js2Jm1vL73jNTghzN/D41hISXlJIoFU8Ohh06TMG9PkAdCyEOQ=)
+  cnt: 100
+
+userUpload:
+  Store:
+    path: ENC(JJQ2tG4BK3GI7HbgLiRCWrbTVBWwg4gujQlV1jb//1ngnOJ4KHP+NaSNrLtJpxyXAPx+5le56F4=)
+
+
+#IP Adress
+doran:
+  ip:
+    address: ENC(xBptybqPuMrjKGjysoZ4hmVqKrZXHzmw)
+
+#Jasypt
+jasypt:
+  encryptor:
+    bean: jasyptEncryptor
+
+#JWT
+jwt:
+  issuer: jw1010110@gmail.com
+  secret_key: ENC(KJvpOG9KEjdJK9rMuM7Y1no5EAKDlJZ+iQqU29ToVbAlx7oMvi4jBNQ1e5yZqyYZCAzvERYcxaA9+ovAMkw8OpKY6kW6oWRM)
+
+#Actuator
+management:
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    git:
+      mode: full
+
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
+
+  server:
+    port: 9091
+
+#log level
+logging:
+  level:
+    com:
+      dorandoran: debug

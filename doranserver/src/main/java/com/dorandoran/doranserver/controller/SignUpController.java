@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.service.*;
+import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -36,6 +37,7 @@ public class SignUpController {
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
+
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
         if (nickname.isPresent() || nicknameDto.getNickname().isBlank()) {

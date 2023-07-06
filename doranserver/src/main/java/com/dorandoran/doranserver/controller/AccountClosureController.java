@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.controller.client;
+package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.entity.AccountClosureMember;
 import com.dorandoran.doranserver.entity.Member;

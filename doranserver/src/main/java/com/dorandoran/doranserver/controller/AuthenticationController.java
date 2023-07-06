@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.controller.client;
+package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.TokenDto;

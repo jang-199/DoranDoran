@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/background/**").permitAll()
                 .requestMatchers("/api/userpic/**").permitAll()
                 .requestMatchers("/api/**").authenticated()
+                .requestMatchers("/admin/**").permitAll()
                 .anyRequest().permitAll());
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable)

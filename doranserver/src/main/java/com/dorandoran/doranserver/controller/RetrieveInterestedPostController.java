@@ -64,6 +64,8 @@ public class RetrieveInterestedPostController {
                         )
                         .location(null)
                         .font(optionalPostHash.get().getPostId().getFont())
+                        .fontSize(optionalPostHash.get().getPostId().getFontSize())
+                        .likeResult(postLikeService.findLikeResult(userDetails.getUsername(),optionalPostHash.get().getPostId()))
                         .fontColor(optionalPostHash.get().getPostId().getFontColor())
                         .fontBold(optionalPostHash.get().getPostId().getFontBold())
                         .postId(optionalPostHash.get().getPostId().getPostId())

@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.controller;
+package com.dorandoran.doranserver.controller.client;
 
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;

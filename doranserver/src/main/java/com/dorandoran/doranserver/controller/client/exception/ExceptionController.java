@@ -1,6 +1,6 @@
-package com.dorandoran.doranserver.controller.exception;
+package com.dorandoran.doranserver.controller.client.exception;
 
-import com.dorandoran.doranserver.controller.PostController;
+import com.dorandoran.doranserver.controller.client.PostController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

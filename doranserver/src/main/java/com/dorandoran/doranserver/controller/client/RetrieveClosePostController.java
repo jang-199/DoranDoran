@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.controller;
+package com.dorandoran.doranserver.controller.client;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
 import com.dorandoran.doranserver.entity.Post;

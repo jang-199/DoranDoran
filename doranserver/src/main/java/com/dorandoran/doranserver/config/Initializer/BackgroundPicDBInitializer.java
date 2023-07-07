@@ -84,8 +84,8 @@ public class BackgroundPicDBInitializer {
                 buildMember.setOsType(OsType.Aos);
             }
             memberService.saveMember(buildMember);//회원 50명 생성
-            AccountClosureMember build2 = AccountClosureMember.builder().closureMemberId(buildMember).build();
-            accountClosureMemberService.saveClosureMember(build2);
+//            AccountClosureMember build2 = AccountClosureMember.builder().closureMemberId(buildMember).build();
+//            accountClosureMemberService.saveClosureMember(build2);
 
 
             if(i == 1L){ //1번은 테스트용 계정 생성
@@ -103,8 +103,8 @@ public class BackgroundPicDBInitializer {
                         .build();
                 build1.setOsType(OsType.Ios);
                 memberService.saveMember(build1);
-                AccountClosureMember build4 = AccountClosureMember.builder().closureMemberId(build1).build();
-                accountClosureMemberService.saveClosureMember(build4);
+//                AccountClosureMember build4 = AccountClosureMember.builder().closureMemberId(build1).build();
+//                accountClosureMemberService.saveClosureMember(build4);
             }
 
             Post post = Post.builder().content("회원" + i + "의 글입니다.")

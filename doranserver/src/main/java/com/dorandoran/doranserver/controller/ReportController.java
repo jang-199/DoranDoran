@@ -27,7 +27,7 @@ public class ReportController {
     private final CommentService commentService;
     private final ReplyService replyService;
 
-    @PostMapping("/Report")
+    @PostMapping("/post/report")
     @Transactional
     public ResponseEntity<?> saveReportPost(@RequestBody ReportRequestDto reportRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){

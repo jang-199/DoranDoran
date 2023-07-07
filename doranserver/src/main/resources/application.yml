@@ -1,15 +1,14 @@
 #DataBase url
 spring:
   datasource:
-    url: ENC(vXhCpZ4sRh0yipJR/2iM56qUTW1kbvjYWEKX0lxOGVbwdEize9Lnfey5f2ssJQLR/pFmWKpbJoBszeV37bTTNQ==)
-    username: ENC(jv+BZOnlnNCqTF6+zFgGAg==)
-    password: ENC(+87UUAfv9l4q44I54hGRxQ==)
-    driver-class-name: org.h2.Driver
+    url: ENC(prmDG7wmy6YZGHAMr+IQiqQRYKOQ/fvy2XiIz7endPsJ1ywly3YUxRkMlt3tatuvMJYrFvdjBK50XSY0vXui8iLE6lambM2Pis9fiqZbrnR5zF57Y6AccOX42hAk9VA2)
+    username: ENC(Xh/N3MbBIY77cqVSWycSkA==)
+    password: ENC(tN09VvsbyUmFiTv6Z1bTcQ==)
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
 
     show-sql: true

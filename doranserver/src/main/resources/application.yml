@@ -1,7 +1,7 @@
 #DataBase url
 spring:
   datasource:
-    url: ENC(p8otTcp58Q+rOHfJfqqsMiF9DDa6g5JpHL0bQ8ZVa8dq4aqDYZl37OncznrZriHl)
+    url: ENC(DslZ5C97ROpJdEIbzwH4pcotAzTBqi5nltrnTtVaSkuYKQbDefXiPhWq4)
     username: ENC(jv+BZOnlnNCqTF6+zFgGAg==)
     password: ENC(+87UUAfv9l4q44I54hGRxQ==)
     driver-class-name: org.h2.Driver

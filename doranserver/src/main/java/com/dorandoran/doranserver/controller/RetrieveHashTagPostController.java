@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.PostHash;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Timed
 @RequiredArgsConstructor
 @Slf4j
 @RestController

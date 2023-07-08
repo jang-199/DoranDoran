@@ -7,6 +7,7 @@ import com.dorandoran.doranserver.entity.ReportPost;
 import com.dorandoran.doranserver.service.MemberService;
 import com.dorandoran.doranserver.service.PostService;
 import com.dorandoran.doranserver.service.ReportService;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Timed
 @Slf4j
 @RestController
 @RequiredArgsConstructor

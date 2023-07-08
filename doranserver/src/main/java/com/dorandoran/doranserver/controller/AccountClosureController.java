@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.entity.AccountClosureMember;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.service.AccountClosureMemberService;
 import com.dorandoran.doranserver.service.MemberService;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Timed
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController

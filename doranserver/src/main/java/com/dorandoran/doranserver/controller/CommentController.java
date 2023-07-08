@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
 import com.dorandoran.doranserver.service.*;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Timed
 @Controller
 @Slf4j
 @RequestMapping("/api")

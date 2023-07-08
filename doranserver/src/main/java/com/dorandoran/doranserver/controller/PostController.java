@@ -50,7 +50,6 @@ public class PostController {
     private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
 
-    @Transactional
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
         Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());

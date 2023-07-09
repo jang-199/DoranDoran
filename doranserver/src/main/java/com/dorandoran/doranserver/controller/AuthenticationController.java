@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.controller;
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.dto.TokenDto;
 import com.dorandoran.doranserver.service.TokenService;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 
+@Timed
 @Slf4j
 @RequestMapping("/api")
 @RequiredArgsConstructor

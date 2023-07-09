@@ -9,6 +9,7 @@ import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberHash;
 import com.dorandoran.doranserver.service.*;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Timed
 @RestController
 @RequestMapping("api")
 @RequiredArgsConstructor

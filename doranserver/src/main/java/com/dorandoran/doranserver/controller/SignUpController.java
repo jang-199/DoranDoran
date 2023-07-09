@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.service.*;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Optional;
 
+@Timed
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -34,6 +36,7 @@ public class SignUpController {
     private final PolicyTermsCheck policyTermsCheck;
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
+
 
     @PostMapping("/check-nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {

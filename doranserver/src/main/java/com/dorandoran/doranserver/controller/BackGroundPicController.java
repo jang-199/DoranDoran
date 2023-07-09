@@ -7,6 +7,7 @@ import com.dorandoran.doranserver.service.BackgroundPicService;
 import com.dorandoran.doranserver.service.UserUploadPicService;
 import com.dorandoran.doranserver.service.UserUploadPicServiceImpl;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.MalformedURLException;
 import java.util.Optional;
 
+@Timed
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")

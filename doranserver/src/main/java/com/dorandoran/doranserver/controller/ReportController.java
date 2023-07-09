@@ -44,7 +44,7 @@ public class ReportController {
         if (reportPostService.existReportPost(post,member)){
             return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
         }else {
-            ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getContent());
+            ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
             post.setReportCount(post.getReportCount()+1);
             log.info("{}님이 {}번 글에 신고를 했습니다.",userEmail, post.getPostId());

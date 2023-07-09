@@ -42,6 +42,7 @@ public class ReportController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
 
         if (reportPostService.existReportPost(post,member)){
+            log.info("이미 신고한 회원입니다.");
             return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
         }else {
             ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
@@ -62,6 +63,7 @@ public class ReportController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
         if (reportCommentService.existedReportComment(comment, member)) {
+            log.info("이미 신고한 회원입니다.");
             return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
         }else {
             ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
@@ -82,6 +84,7 @@ public class ReportController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
         if (reportReplyService.existedReportReply(reply, member)){
+            log.info("이미 신고한 회원입니다.");
             return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
         }else {
             ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());

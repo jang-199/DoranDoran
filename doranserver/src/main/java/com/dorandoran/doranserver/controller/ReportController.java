@@ -2,7 +2,7 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.ReportCommentRequestDto;
 import com.dorandoran.doranserver.dto.ReportReplyRequestDto;
-import com.dorandoran.doranserver.dto.ReportRequestDto;
+import com.dorandoran.doranserver.dto.ReportPostRequestDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.service.*;
 import lombok.RequiredArgsConstructor;
@@ -14,35 +14,36 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Transactional
 public class ReportController {
     private final MemberService memberService;
     private final PostService postService;
-    private final ReportService reportService;
+    private final ReportPostService reportPostService;
+    private final ReportCommentService reportCommentService;
+    private final ReportReplyService reportReplyService;
     private final CommentService commentService;
     private final ReplyService replyService;
 
     @PostMapping("/post/report")
-    @Transactional
-    public ResponseEntity<?> saveReportPost(@RequestBody ReportRequestDto reportRequestDto,
+    public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-        Post post = postService.findSinglePost(reportRequestDto.getPostId())
+        Post post = postService.findSinglePost(reportPostRequestDto.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
-        ReportPost reportPost = new ReportPost(post, member, reportRequestDto.getContent());
 
-        if (reportService.existReportPost(post,member)){
+        if (reportPostService.existReportPost(post,member)){
             return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
         }else {
-            reportService.saveReportPost(reportPost);
+            ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getContent());
+            reportPostService.saveReportPost(reportPost);
             post.setReportCount(post.getReportCount()+1);
+            log.info("{}님이 {}번 글에 신고를 했습니다.",userEmail, post.getPostId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -56,9 +57,15 @@ public class ReportController {
         Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
-        ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (reportCommentService.existedReportComment(comment, member)) {
+            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+        }else {
+            ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
+            reportCommentService.saveReportComment(reportComment);
+            comment.setReportCount(comment.getReportCount()+1);
+            log.info("{}님이 {}번 댓글에 신고를 했습니다.",userEmail,comment.getCommentId());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 
     @PostMapping("/reply/report")
@@ -70,8 +77,14 @@ public class ReportController {
         Reply reply = replyService.findReplyByReplyId(reportReplyRequestDto.getReplyId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
-        ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (reportReplyService.existedReportReply(reply, member)){
+            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+        }else {
+            ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
+            reportReplyService.saveReportReply(reportReply);
+            reply.setReportCount(reply.getReportCount()+1);
+            log.info("{}님이 {}번 대댓글에 신고를 했습니다.", userEmail, reply.getReplyId());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 }

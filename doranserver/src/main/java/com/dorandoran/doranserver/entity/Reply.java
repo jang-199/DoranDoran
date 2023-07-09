@@ -39,6 +39,9 @@ public class Reply {
     @Column(name = "SECRET_MODE")
     private Boolean secretMode;
 
+    @Column(name = "REPORT_COUNT")
+    private int reportCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;

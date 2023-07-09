@@ -43,6 +43,9 @@ public class Comment {
     @Column(name = "COUNT_REPLY")
     private int countReply;
 
+    @Column(name = "REPORT_COUNT")
+    private int reportCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;

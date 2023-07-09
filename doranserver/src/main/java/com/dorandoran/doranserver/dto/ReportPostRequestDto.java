@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReportRequestDto {
+public class ReportPostRequestDto {
     Long postId;
     String content;
 }

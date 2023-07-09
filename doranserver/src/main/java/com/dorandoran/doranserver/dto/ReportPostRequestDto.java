@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ReportPostRequestDto {
     Long postId;
-    String content;
+    String reportContent;
 }

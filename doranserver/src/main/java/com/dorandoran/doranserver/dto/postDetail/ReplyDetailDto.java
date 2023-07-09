@@ -23,7 +23,7 @@ public class ReplyDetailDto {
     public ReplyDetailDto(Reply reply, String content) {
         this.replyId = reply.getReplyId();
         this.replyNickname = reply.getMemberId().getNickname();
-        this.reply = content;
+        this.reply = reply.getReportCount()>=5 ? "신고된 댓글입니다." : content;
         this.replyAnonymityNickname = null;
         this.replyCheckDelete = reply.getCheckDelete();
         this.replyTime = reply.getReplyTime();

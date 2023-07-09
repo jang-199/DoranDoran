@@ -56,6 +56,9 @@ public class Member implements UserDetails {
     @Column(name = "CLOSURE_DATE")
     private LocalDate closureDate;
 
+    @Column(name = "TOTAL_REPORT_TIME")
+    private int totalReportTime;
+
     public void setAccountClosureRequestTime() {
         this.closureDate = LocalDate.now();
     }

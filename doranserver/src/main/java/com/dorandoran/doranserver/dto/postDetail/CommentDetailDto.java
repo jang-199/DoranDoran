@@ -28,7 +28,7 @@ public class CommentDetailDto {
 
     public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();
-        this.comment = comment.getReportCount()>=5 ? "신고된 댓글입니다." : content;
+        this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
         this.commentLike = commentLikeCnt;
         this.commentLikeResult = commentLikeResult;
         this.commentNickname = comment.getMemberId().getNickname();

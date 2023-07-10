@@ -46,6 +46,9 @@ public class Comment {
     @Column(name = "REPORT_COUNT")
     private int reportCount;
 
+    @Column(name = "IS_LOCKED")
+    private Boolean isLocked;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;
@@ -53,4 +56,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
+
+    public void setLocked(){this.isLocked = Boolean.TRUE;}
 }

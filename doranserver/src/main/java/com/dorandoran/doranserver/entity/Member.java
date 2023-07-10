@@ -63,6 +63,9 @@ public class Member implements UserDetails {
         this.closureDate = LocalDate.now();
     }
 
+    public void addTotalReportTime(){
+        this.totalReportTime += 1;
+    }
     @Enumerated(EnumType.STRING)
     private OsType osType;
     @Builder

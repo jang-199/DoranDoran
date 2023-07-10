@@ -34,6 +34,7 @@ public class ReportController {
     private final ReportReplyService reportReplyService;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final LockMemberService lockMemberService;
 
     @PostMapping("/post/report")
     public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,
@@ -72,6 +73,10 @@ public class ReportController {
             ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
             comment.setReportCount(comment.getReportCount()+1);
+            if (comment.getReportCount() == 5 && comment.getIsLocked() == Boolean.FALSE){
+                comment.setLocked();
+                member.addTotalReportTime();
+            }
             log.info("{}님이 {}번 댓글에 신고를 했습니다.",userEmail,comment.getCommentId());
             return new ResponseEntity<>(HttpStatus.OK);
         }

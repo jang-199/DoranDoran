@@ -31,15 +31,16 @@ public class LockMember {
     @Enumerated(EnumType.STRING)
     private LockType lockType;
 
+    public Duration RetrieveLockDuration(LockMember lockMember){
+        return Duration.between(lockMember.lockStartTime, lockMember.lockEndTime);
+    }
+
     public LockMember(Member memberId, Duration lockDay, LockType lockType) {
         this.memberId = memberId;
         this.lockStartTime = LocalDateTime.now();
-        this.lockEndTime = LocalDateTime.now().plusDays(lockDay.toDays());
-        switch ((int) lockDay.toDays()) {
-            case 1 -> this.lockType = LockType.Day1;
-            case 7 -> this.lockType = LockType.Day7;
-            case 30 -> this.lockType = LockType.Day30;
-            default -> this.lockType = LockType.Ban;
-        }
+        this.lockEndTime = lockType.equals(LockType.Ban)
+                ? null
+                : LocalDateTime.now().plusDays(lockDay.toDays());
+        this.lockType = lockType;
     }
 }

@@ -1,9 +1,11 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.dto.LockDto;
 import com.dorandoran.doranserver.dto.ReportCommentRequestDto;
 import com.dorandoran.doranserver.dto.ReportReplyRequestDto;
 import com.dorandoran.doranserver.dto.ReportPostRequestDto;
 import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.entity.lockType.LockType;
 import com.dorandoran.doranserver.service.*;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
@@ -19,6 +21,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Timed
 @Slf4j
@@ -76,6 +82,11 @@ public class ReportController {
             if (comment.getReportCount() == 5 && comment.getIsLocked() == Boolean.FALSE){
                 comment.setLocked();
                 member.addTotalReportTime();
+                if (checkLocked(member.getTotalReportTime())){
+                    LockDto lockDto = setLockDto(member.getTotalReportTime());
+                    LockMember lockMember = new LockMember(member, lockDto.getLockTime(), lockDto.getLockType());
+                    lockMemberService.saveLockMember(lockMember);
+                }
             }
             log.info("{}님이 {}번 댓글에 신고를 했습니다.",userEmail,comment.getCommentId());
             return new ResponseEntity<>(HttpStatus.OK);
@@ -100,6 +111,29 @@ public class ReportController {
             reply.setReportCount(reply.getReportCount()+1);
             log.info("{}님이 {}번 대댓글에 신고를 했습니다.", userEmail, reply.getReplyId());
             return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
+
+    private static Boolean checkLocked(int totalReportTime){
+        List<Integer> checkNum = new ArrayList<>(){{
+            add(3);
+            add(5);
+            add(7);
+            add(10);
+        }};
+
+        return checkNum.contains(totalReportTime) ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    private static LockDto setLockDto(int totalReportTime) {
+        if (totalReportTime == 3){
+            return new LockDto(Duration.ofDays(1), LockType.Day1);
+        } else if (totalReportTime == 5) {
+            return new LockDto(Duration.ofDays(7), LockType.Day7);
+        } else if (totalReportTime == 7) {
+            return new LockDto(Duration.ofDays(30), LockType.Day30);
+        } else {
+            return new LockDto(Duration.ofDays(0), LockType.Ban); // totalReportTime == 10
         }
     }
 }

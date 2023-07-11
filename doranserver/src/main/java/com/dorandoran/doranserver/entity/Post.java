@@ -78,7 +78,7 @@ public class Post {
     private Integer fontBold;
 
     public void addReportCount(){
-        this.reportCount = this.reportCount + 1;
+        this.reportCount += 1;
     }
 
     public void setLocked(){this.isLocked = Boolean.TRUE;}

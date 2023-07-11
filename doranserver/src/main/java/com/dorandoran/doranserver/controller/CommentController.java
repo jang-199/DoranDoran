@@ -35,6 +35,7 @@ public class CommentController {
     private final ReplyService replyService;
     private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
+    private final LockMemberService lockMemberService;
 
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
@@ -115,6 +116,10 @@ public class CommentController {
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
         Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
+
+        if (lockMemberService.CheckLocked(member.get())){
+            return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
         Long nextIndex = anonymityMembers.size() + 1L;

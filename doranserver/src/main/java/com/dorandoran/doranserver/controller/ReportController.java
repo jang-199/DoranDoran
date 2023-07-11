@@ -57,7 +57,11 @@ public class ReportController {
         }else {
             ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
-            post.setReportCount(post.getReportCount()+1);
+            if (post.getReportCount() == 7 && post.getIsLocked() == Boolean.FALSE){
+                post.setLocked();
+                lockLogic(member);
+            }
+            post.addReportCount();
             log.info("{}님이 {}번 글에 신고를 했습니다.",userEmail, post.getPostId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -78,20 +82,16 @@ public class ReportController {
         }else {
             ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
-            comment.setReportCount(comment.getReportCount()+1);
+            comment.addReportCount();
             if (comment.getReportCount() == 5 && comment.getIsLocked() == Boolean.FALSE){
                 comment.setLocked();
-                member.addTotalReportTime();
-                if (checkLocked(member.getTotalReportTime())){
-                    LockDto lockDto = setLockDto(member.getTotalReportTime());
-                    LockMember lockMember = new LockMember(member, lockDto.getLockTime(), lockDto.getLockType());
-                    lockMemberService.saveLockMember(lockMember);
-                }
+                lockLogic(member);
             }
             log.info("{}님이 {}번 댓글에 신고를 했습니다.",userEmail,comment.getCommentId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
+
 
     @PostMapping("/reply/report")
     public ResponseEntity<?> saveReportReply(@RequestBody ReportReplyRequestDto reportReplyRequestDto,
@@ -109,12 +109,24 @@ public class ReportController {
             ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
             reportReplyService.saveReportReply(reportReply);
             reply.setReportCount(reply.getReportCount()+1);
+            if (reply.getReportCount() == 5 && reply.getIsLocked() == Boolean.FALSE){
+                reply.setLocked();
+                lockLogic(member);
+            }
             log.info("{}님이 {}번 대댓글에 신고를 했습니다.", userEmail, reply.getReplyId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
+    private void lockLogic(Member member) {
+        member.addTotalReportTime();
+        if (checkReached(member.getTotalReportTime())){
+            LockDto lockDto = setLockDto(member.getTotalReportTime());
+            LockMember lockMember = new LockMember(member, lockDto.getLockTime(), lockDto.getLockType());
+            lockMemberService.saveLockMember(lockMember);
+        }
+    }
 
-    private static Boolean checkLocked(int totalReportTime){
+    private static Boolean checkReached(int totalReportTime){
         List<Integer> checkNum = new ArrayList<>(){{
             add(3);
             add(5);

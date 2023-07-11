@@ -58,4 +58,5 @@ public class Comment {
     private Member memberId;
 
     public void setLocked(){this.isLocked = Boolean.TRUE;}
+    public void addReportCount(){this.comment += 1;}
 }

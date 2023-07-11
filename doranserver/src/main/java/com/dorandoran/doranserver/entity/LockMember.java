@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 @Entity
 @NoArgsConstructor
@@ -41,6 +42,13 @@ public class LockMember {
         this.lockEndTime = lockType.equals(LockType.Ban)
                 ? null
                 : LocalDateTime.now().plusDays(lockDay.toDays());
+        this.lockType = lockType;
+    }
+
+    public LockMember(Member memberId, LocalDateTime lockStartTime, LocalDateTime lockEndTime, LockType lockType) {
+        this.memberId = memberId;
+        this.lockStartTime = lockStartTime;
+        this.lockEndTime = lockEndTime;
         this.lockType = lockType;
     }
 }

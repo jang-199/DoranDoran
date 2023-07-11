@@ -51,16 +51,25 @@ public class PostController {
     private final ReplyService replyService;
     private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
+    private final LockMemberService lockMemberService;
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
-        Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
-        log.info("{}",memberEmail.get());
+        Member member = memberService.findByEmail(postDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+
+        Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
+        if (lockMember.isPresent()){
+            if (lockMemberService.checkCurrentLocked(lockMember.get())){
+                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            }else {
+                lockMemberService.deleteLockMember(lockMember.get());
+            }
+        }
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
-                .memberId(memberEmail.get())
+                .memberId(member)
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
                 .fontColor(postDto.getFontColor())
@@ -108,7 +117,7 @@ public class PostController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
-        log.info("{}의 글 생성", memberEmail.get().getNickname());
+        log.info("{}의 글 생성", member.getNickname());
         postService.savePost(post);
 
         //HashTag 테이블 생성

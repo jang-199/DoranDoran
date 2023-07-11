@@ -16,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,11 +117,17 @@ public class CommentController {
 
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
-        Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
+        Member member = memberService.findByEmail(commentDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
 
-        if (lockMemberService.CheckLocked(member.get())){
-            return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+        Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
+        if (lockMember.isPresent()){
+            if (lockMemberService.checkCurrentLocked(lockMember.get())){
+                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            }else {
+                lockMemberService.deleteLockMember(lockMember.get());
+            }
         }
+
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
         Long nextIndex = anonymityMembers.size() + 1L;
@@ -129,7 +137,7 @@ public class CommentController {
                 .comment(commentDto.getComment())
                 .commentTime(LocalDateTime.now())
                 .postId(post.get())
-                .memberId(member.get())
+                .memberId(member)
                 .anonymity(commentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
                 .secretMode(commentDto.getSecretMode())
@@ -151,7 +159,7 @@ public class CommentController {
                 log.info("이미 익명 테이블에 저장된 사용자입니다.");
             } else {
                 AnonymityMember anonymityMember = AnonymityMember.builder()
-                        .userEmail(member.get().getEmail())
+                        .userEmail(member.getEmail())
                         .postId(post.get())
                         .anonymityIndex(nextIndex)
                         .build();
@@ -301,4 +309,6 @@ public class CommentController {
             return new ResponseEntity<>("대댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
         }
     }
+
+
 }

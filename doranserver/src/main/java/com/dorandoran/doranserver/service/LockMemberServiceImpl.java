@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,8 +44,20 @@ public class LockMemberServiceImpl implements LockMemberService{
     }
 
     @Override
-    public Boolean CheckLocked(Member member) {
-        Optional<LockMember> lockMember = lockMemberRepository.findLockMemberByMemberId(member);
-        return lockMember.isPresent() ? Boolean.TRUE : Boolean.FALSE;
+    public Optional<LockMember> findLockMember(Member member) {
+        return lockMemberRepository.findLockMemberByMemberId(member);
     }
+
+    @Override
+    public void deleteLockMember(LockMember lockMember) {
+        lockMemberRepository.delete(lockMember);
+    }
+
+    public Boolean checkCurrentLocked(LockMember lockMember){
+        LocalDateTime now = LocalDateTime.now();
+        return lockMember.getLockStartTime().isBefore(now) && lockMember.getLockEndTime().isAfter(now)
+                ? Boolean.TRUE
+                : Boolean.FALSE;
+    }
+
 }

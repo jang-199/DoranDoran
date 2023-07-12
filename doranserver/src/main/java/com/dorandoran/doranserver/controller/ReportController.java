@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Timed
 @Slf4j
@@ -116,6 +117,19 @@ public class ReportController {
             log.info("{}님이 {}번 대댓글에 신고를 했습니다.", userEmail, reply.getReplyId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/lockMember")
+    public ResponseEntity<?> searchLockMember(@AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+        Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
+        if (lockMember.isPresent()){
+            return new ResponseEntity<>("해당 계정은 현재 정지되었습니다.",HttpStatus.BAD_REQUEST);
+        }else {
+            return new ResponseEntity<>("해당 사용자는 활성화 상태입니다.",HttpStatus.OK);
+        }
+
     }
     private void lockLogic(Member member) {
         member.addTotalReportTime();

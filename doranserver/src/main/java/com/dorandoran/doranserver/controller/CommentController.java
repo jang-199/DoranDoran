@@ -254,9 +254,18 @@ public class CommentController {
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
-        Optional<Member> member = memberService.findByEmail(replyDto.getUserEmail());
+        Member member = memberService.findByEmail(replyDto.getUserEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
 
-        if (comment.isPresent() && member.isPresent()) {
+        Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
+        if (lockMember.isPresent()){
+            if (lockMemberService.checkCurrentLocked(lockMember.get())){
+                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            }else {
+                lockMemberService.deleteLockMember(lockMember.get());
+            }
+        }
+
+        if (comment.isPresent()) {
             comment.get().setCountReply(comment.get().getCountReply()+1);
             List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());
             Long nextIndex = anonymityMembers.size() + 1L;
@@ -266,7 +275,7 @@ public class CommentController {
                     .ReplyTime(LocalDateTime.now())
                     .anonymity(replyDto.getAnonymity())
                     .commentId(comment.get())
-                    .memberId(member.get())
+                    .memberId(member)
                     .checkDelete(Boolean.FALSE)
                     .secretMode(replyDto.getSecretMode())
                     .build();
@@ -278,7 +287,7 @@ public class CommentController {
                     log.info("이미 익명 테이블에 저장된 사용자입니다.");
                 } else {
                     AnonymityMember anonymityMember = AnonymityMember.builder()
-                            .userEmail(member.get().getEmail())
+                            .userEmail(member.getEmail())
                             .postId(comment.get().getPostId())
                             .anonymityIndex(nextIndex)
                             .build();

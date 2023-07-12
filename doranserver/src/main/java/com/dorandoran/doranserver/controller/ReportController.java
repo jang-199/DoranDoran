@@ -60,7 +60,7 @@ public class ReportController {
             reportPostService.saveReportPost(reportPost);
             if (post.getReportCount() == 7 && post.getIsLocked() == Boolean.FALSE){
                 post.setLocked();
-                lockLogic(member);
+                lockLogic(post.getMemberId());
             }
             post.addReportCount();
             log.info("{}님이 {}번 글에 신고를 했습니다.",userEmail, post.getPostId());
@@ -86,7 +86,7 @@ public class ReportController {
             comment.addReportCount();
             if (comment.getReportCount() == 5 && comment.getIsLocked() == Boolean.FALSE){
                 comment.setLocked();
-                lockLogic(member);
+                lockLogic(comment.getMemberId());
             }
             log.info("{}님이 {}번 댓글에 신고를 했습니다.",userEmail,comment.getCommentId());
             return new ResponseEntity<>(HttpStatus.OK);
@@ -112,7 +112,7 @@ public class ReportController {
             reply.setReportCount(reply.getReportCount()+1);
             if (reply.getReportCount() == 5 && reply.getIsLocked() == Boolean.FALSE){
                 reply.setLocked();
-                lockLogic(member);
+                lockLogic(reply.getMemberId());
             }
             log.info("{}님이 {}번 대댓글에 신고를 했습니다.", userEmail, reply.getReplyId());
             return new ResponseEntity<>(HttpStatus.OK);
@@ -129,8 +129,8 @@ public class ReportController {
         }else {
             return new ResponseEntity<>("해당 사용자는 활성화 상태입니다.",HttpStatus.OK);
         }
-
     }
+
     private void lockLogic(Member member) {
         member.addTotalReportTime();
         if (checkReached(member.getTotalReportTime())){
@@ -159,7 +159,7 @@ public class ReportController {
         } else if (totalReportTime == 7) {
             return new LockDto(Duration.ofDays(30), LockType.Day30);
         } else {
-            return new LockDto(Duration.ofDays(0), LockType.Ban); // totalReportTime == 10
+            return new LockDto(Duration.ZERO, LockType.Ban); // totalReportTime == 10
         }
     }
 }

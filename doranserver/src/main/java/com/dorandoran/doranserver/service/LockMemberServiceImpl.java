@@ -21,14 +21,14 @@ public class LockMemberServiceImpl implements LockMemberService{
     @Transactional
     @Override
     public void saveLockMember(LockMember lockMember) {
-        Optional<LockMember> findLockMember = lockMemberRepository.findById(lockMember.getLockMemberId());
+        Optional<LockMember> findLockMember = lockMemberRepository.findLockMemberByMemberId(lockMember.getMemberId());
         Duration duration = lockMember.RetrieveLockDuration(lockMember);
         if (findLockMember.isPresent()){
             findLockMember.get().updateLockMember(duration, lockMember.getLockType());
             log.info("{}님의 정지 기한이 {}로 수정되었습니다.", lockMember.getMemberId().getEmail(), lockMember.getLockType());
         }else {
             lockMemberRepository.save(lockMember);
-            log.info("{}님이 {}일 정지되었습니다.", lockMember.getMemberId().getEmail(), duration.toDaysPart());
+            log.info("{}님이 {} 정지되었습니다.", lockMember.getMemberId().getEmail(), lockMember.getLockType());
         }
 
 /*        LockMember findLockMember = lockMemberRepository.findById(lockMember.getLockMemberId()).orElse(lockMember);

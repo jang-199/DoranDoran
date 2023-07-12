@@ -141,6 +141,7 @@ public class CommentController {
                 .anonymity(commentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
                 .secretMode(commentDto.getSecretMode())
+                .isLocked(Boolean.FALSE)
                 .build();
         commentService.saveComment(comment);
 
@@ -278,6 +279,7 @@ public class CommentController {
                     .memberId(member)
                     .checkDelete(Boolean.FALSE)
                     .secretMode(replyDto.getSecretMode())
+                    .isLocked(Boolean.FALSE)
                     .build();
 
             replyService.saveReply(buildReply);

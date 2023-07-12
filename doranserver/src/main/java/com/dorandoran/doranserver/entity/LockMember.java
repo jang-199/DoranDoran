@@ -36,6 +36,13 @@ public class LockMember {
         return Duration.between(lockMember.lockStartTime, lockMember.lockEndTime);
     }
 
+    public void updateLockMember(Duration lockDay, LockType lockType){
+        this.lockEndTime = lockType.equals(LockType.Ban)
+                ? null
+                :this.lockEndTime.plusDays(lockDay.toDays());
+        this.lockType = lockType;
+    }
+
     public LockMember(Member memberId, Duration lockDay, LockType lockType) {
         this.memberId = memberId;
         this.lockStartTime = LocalDateTime.now();

@@ -119,6 +119,8 @@ public class BackgroundPicDBInitializer {
                     .fontColor("black")
                     .fontSize(20)
                     .fontBold(400)
+                    .reportCount(0)
+                    .isLocked(Boolean.FALSE)
                     .build();
             if (i % 2 == 0) {
                 post.setAnonymity(Boolean.TRUE);
@@ -137,6 +139,8 @@ public class BackgroundPicDBInitializer {
                     .postId(postService.findSinglePost(i).get())
                     .memberId(buildMember)
                     .countReply(1)
+                    .reportCount(0)
+                    .isLocked(Boolean.FALSE)
                     .build();
             if (i % 2 == 0) {
                 comment.setAnonymity(Boolean.TRUE);
@@ -152,6 +156,8 @@ public class BackgroundPicDBInitializer {
                     .memberId(buildMember)
                     .reply("대댓글" + i + "입니다")
                     .ReplyTime(LocalDateTime.now())
+                    .reportCount(0)
+                    .isLocked(Boolean.FALSE)
                     .build();
 
             if (i % 2 == 0) {

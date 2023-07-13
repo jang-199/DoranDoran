@@ -75,6 +75,7 @@ public class PostController {
                 .fontColor(postDto.getFontColor())
                 .fontSize(postDto.getFontSize())
                 .fontBold(postDto.getFontBold())
+                .isLocked(Boolean.FALSE)
                 .build();
 
         //location null 처리

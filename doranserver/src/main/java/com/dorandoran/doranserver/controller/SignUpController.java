@@ -35,6 +35,7 @@ public class SignUpController {
     private final SignUp signUp;
     private final PolicyTermsCheck policyTermsCheck;
     private final MemberService memberService;
+    private final TokenService tokenService;
     private final TokenProvider tokenProvider;
 
 
@@ -57,7 +58,7 @@ public class SignUpController {
         if (byEmail.isPresent()) {
             Member member = byEmail.get();
             String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
-            String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
+            String refreshToken = byEmail.get().getRefreshToken();
             byEmail.get().setRefreshToken(refreshToken);
             byEmail.get().setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
 

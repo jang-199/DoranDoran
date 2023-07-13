@@ -30,15 +30,6 @@ public class LockMemberServiceImpl implements LockMemberService{
             lockMemberRepository.save(lockMember);
             log.info("{}님이 {}일 정지되었습니다.", lockMember.getMemberId().getEmail(), duration.toDaysPart());
         }
-
-/*        LockMember findLockMember = lockMemberRepository.findById(lockMember.getLockMemberId()).orElse(lockMember);
-        Duration duration = lockMember.RetrieveLockDuration(lockMember);
-        LockMember saveLockMember = new LockMember(
-                findLockMember.getMemberId(),
-                findLockMember.getLockStartTime(),
-                findLockMember.getLockEndTime().plusDays(duration.toDays()),
-                lockMember.getLockType());
-        lockMemberRepository.save(saveLockMember);*/
     }
 
     @Override

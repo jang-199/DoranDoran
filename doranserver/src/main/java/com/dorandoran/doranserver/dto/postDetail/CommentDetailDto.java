@@ -21,12 +21,13 @@ public class CommentDetailDto {
     String commentNickname; //댓글 쓴 사람 닉네임
     String CommentAnonymityNickname; //익명일 때 닉네임
     Boolean commentCheckDelete; //댓글 삭제 여부
-    LocalDateTime commentTime; //댓글 작성 시간
     int countReply;
+    Boolean isWrittenByMember; //내가 쓴 댓글인지 확인
+    LocalDateTime commentTime; //댓글 작성 시간
     List<ReplyDetailDto> replies; //대댓글
 
 
-    public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replies) {
+    public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();
         this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
         this.commentLike = commentLikeCnt;
@@ -36,6 +37,7 @@ public class CommentDetailDto {
         this.commentCheckDelete = comment.getCheckDelete();
         this.commentTime = comment.getCommentTime();
         this.countReply = comment.getCountReply();
+        this.isWrittenByMember = isWrittenByMember;
         this.replies = replies;
     }
 }

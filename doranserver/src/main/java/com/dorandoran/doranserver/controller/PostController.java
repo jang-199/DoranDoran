@@ -267,7 +267,7 @@ public class PostController {
     ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
         Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
-
+        Boolean isWrittenByUser = post.get().getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()) ? Boolean.TRUE : Boolean.FALSE;
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
                 .content(post.get().getContent())
@@ -277,6 +277,7 @@ public class PostController {
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
                 .postAnonymity(post.get().getAnonymity())
                 .postNickname(post.get().getMemberId().getNickname())
+                .isWrittenByMember(isWrittenByUser)
                 .font(post.get().getFont())
                 .fontColor(post.get().getFontColor())
                 .fontSize(post.get().getFontSize())
@@ -308,34 +309,37 @@ public class PostController {
                 if (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
                     checkWrite = Boolean.TRUE;
 
+
                 //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 log.info("대댓글 로직 실행");
                 for (Reply reply : replies) {
+                    Boolean isReplyWrittenByUser = Boolean.FALSE;
                     //대댓글 작성 유무 확인
-                    if (reply.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
+                    if (reply.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail())) {
                         checkWrite = Boolean.TRUE;
-
+                        isReplyWrittenByUser = Boolean.TRUE;
+                    }
                     ReplyDetailDto replyDetailDto = null;
                     //비밀 대댓글에 따른 저장 로직
                     if (reply.getSecretMode() == Boolean.TRUE) {
                         log.info("{}는 비밀 댓글로직 실행", reply.getReplyId());
                         if (postRequestDetailDto.getUserEmail().equals(post.get().getMemberId().getEmail())) {
                             //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                            replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                            replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser);
                             log.info("글쓴이입니다.");
                         } else {
                             //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                             replyDetailDto =
                                     (reply.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
-                                            ? new ReplyDetailDto(reply, reply.getReply())
-                                            : new ReplyDetailDto(reply, "비밀 댓글입니다.");
+                                            ? new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser)
+                                            : new ReplyDetailDto(reply, "비밀 댓글입니다.", isReplyWrittenByUser);
                             log.info("글쓴이가 아닙니다.");
                         }
                     }else {
                         log.info("{}는 비밀 댓글로직 실행 안함",reply.getReplyId());
-                        replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                        replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser);
                     }
                     if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
                         int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
@@ -346,21 +350,27 @@ public class PostController {
                 }
                 Collections.reverse(replyDetailDtoList);
 
+
+                //내가 쓴 댓글인지 확인
+                Boolean isCommentWrittenByMember = Boolean.FALSE;
+                if (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
+                    isCommentWrittenByMember = Boolean.TRUE;
+
                 //비밀 댓글에 따른 저장 로직
                 CommentDetailDto commentDetailDto = null;
                 if (comment.getSecretMode() == Boolean.TRUE) {
                     if (postRequestDetailDto.getUserEmail().equals(post.get().getMemberId().getEmail())) {
                         //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                        commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                        commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                     } else {
                         //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                         commentDetailDto =
                                 (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
-                                        ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList)
-                                        : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                                        ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList)
+                                        : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                     }
                 }else {
-                    commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                    commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                 }
 
                 if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {

@@ -26,6 +26,7 @@ public class PostDetailDto {
     Integer fontSize;
     Integer fontBold;
     Boolean checkWrite;
+    Boolean isWrittenByMember; //내가 쓴 글인지 확인
     List<CommentDetailDto> commentDetailDto; //댓글
     List<String> postHashes; //글의 해시태그
 }

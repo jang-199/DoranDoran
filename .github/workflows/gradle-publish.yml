@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.DEPLOYMENT_SERVER_USERNAME }}
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
-          local_file: './build/libs/*.jar'
+          local_file: './doranserver/build/libs/*.jar'
           remote_path: '/DoranDoran/doranserver/build/libs'
 
       - name: Execute deployment script on server

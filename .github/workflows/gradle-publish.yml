@@ -43,5 +43,5 @@ jobs:
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
           script: |
-            cd /DoranDoran/doranserver/build/libs
+            cd ~/DoranDoran/doranserver/build/libs
             java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar

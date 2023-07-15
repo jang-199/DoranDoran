@@ -31,8 +31,9 @@ jobs:
           username: ${{ secrets.DEPLOYMENT_SERVER_USERNAME }}
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
-          local_file: './build/libs/*.jar'
-          remote_path: '/DoranDoran/doranserver/build/libs'
+          source: 'doranserver/build/libs/*.jar'
+          target: '~/DoranDoran/'
+          overwrite: true
 
       - name: Execute deployment script on server
         uses: appleboy/ssh-action@v0.1.4
@@ -42,5 +43,6 @@ jobs:
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
           script: |
-            cd /DoranDoran/doranserver/build/libs
-            java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar
+            cd ~/DoranDoran/doranserver/build/libs
+            ps -ef | grep java | grep -v grep | awk '{print $2}' | xargs kill -9
+            nohup java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar > /dev/null 2>&1 &

@@ -45,4 +45,4 @@ jobs:
           script: |
             cd ~/DoranDoran/doranserver/build/libs
             ps -ef | grep java | grep -v grep | awk '{print $2}' | xargs kill -9
-            java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar
+            nohup java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar &

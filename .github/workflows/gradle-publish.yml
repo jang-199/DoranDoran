@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
           source: 'doranserver/build/libs/*.jar'
-          target: '/DoranDoranWorkflow/doranserver/build/libs/'
+          target: '/DoranDoran/doranserver/build/libs/'
           overwrite: true
 
       - name: Execute deployment script on server

@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
           source: 'doranserver/build/libs/*.jar'
-          target: '/DoranDoran/doranserver/build/libs/'
+          target: '/DoranDoranWorkflow/doranserver/build/libs/'
 
       - name: Execute deployment script on server
         uses: appleboy/ssh-action@v0.1.4

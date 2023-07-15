@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.DEPLOYMENT_SERVER_USERNAME }}
           password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
           port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
-          source: 'doranserver/build/libs/*.jar'
+          source: 'doranserver-0.0.1-SNAPSHOT.jar'
           target: '~/DoranDoran/doranserver/build/libs/'
           overwrite: true
 

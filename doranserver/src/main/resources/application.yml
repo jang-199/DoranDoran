@@ -23,7 +23,7 @@ spring:
       max-file-size: 3MB
       max-request-size: 3MB
       resolve-lazily: true
-#servlet default encoding utf-8
+#servlet default encoding UTF-8
 server:
   tomcat:
     mbeanregistry:

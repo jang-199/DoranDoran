@@ -1,8 +1,14 @@
 name: DoranServerCI
 
 on:
-  pull_request:
-    branches: ["main"]
+  pull_request_review:
+    types:
+      - submitted
+    branches:
+      - main
+    properties:
+      review:
+        state: approved
 
 jobs:
   build:

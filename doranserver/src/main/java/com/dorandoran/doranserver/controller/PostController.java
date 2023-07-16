@@ -54,13 +54,13 @@ public class PostController {
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
-        Optional<Member> memberEmail = memberService.findByEmail(postDto.getEmail());
-        log.info("{}",memberEmail.get());
+        Member memberEmail = memberService.findByEmail(postDto.getEmail());
+        log.info("{}",memberEmail);
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
-                .memberId(memberEmail.get())
+                .memberId(memberEmail)
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
                 .fontColor(postDto.getFontColor())
@@ -108,7 +108,7 @@ public class PostController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
-        log.info("{}의 글 생성", memberEmail.get().getNickname());
+        log.info("{}의 글 생성", memberEmail.getNickname());
         postService.savePost(post);
 
         //HashTag 테이블 생성
@@ -233,7 +233,7 @@ public class PostController {
     @PostMapping("/post-like")
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
-        Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
+        Member byEmail = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
         for (PostLike postLike : byMemberId) {
             if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
@@ -245,7 +245,7 @@ public class PostController {
         log.info("{}번 글 좋아요", postLikeDto.getPostId());
         PostLike postLike = PostLike.builder()
                 .postId(post.get())
-                .memberId(byEmail.get())
+                .memberId(byEmail)
                 .build();
         postLikeService.savePostLike(postLike);
 

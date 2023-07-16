@@ -54,28 +54,23 @@ public class SignUpController {
 
     @PostMapping("/check/registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
-        Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
-        if (byEmail.isPresent()) {
-            Member member = byEmail.get();
-            String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
-            String refreshToken = byEmail.get().getRefreshToken();
-            byEmail.get().setRefreshToken(refreshToken);
-            byEmail.get().setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
+        Member member = memberService.findByEmail(memberDto.getEmail());
 
-            if (byEmail.get().getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
-                byEmail.get().setClosureDate(null);
-            }
-            memberService.saveMember(member);
-            return new ResponseEntity<>(
-                    UserInfoDto.builder()
-                            .email(member.getEmail())
-                            .nickName(member.getNickname())
-                            .tokenDto(new TokenDto(refreshToken,accessToken))
-                            .build(),
-                    HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
+        String refreshToken = member.getRefreshToken();
+        member.setRefreshToken(refreshToken);
+        member.setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
+        if (member.getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
+            member.setClosureDate(null);
         }
+        memberService.saveMember(member);
+        return new ResponseEntity<>(
+                UserInfoDto.builder()
+                        .email(member.getEmail())
+                        .nickName(member.getNickname())
+                        .tokenDto(new TokenDto(refreshToken,accessToken))
+                        .build(),
+                HttpStatus.OK);
     }
 
     @Transactional
@@ -83,7 +78,7 @@ public class SignUpController {
     ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(userEmail));
+        Member member = memberService.findByEmail(userEmail);
         log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, member.getNickname(), changeNicknameDto.getNickname());
         member.setNickname(changeNicknameDto.getNickname());
         return new ResponseEntity<>(HttpStatus.OK);
@@ -112,7 +107,7 @@ public class SignUpController {
             JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
             String email = kakao_account.getString("email");
             log.info("email : {}", email);
-            if (memberService.findByEmail(email).isEmpty()) { //회원 저장 시작
+            if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
 
                 PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
                         .policy2(true)

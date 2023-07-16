@@ -5,8 +5,10 @@ import com.dorandoran.doranserver.entity.Member;
 import java.util.Optional;
 
 public interface MemberService {
-    public Optional<Member> findByEmail(String email);
+    Member findByEmail(String email);
+
+    Boolean findByEmilIsEmpty(String email);
 
     Member findByRefreshToken(String refreshToken);
-    public void saveMember(Member member);
+    void saveMember(Member member);
 }

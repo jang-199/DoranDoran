@@ -40,10 +40,8 @@ public class RetrieveInterestedPostController {
         log.info(userDetails.getAuthorities().toString());
 
         String username = userDetails.getUsername();
-        Optional<Member> byEmail = memberService.findByEmail(username);
-        List<MemberHash> hashByMember = memberHashService.findHashByMember( //즐겨찾기한 해시태그 리스트(맴버해시)
-                byEmail.orElseThrow(()->new RuntimeException("userName not found err"))
-        );
+        Member byEmail = memberService.findByEmail(username);
+        List<MemberHash> hashByMember = memberHashService.findHashByMember(byEmail); //즐겨찾기한 해시태그 리스트(맴버해시)
         log.info("{}",hashByMember);
         List<HashTag> hashTagList = hashByMember.stream() //맴버해시에서 해시태그 id 추출
                 .map(m -> m.getHashTagId())

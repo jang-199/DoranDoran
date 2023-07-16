@@ -30,6 +30,8 @@ public class RetrieveInterestedPostController {
     private final PostHashService postHashService;
     private final PostLikeService postLikeService;
     private final CommentService commentService;
+    private final BlockMemberFilter blockMemberFilter;
+    private final MemberBlockListService memberBlockListService;
 
     @Value("${doran.ip.address}")
     String ipAddress;
@@ -47,15 +49,17 @@ public class RetrieveInterestedPostController {
                 .map(m -> m.getHashTagId())
                 .collect(Collectors.toList());
 
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(byEmail);
+
         List<Optional<PostHash>> optionalPostHashList = hashTagList.stream()
                 .map(hashTag -> postHashService.findTopOfPostHash(hashTag))
                 .collect(Collectors.toList());
-        log.info("{}",optionalPostHashList);
+        List<Optional<PostHash>> optionalPostHashFilter = blockMemberFilter.optionalPostHashFilter(optionalPostHashList, memberBlockListByBlockingMember);
 
         HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new LinkedHashMap<>();
         LinkedList<Map> mapLinkedList = new LinkedList<>();
 
-        for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
+        for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
             if (optionalPostHash.isPresent()) {
                 PostResponseDto responseDto = PostResponseDto.builder()
                         .backgroundPicUri(

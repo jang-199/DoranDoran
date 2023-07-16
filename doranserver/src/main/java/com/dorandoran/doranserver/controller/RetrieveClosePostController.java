@@ -1,6 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -9,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,13 +32,21 @@ public class RetrieveClosePostController {
     private final DistanceService distanceService;
     private final PostLikeService postLikeService;
     private final CommentService commentService;
+    private final MemberService memberService;
+    private final BlockMemberFilter blockMemberFilter;
+    private final MemberBlockListService memberBlockListService;
     @Value("${doran.ip.address}")
     String ipAddress;
 
     @GetMapping("/post/close")
     ResponseEntity<ArrayList<PostResponseDto>> retrievePost(@RequestParam String userEmail,
                                                             @RequestParam Long postCnt,
-                                                            @RequestParam String location) {
+                                                            @RequestParam String location,
+                                                            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Member member = memberService.findByEmail(userDetails.getUsername());
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+
         log.info(location);
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         String[] split = location.split(",");
@@ -50,10 +62,12 @@ public class RetrieveClosePostController {
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
-            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, firstPost);
+            List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
+            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, postFilter);
         }else {
             List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt);
-            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, postList);
+            List<Post> postFilter = blockMemberFilter.postFilter(postList, memberBlockListByBlockingMember);
+            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, postFilter);
         }
         return ResponseEntity.ok().body(postResponseDtoList);
     }

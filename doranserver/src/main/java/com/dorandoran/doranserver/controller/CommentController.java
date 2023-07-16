@@ -114,7 +114,7 @@ public class CommentController {
 
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
-        Optional<Member> member = memberService.findByEmail(commentDto.getEmail());
+        Member member = memberService.findByEmail(commentDto.getEmail());
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
         Long nextIndex = anonymityMembers.size() + 1L;
@@ -124,7 +124,7 @@ public class CommentController {
                 .comment(commentDto.getComment())
                 .commentTime(LocalDateTime.now())
                 .postId(post.get())
-                .memberId(member.get())
+                .memberId(member)
                 .anonymity(commentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
                 .secretMode(commentDto.getSecretMode())
@@ -146,7 +146,7 @@ public class CommentController {
                 log.info("이미 익명 테이블에 저장된 사용자입니다.");
             } else {
                 AnonymityMember anonymityMember = AnonymityMember.builder()
-                        .userEmail(member.get().getEmail())
+                        .userEmail(member.getEmail())
                         .postId(post.get())
                         .anonymityIndex(nextIndex)
                         .build();
@@ -177,7 +177,7 @@ public class CommentController {
     @PostMapping("/comment-like")
     ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
-        Optional<Member> member = memberService.findByEmail(commentLikeDto.getUserEmail());
+        Member member = memberService.findByEmail(commentLikeDto.getUserEmail());
 
         List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
         for (CommentLike commentLike : commentLikeList) {
@@ -189,7 +189,7 @@ public class CommentController {
         }
         CommentLike commentLikeBuild = CommentLike.builder()
                 .commentId(comment.get())
-                .memberId(member.get())
+                .memberId(member)
                 .build();
         commentLikeService.saveCommentLike(commentLikeBuild);
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
@@ -241,9 +241,9 @@ public class CommentController {
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
-        Optional<Member> member = memberService.findByEmail(replyDto.getUserEmail());
+        Member member = memberService.findByEmail(replyDto.getUserEmail());
 
-        if (comment.isPresent() && member.isPresent()) {
+        if (comment.isPresent()) {
             comment.get().setCountReply(comment.get().getCountReply()+1);
             List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());
             Long nextIndex = anonymityMembers.size() + 1L;
@@ -253,7 +253,7 @@ public class CommentController {
                     .ReplyTime(LocalDateTime.now())
                     .anonymity(replyDto.getAnonymity())
                     .commentId(comment.get())
-                    .memberId(member.get())
+                    .memberId(member)
                     .checkDelete(Boolean.FALSE)
                     .secretMode(replyDto.getSecretMode())
                     .build();
@@ -265,7 +265,7 @@ public class CommentController {
                     log.info("이미 익명 테이블에 저장된 사용자입니다.");
                 } else {
                     AnonymityMember anonymityMember = AnonymityMember.builder()
-                            .userEmail(member.get().getEmail())
+                            .userEmail(member.getEmail())
                             .postId(comment.get().getPostId())
                             .anonymityIndex(nextIndex)
                             .build();

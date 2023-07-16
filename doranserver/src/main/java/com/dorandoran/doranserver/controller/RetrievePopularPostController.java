@@ -1,7 +1,10 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.PopularPost;
+import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
@@ -9,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,27 +35,34 @@ public class RetrievePopularPostController {
     private final PostLikeService postLikeService;
     private final CommentService commentService;
     private final DistanceService distanceService;
+    private final BlockMemberFilter blockMemberFilter;
+    private final MemberService memberService;
+    private final MemberBlockListService memberBlockListService;
 
     @GetMapping("/post/popular")
     ResponseEntity<ArrayList<PostResponseDto>> retrievePopularPost(@RequestParam String userEmail,
                                                                    @RequestParam Long postCnt,
-                                                                   @RequestParam String location){
-        log.info("{}",userEmail);
+                                                                   @RequestParam String location,
+                                                                   @AuthenticationPrincipal UserDetails userDetails){
         log.info("{}",postCnt);
         log.info("{}",location);
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
+        Member member = memberService.findByEmail(userDetails.getUsername());
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+
         if (postCnt == 0) { //first find
             log.info("조건문0");
             List<PopularPost> firstPost = popularPostService.findFirstPopularPost();
-            log.info("{}",firstPost.size());
-            return makePopularPostResponseList(userEmail, postResponseDtoList, builder, firstPost, location);
+            List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(firstPost, memberBlockListByBlockingMember);
+            return makePopularPostResponseList(userEmail, postResponseDtoList, builder, popularPostFilter, location);
         } else {
             log.info("조건문 else");
             List<PopularPost> postList = popularPostService.findPopularPost(postCnt);
+            List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(postList, memberBlockListByBlockingMember);
             log.info("{}",postList.size());
-            return makePopularPostResponseList(userEmail, postResponseDtoList, builder, postList, location);
+            return makePopularPostResponseList(userEmail, postResponseDtoList, builder, popularPostFilter, location);
         }
     }
 

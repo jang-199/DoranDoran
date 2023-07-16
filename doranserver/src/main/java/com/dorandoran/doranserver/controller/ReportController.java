@@ -34,8 +34,7 @@ public class ReportController {
     public ResponseEntity<?> saveReportPost(@RequestBody ReportRequestDto reportRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+        Member member = memberService.findByEmail(userEmail);
         Post post = postService.findSinglePost(reportRequestDto.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
         ReportPost reportPost = new ReportPost(post, member, reportRequestDto.getContent());

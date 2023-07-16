@@ -1,6 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -32,6 +34,9 @@ public class RetrievePostController {
     private final PostLikeService postLikeService;
     private final CommentService commentService;
     private final DistanceService distanceService;
+    private final MemberBlockListService memberBlockListService;
+    private final MemberService memberService;
+    private final BlockMemberFilter blockMemberFilter;
 
     @GetMapping("/post")
     ResponseEntity<ArrayList<PostResponseDto>> retrievePost(@RequestParam String userEmail,
@@ -44,12 +49,17 @@ public class RetrievePostController {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
+        Member member = memberService.findByEmail(userDetails.getUsername());
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+
         if (postCnt == 0) { //first find
             List<Post> firstPost = postService.findFirstPost();
-            return makePostResponseList(userEmail, postResponseDtoList, builder, firstPost, location);
+            List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
+            return makePostResponseList(userEmail, postResponseDtoList, builder, postFilter, location);
         } else {
             List<Post> postList = postService.findPost(postCnt);
-            return makePostResponseList(userEmail, postResponseDtoList, builder, postList, location);
+            List<Post> postFilter = blockMemberFilter.postFilter(postList, memberBlockListByBlockingMember);
+            return makePostResponseList(userEmail, postResponseDtoList, builder, postFilter, location);
         }
     }
 

@@ -11,9 +11,15 @@ import java.util.Optional;
 @Service
 public class MemberServiceImpl implements MemberService{
     private final MemberRepository memberRepository;
+
     @Override
-    public Optional<Member> findByEmail(String email) {
-        return memberRepository.findByEmail(email);
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(()->new RuntimeException("이메일로 사용자를 찾을 수 없습니다."));
+    }
+
+    @Override
+    public Boolean findByEmilIsEmpty(String email) {
+        return memberRepository.findByEmail(email).isEmpty();
     }
 
     @Override

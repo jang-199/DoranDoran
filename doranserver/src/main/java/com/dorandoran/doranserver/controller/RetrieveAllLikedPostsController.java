@@ -1,9 +1,14 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.PostLike;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
+import com.dorandoran.doranserver.service.BlockMemberFilter;
+import com.dorandoran.doranserver.service.MemberBlockListService;
+import com.dorandoran.doranserver.service.MemberService;
 import com.dorandoran.doranserver.service.PostLikeService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -35,18 +40,25 @@ public class RetrieveAllLikedPostsController {
     String ipAddress;
 
     private final PostLikeService postLikeService;
+    private final MemberService memberService;
+    private final BlockMemberFilter blockMemberFilter;
+    private final MemberBlockListService memberBlockListService;
 
     @GetMapping("liked-posts/{position}")
     public ResponseEntity<LinkedList<PostResponseDto>> getAllLikedPosts(@PathVariable("position") Long position,
                                                                         @AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
+        Member member = memberService.findByEmail(username);
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         List<PostLike> myPost;
         if (position == 0) {
             myPost = postLikeService.findFirstMyLikedPosts(username);
+            myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         } else {
             myPost = postLikeService.findMyLikedPosts(username, position);
+            myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         }
 
         LinkedList<PostResponseDto> postDtoList = new LinkedList<>();

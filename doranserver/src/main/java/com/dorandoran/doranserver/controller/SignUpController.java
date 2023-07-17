@@ -43,13 +43,13 @@ public class SignUpController {
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
 
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
-        Optional<Member> nickname = signUp.findByNickname(nicknameDto.getNickname());
-        if (nickname.isPresent() || nicknameDto.getNickname().isBlank()) {
-            log.info("bad req response");
+        if (existedNickname(nicknameDto.getNickname())) {
+            log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다.");
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        log.info("ok response");
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/check/registered")
@@ -75,13 +75,19 @@ public class SignUpController {
 
     @Transactional
     @PatchMapping("/change/nickname")
-    ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
+    public ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail);
-        log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, member.getNickname(), changeNicknameDto.getNickname());
-        member.setNickname(changeNicknameDto.getNickname());
-        return new ResponseEntity<>(HttpStatus.OK);
+        Member findMember = memberService.findByEmail(userEmail);
+        if (existedNickname(changeNicknameDto.getNickname())) {
+            log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다. 변경 가능합니다.");
+            findMember.setNickname(changeNicknameDto.getNickname());
+            log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, findMember.getNickname(), changeNicknameDto.getNickname());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 
 
@@ -147,5 +153,10 @@ public class SignUpController {
             log.error("access token err : {}", e.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    public Boolean existedNickname(String nickname){
+        Optional<Member> member = signUp.findByNickname(nickname);
+        return member.isPresent() || nickname.isBlank() ? Boolean.FALSE : Boolean.TRUE;
     }
 }

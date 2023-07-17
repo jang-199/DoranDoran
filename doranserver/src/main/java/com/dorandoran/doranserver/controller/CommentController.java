@@ -10,12 +10,13 @@ import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,7 @@ public class CommentController {
     private final ReplyService replyService;
     private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
+    private final LockMemberService lockMemberService;
 
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
@@ -55,24 +57,30 @@ public class CommentController {
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 for (Reply reply : replies) {
                     ReplyDetailDto replyDetailDto = null;
+
+                    //대댓글 자신이 썼는 지 확인
+                    Boolean isReplyWrittenByMember = Boolean.FALSE;
+                    if (reply.getMemberId().getEmail().equals(userEmail))
+                        isReplyWrittenByMember = Boolean.TRUE;
+
                     //비밀 대댓글에 따른 저장 로직
                     if (reply.getSecretMode() == Boolean.TRUE) {
                         log.info("{}는 비밀 댓글로직 실행", reply.getReplyId());
                         if (userEmail.equals(post.get().getMemberId().getEmail())) {
                             //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                            replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                            replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByMember);
                             log.info("글쓴이입니다.");
                         } else {
                             //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                             replyDetailDto =
                                     (reply.getMemberId().getEmail().equals(userEmail))
-                                            ? new ReplyDetailDto(reply, reply.getReply())
-                                            : new ReplyDetailDto(reply, "비밀 댓글입니다.");
+                                            ? new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByMember)
+                                            : new ReplyDetailDto(reply, "비밀 댓글입니다.", isReplyWrittenByMember);
                             log.info("글쓴이가 아닙니다.");
                         }
                     }else {
                         log.info("{}는 비밀 댓글로직 실행 안함",reply.getReplyId());
-                        replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                        replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByMember);
                     }
                     if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
                         int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
@@ -83,21 +91,26 @@ public class CommentController {
                 }
                 Collections.reverse(replyDetailDtoList);
 
+                //내가 쓴 댓글인지 확인
+                Boolean isCommentWrittenByMember = Boolean.FALSE;
+                if (comment.getMemberId().getEmail().equals(userEmail))
+                    isCommentWrittenByMember = Boolean.TRUE;
+
                 //비밀 댓글에 따른 저장 로직
                 CommentDetailDto commentDetailDto = null;
                 if (comment.getSecretMode() == Boolean.TRUE) {
                     if (userEmail.equals(post.get().getMemberId().getEmail())) {
                         //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                        commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                        commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                     } else {
                         //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                         commentDetailDto =
                                         (comment.getMemberId().getEmail().equals(userEmail))
-                                        ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList)
-                                        : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                                        ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList)
+                                        : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                     }
                 }else {
-                    commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, replyDetailDtoList);
+                    commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                 }
 
                 if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
@@ -115,6 +128,15 @@ public class CommentController {
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
         Member member = memberService.findByEmail(commentDto.getEmail());
+
+        Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
+        if (lockMember.isPresent()){
+            if (lockMemberService.checkCurrentLocked(lockMember.get())){
+                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            }else {
+                lockMemberService.deleteLockMember(lockMember.get());
+            }
+        }
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
         Long nextIndex = anonymityMembers.size() + 1L;
@@ -128,6 +150,7 @@ public class CommentController {
                 .anonymity(commentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
                 .secretMode(commentDto.getSecretMode())
+                .isLocked(Boolean.FALSE)
                 .build();
         commentService.saveComment(comment);
 
@@ -209,20 +232,26 @@ public class CommentController {
         List<ReplyDetailDto> replyDtoList = new ArrayList<>();
         for (Reply reply : replies) {
             ReplyDetailDto replyDetailDto = null;
+
+            //대댓글 자신이 썼는 지 확인
+            Boolean isReplyWrittenByMember = Boolean.FALSE;
+            if (reply.getMemberId().getEmail().equals(userEmail))
+                isReplyWrittenByMember = Boolean.TRUE;
+
             //비밀 대댓글에 따른 저장 로직
             if (reply.getSecretMode() == Boolean.TRUE) {
                 if (userEmail.equals(post.get().getMemberId().getEmail())) {
                     //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                    replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                    replyDetailDto = new ReplyDetailDto(reply, reply.getReply() ,isReplyWrittenByMember);
                 } else {
                     //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
                     replyDetailDto =
                             (reply.getMemberId().getEmail().equals(userEmail))
-                                    ? new ReplyDetailDto(reply, reply.getReply())
-                                    : new ReplyDetailDto(reply, "비밀 댓글입니다.");
+                                    ? new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByMember)
+                                    : new ReplyDetailDto(reply, "비밀 댓글입니다.", isReplyWrittenByMember);
                 }
             }else {
-                replyDetailDto = new ReplyDetailDto(reply, reply.getReply());
+                replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByMember);
             }
 
             if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
@@ -243,6 +272,14 @@ public class CommentController {
         Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
         Member member = memberService.findByEmail(replyDto.getUserEmail());
 
+        Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
+        if (lockMember.isPresent()){
+            if (lockMemberService.checkCurrentLocked(lockMember.get())){
+                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            }else {
+                lockMemberService.deleteLockMember(lockMember.get());
+            }
+        }
         if (comment.isPresent()) {
             comment.get().setCountReply(comment.get().getCountReply()+1);
             List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());
@@ -256,6 +293,7 @@ public class CommentController {
                     .memberId(member)
                     .checkDelete(Boolean.FALSE)
                     .secretMode(replyDto.getSecretMode())
+                    .isLocked(Boolean.FALSE)
                     .build();
 
             replyService.saveReply(buildReply);
@@ -296,4 +334,6 @@ public class CommentController {
             return new ResponseEntity<>("대댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
         }
     }
+
+
 }

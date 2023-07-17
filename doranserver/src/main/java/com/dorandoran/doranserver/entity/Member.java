@@ -56,10 +56,16 @@ public class Member implements UserDetails {
     @Column(name = "CLOSURE_DATE")
     private LocalDate closureDate;
 
+    @Column(name = "TOTAL_REPORT_TIME")
+    private int totalReportTime;
+
     public void setAccountClosureRequestTime() {
         this.closureDate = LocalDate.now();
     }
 
+    public void addTotalReportTime(){
+        this.totalReportTime += 1;
+    }
     @Enumerated(EnumType.STRING)
     private OsType osType;
     @Builder

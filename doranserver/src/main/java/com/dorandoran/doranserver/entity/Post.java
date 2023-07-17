@@ -62,6 +62,9 @@ public class Post {
     @Column(name = "REPORT_COUNT")
     private int reportCount;
 
+    @Column(name = "IS_LOCKED")
+    private Boolean isLocked;
+
     @Column(name = "FONT")
     private String font;
 
@@ -75,6 +78,8 @@ public class Post {
     private Integer fontBold;
 
     public void addReportCount(){
-        this.reportCount = this.reportCount + 1;
+        this.reportCount += 1;
     }
+
+    public void setLocked(){this.isLocked = Boolean.TRUE;}
 }

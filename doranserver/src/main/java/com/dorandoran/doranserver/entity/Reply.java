@@ -39,6 +39,12 @@ public class Reply {
     @Column(name = "SECRET_MODE")
     private Boolean secretMode;
 
+    @Column(name = "REPORT_COUNT")
+    private int reportCount;
+
+    @Column(name = "IS_LOCKED")
+    private Boolean isLocked;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;
@@ -46,4 +52,6 @@ public class Reply {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
+
+    public void setLocked(){this.isLocked = Boolean.TRUE;}
 }

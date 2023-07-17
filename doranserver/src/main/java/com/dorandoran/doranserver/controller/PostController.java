@@ -55,6 +55,7 @@ public class PostController {
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
+<<<<<<< HEAD
         Member member = memberService.findByEmail(postDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
@@ -65,11 +66,19 @@ public class PostController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
+=======
+        Member memberEmail = memberService.findByEmail(postDto.getEmail());
+        log.info("{}",memberEmail);
+>>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
+<<<<<<< HEAD
                 .memberId(member)
+=======
+                .memberId(memberEmail)
+>>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
                 .fontColor(postDto.getFontColor())
@@ -118,7 +127,11 @@ public class PostController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
+<<<<<<< HEAD
         log.info("{}의 글 생성", member.getNickname());
+=======
+        log.info("{}의 글 생성", memberEmail.getNickname());
+>>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         postService.savePost(post);
 
         //HashTag 테이블 생성
@@ -243,7 +256,7 @@ public class PostController {
     @PostMapping("/post-like")
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
-        Optional<Member> byEmail = memberService.findByEmail(postLikeDto.getEmail());
+        Member byEmail = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
         for (PostLike postLike : byMemberId) {
             if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
@@ -255,7 +268,7 @@ public class PostController {
         log.info("{}번 글 좋아요", postLikeDto.getPostId());
         PostLike postLike = PostLike.builder()
                 .postId(post.get())
-                .memberId(byEmail.get())
+                .memberId(byEmail)
                 .build();
         postLikeService.savePostLike(postLike);
 

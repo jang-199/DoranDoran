@@ -1,9 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.PostResponseDto;
-import com.dorandoran.doranserver.entity.HashTag;
-import com.dorandoran.doranserver.entity.Post;
-import com.dorandoran.doranserver.entity.PostHash;
+import com.dorandoran.doranserver.dto.RetrieveHashTagPostDto;
+import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
@@ -33,27 +32,28 @@ public class RetrieveHashTagPostController {
     private final PostLikeServiceImpl postLikeService;
     private final CommentServiceImpl commentService;
     private final DistanceService distanceService;
+    private final MemberService memberService;
+    private final BlockMemberFilter blockMemberFilter;
+    private final MemberBlockListService memberBlockListService;
 
     @Value("${doran.ip.address}")
     String ipAddress;
 
-    @GetMapping(value = {"/hashtag/{tagName}/{postCnt}/{location}","/hashtag/{tagName}/{postCnt}"})
-    ResponseEntity<ArrayList<PostResponseDto>> retrievePostByHashTag(@PathVariable(name = "tagName") String name,
-                                                                     @PathVariable(name = "postCnt") Long postCnt,
-                                                                     @PathVariable(name = "location",required = false) String location,
+    @PostMapping("/hashtag")
+    ResponseEntity<ArrayList<PostResponseDto>> retrievePostByHashTag(@RequestBody RetrieveHashTagPostDto retrieveHashTagPostDto,
                                                                      @AuthenticationPrincipal UserDetails userDetails) {
 
-        String encodeTagName = URLDecoder.decode(name, StandardCharsets.UTF_8);
+        String encodeTagName = retrieveHashTagPostDto.getHashtagName();
         String encodeLocation;
-        if (location != null) {
-            encodeLocation = URLDecoder.decode(location, StandardCharsets.UTF_8);
+        if (retrieveHashTagPostDto.getLocation() != null) {
+            encodeLocation = URLDecoder.decode(retrieveHashTagPostDto.getLocation(), StandardCharsets.UTF_8);
         }else {
             encodeLocation = "";
         }
         String encodeEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(encodeEmail);
 
-        log.info("{}",encodeTagName);
-        log.info("{}",encodeEmail);
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
@@ -63,13 +63,15 @@ public class RetrieveHashTagPostController {
 
 
 
-        if (postCnt == 0) { //first find
+        if (retrieveHashTagPostDto.getPostCnt() == 0) { //first find
             List<PostHash> postHashes = postHashService.inquiryFirstPostHash(hashTag);
-            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
+            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
+            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
 
         } else {
-            List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, postCnt);
-            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
+            List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, retrieveHashTagPostDto.getPostCnt());
+            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
+            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
         }
     }
 

@@ -128,6 +128,7 @@ public class CommentController {
 
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
+<<<<<<< HEAD
         Member member = memberService.findByEmail(commentDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
@@ -139,6 +140,9 @@ public class CommentController {
             }
         }
 
+=======
+        Member member = memberService.findByEmail(commentDto.getEmail());
+>>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
         Long nextIndex = anonymityMembers.size() + 1L;
@@ -202,7 +206,7 @@ public class CommentController {
     @PostMapping("/comment-like")
     ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
-        Optional<Member> member = memberService.findByEmail(commentLikeDto.getUserEmail());
+        Member member = memberService.findByEmail(commentLikeDto.getUserEmail());
 
         List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
         for (CommentLike commentLike : commentLikeList) {
@@ -214,7 +218,7 @@ public class CommentController {
         }
         CommentLike commentLikeBuild = CommentLike.builder()
                 .commentId(comment.get())
-                .memberId(member.get())
+                .memberId(member)
                 .build();
         commentLikeService.saveCommentLike(commentLikeBuild);
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
@@ -272,6 +276,7 @@ public class CommentController {
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
+<<<<<<< HEAD
         Member member = memberService.findByEmail(replyDto.getUserEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
@@ -283,6 +288,10 @@ public class CommentController {
             }
         }
 
+=======
+        Member member = memberService.findByEmail(replyDto.getUserEmail());
+
+>>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         if (comment.isPresent()) {
             comment.get().setCountReply(comment.get().getCountReply()+1);
             List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());

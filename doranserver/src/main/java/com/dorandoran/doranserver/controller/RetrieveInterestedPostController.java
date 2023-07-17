@@ -30,6 +30,8 @@ public class RetrieveInterestedPostController {
     private final PostHashService postHashService;
     private final PostLikeService postLikeService;
     private final CommentService commentService;
+    private final BlockMemberFilter blockMemberFilter;
+    private final MemberBlockListService memberBlockListService;
 
     @Value("${doran.ip.address}")
     String ipAddress;
@@ -40,24 +42,24 @@ public class RetrieveInterestedPostController {
         log.info(userDetails.getAuthorities().toString());
 
         String username = userDetails.getUsername();
-        Optional<Member> byEmail = memberService.findByEmail(username);
-        List<MemberHash> hashByMember = memberHashService.findHashByMember( //즐겨찾기한 해시태그 리스트(맴버해시)
-                byEmail.orElseThrow(()->new RuntimeException("userName not found err"))
-        );
+        Member byEmail = memberService.findByEmail(username);
+        List<MemberHash> hashByMember = memberHashService.findHashByMember(byEmail); //즐겨찾기한 해시태그 리스트(맴버해시)
         log.info("{}",hashByMember);
         List<HashTag> hashTagList = hashByMember.stream() //맴버해시에서 해시태그 id 추출
                 .map(m -> m.getHashTagId())
                 .collect(Collectors.toList());
 
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(byEmail);
+
         List<Optional<PostHash>> optionalPostHashList = hashTagList.stream()
                 .map(hashTag -> postHashService.findTopOfPostHash(hashTag))
                 .collect(Collectors.toList());
-        log.info("{}",optionalPostHashList);
+        List<Optional<PostHash>> optionalPostHashFilter = blockMemberFilter.optionalPostHashFilter(optionalPostHashList, memberBlockListByBlockingMember);
 
         HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new LinkedHashMap<>();
         LinkedList<Map> mapLinkedList = new LinkedList<>();
 
-        for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
+        for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
             if (optionalPostHash.isPresent()) {
                 PostResponseDto responseDto = PostResponseDto.builder()
                         .backgroundPicUri(

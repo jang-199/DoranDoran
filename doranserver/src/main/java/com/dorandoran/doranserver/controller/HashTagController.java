@@ -59,7 +59,7 @@ public class HashTagController {
     public ResponseEntity<?> saveHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Optional<Member> member = memberService.findByEmail(userEmail);
+        Member member = memberService.findByEmail(userEmail);
         List<String> hashTagList = hashTagRequestDto.getHashTagList();
         List<HashTag> findHashTagList = hashTagService.findByHashTagNameList(hashTagList);
         List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
@@ -70,7 +70,7 @@ public class HashTagController {
                 }
                 else {
                     MemberHash memberHashBuild = MemberHash.builder()
-                            .member(member.get())
+                            .member(member)
                             .hashTagId(hashTag)
                             .build();
                     memberHashService.saveMemberHash(memberHashBuild);

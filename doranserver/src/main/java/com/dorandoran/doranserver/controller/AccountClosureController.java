@@ -28,7 +28,7 @@ public class AccountClosureController {
     public ResponseEntity.BodyBuilder deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
-        Member member = memberService.findByEmail(username).orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+        Member member = memberService.findByEmail(username);
 
         member.setAccountClosureRequestTime();
 

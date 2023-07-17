@@ -40,8 +40,7 @@ public class RetrieveAllPostsController {
     ResponseEntity<LinkedList<PostResponseDto>> getAllPosts(@PathVariable("position") Long position,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Member member = memberService.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        Member member = memberService.findByEmail(userDetails.getUsername());
         List<Post> myPost;
         if (position == 0) {
             myPost = postService.findFirstMyPost(member);

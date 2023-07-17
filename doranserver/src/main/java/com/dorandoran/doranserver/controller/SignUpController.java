@@ -35,6 +35,7 @@ public class SignUpController {
     private final SignUp signUp;
     private final PolicyTermsCheck policyTermsCheck;
     private final MemberService memberService;
+    private final TokenService tokenService;
     private final TokenProvider tokenProvider;
 
 
@@ -53,28 +54,23 @@ public class SignUpController {
 
     @PostMapping("/check/registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
-        Optional<Member> byEmail = memberService.findByEmail(memberDto.getEmail());
-        if (byEmail.isPresent()) {
-            Member member = byEmail.get();
-            String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
-            String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6));
-            byEmail.get().setRefreshToken(refreshToken);
-            byEmail.get().setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
+        Member member = memberService.findByEmail(memberDto.getEmail());
 
-            if (byEmail.get().getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
-                byEmail.get().setClosureDate(null);
-            }
-            memberService.saveMember(member);
-            return new ResponseEntity<>(
-                    UserInfoDto.builder()
-                            .email(member.getEmail())
-                            .nickName(member.getNickname())
-                            .tokenDto(new TokenDto(refreshToken,accessToken))
-                            .build(),
-                    HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
+        String refreshToken = member.getRefreshToken();
+        member.setRefreshToken(refreshToken);
+        member.setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
+        if (member.getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
+            member.setClosureDate(null);
         }
+        memberService.saveMember(member);
+        return new ResponseEntity<>(
+                UserInfoDto.builder()
+                        .email(member.getEmail())
+                        .nickName(member.getNickname())
+                        .tokenDto(new TokenDto(refreshToken,accessToken))
+                        .build(),
+                HttpStatus.OK);
     }
 
     @Transactional
@@ -82,6 +78,7 @@ public class SignUpController {
     public ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
+<<<<<<< HEAD
         Member findMember = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(userEmail));
         if (existedNickname(changeNicknameDto.getNickname())) {
             log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
@@ -92,6 +89,12 @@ public class SignUpController {
             log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, findMember.getNickname(), changeNicknameDto.getNickname());
             return new ResponseEntity<>(HttpStatus.OK);
         }
+=======
+        Member member = memberService.findByEmail(userEmail);
+        log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, member.getNickname(), changeNicknameDto.getNickname());
+        member.setNickname(changeNicknameDto.getNickname());
+        return new ResponseEntity<>(HttpStatus.OK);
+>>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
     }
 
 
@@ -117,7 +120,7 @@ public class SignUpController {
             JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
             String email = kakao_account.getString("email");
             log.info("email : {}", email);
-            if (memberService.findByEmail(email).isEmpty()) { //회원 저장 시작
+            if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
 
                 PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
                         .policy2(true)

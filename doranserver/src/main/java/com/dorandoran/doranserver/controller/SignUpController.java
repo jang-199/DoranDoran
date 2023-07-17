@@ -78,8 +78,7 @@ public class SignUpController {
     public ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-<<<<<<< HEAD
-        Member findMember = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(userEmail));
+        Member findMember = memberService.findByEmail(userEmail);
         if (existedNickname(changeNicknameDto.getNickname())) {
             log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -89,12 +88,6 @@ public class SignUpController {
             log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, findMember.getNickname(), changeNicknameDto.getNickname());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-=======
-        Member member = memberService.findByEmail(userEmail);
-        log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, member.getNickname(), changeNicknameDto.getNickname());
-        member.setNickname(changeNicknameDto.getNickname());
-        return new ResponseEntity<>(HttpStatus.OK);
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
     }
 
 

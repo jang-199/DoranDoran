@@ -47,14 +47,8 @@ public class ReportController {
     public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-<<<<<<< HEAD
-        Member member = memberService.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-        Post post = postService.findSinglePost(reportPostRequestDto.getPostId())
-=======
         Member member = memberService.findByEmail(userEmail);
-        Post post = postService.findSinglePost(reportRequestDto.getPostId())
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
+        Post post = postService.findSinglePost(reportPostRequestDto.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
 
         if (reportPostService.existReportPost(post,member)){
@@ -77,8 +71,7 @@ public class ReportController {
     public ResponseEntity<?> saveReportComment(@RequestBody ReportCommentRequestDto reportCommentRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+        Member member = memberService.findByEmail(userEmail);
         Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
@@ -103,8 +96,7 @@ public class ReportController {
     public ResponseEntity<?> saveReportReply(@RequestBody ReportReplyRequestDto reportReplyRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+        Member member = memberService.findByEmail(userEmail);
         Reply reply = replyService.findReplyByReplyId(reportReplyRequestDto.getReplyId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
@@ -127,7 +119,7 @@ public class ReportController {
     @GetMapping("/lockMember")
     public ResponseEntity<?> searchLockMember(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+        Member member = memberService.findByEmail(userEmail);
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             return new ResponseEntity<>("해당 계정은 현재 정지되었습니다.",HttpStatus.BAD_REQUEST);

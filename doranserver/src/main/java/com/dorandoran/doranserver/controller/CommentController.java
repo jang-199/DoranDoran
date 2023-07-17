@@ -10,7 +10,6 @@ import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -128,8 +127,7 @@ public class CommentController {
 
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
-<<<<<<< HEAD
-        Member member = memberService.findByEmail(commentDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+        Member member = memberService.findByEmail(commentDto.getEmail());
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
@@ -139,10 +137,6 @@ public class CommentController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-
-=======
-        Member member = memberService.findByEmail(commentDto.getEmail());
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
         Long nextIndex = anonymityMembers.size() + 1L;
@@ -276,8 +270,7 @@ public class CommentController {
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
-<<<<<<< HEAD
-        Member member = memberService.findByEmail(replyDto.getUserEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
+        Member member = memberService.findByEmail(replyDto.getUserEmail());
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
@@ -287,11 +280,6 @@ public class CommentController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-
-=======
-        Member member = memberService.findByEmail(replyDto.getUserEmail());
-
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         if (comment.isPresent()) {
             comment.get().setCountReply(comment.get().getCountReply()+1);
             List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());

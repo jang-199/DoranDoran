@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -55,9 +54,7 @@ public class PostController {
 
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
-<<<<<<< HEAD
-        Member member = memberService.findByEmail(postDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다."));
-
+        Member member = memberService.findByEmail(postDto.getEmail());
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
@@ -66,19 +63,13 @@ public class PostController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-=======
-        Member memberEmail = memberService.findByEmail(postDto.getEmail());
-        log.info("{}",memberEmail);
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
+
+        log.info("{}",postDto.getEmail());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
                 .postTime(LocalDateTime.now())
-<<<<<<< HEAD
                 .memberId(member)
-=======
-                .memberId(memberEmail)
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
                 .fontColor(postDto.getFontColor())
@@ -127,11 +118,7 @@ public class PostController {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
 
-<<<<<<< HEAD
         log.info("{}의 글 생성", member.getNickname());
-=======
-        log.info("{}의 글 생성", memberEmail.getNickname());
->>>>>>> a2218220a4ea237cd5f592ce9412bd2a2b00519b
         postService.savePost(post);
 
         //HashTag 테이블 생성

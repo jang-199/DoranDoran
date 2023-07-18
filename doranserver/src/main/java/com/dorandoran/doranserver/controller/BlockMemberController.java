@@ -35,7 +35,7 @@ public class BlockMemberController {
 
         switch (blockMemberDto.getBlockType()) {
             case post -> {
-                Member blockedMember = postService.findSinglePost(blockMemberDto.getId()).orElseThrow().getMemberId();
+                Member blockedMember = postService.findSinglePost(blockMemberDto.getId()).getMemberId();
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
                 break;
             }

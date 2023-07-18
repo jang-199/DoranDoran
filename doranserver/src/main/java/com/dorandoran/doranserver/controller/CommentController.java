@@ -15,8 +15,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,9 +40,9 @@ public class CommentController {
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
                                             @RequestParam("commentId") Long commentId,
                                             @RequestParam("userEmail") String userEmail) {
-        Optional<Post> post = postService.findSinglePost(postId);
-        log.info("글쓴이 email : {}", post.get().getMemberId().getEmail());
-        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
+        Post post = postService.findSinglePost(postId);
+        log.info("글쓴이 email : {}", post.getMemberId().getEmail());
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         List<Comment> comments = commentService.findNextComments(postId, commentId);
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
@@ -66,7 +64,7 @@ public class CommentController {
                     //비밀 대댓글에 따른 저장 로직
                     if (reply.getSecretMode() == Boolean.TRUE) {
                         log.info("{}는 비밀 댓글로직 실행", reply.getReplyId());
-                        if (userEmail.equals(post.get().getMemberId().getEmail())) {
+                        if (userEmail.equals(post.getMemberId().getEmail())) {
                             //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
                             replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByMember);
                             log.info("글쓴이입니다.");
@@ -99,7 +97,7 @@ public class CommentController {
                 //비밀 댓글에 따른 저장 로직
                 CommentDetailDto commentDetailDto = null;
                 if (comment.getSecretMode() == Boolean.TRUE) {
-                    if (userEmail.equals(post.get().getMemberId().getEmail())) {
+                    if (userEmail.equals(post.getMemberId().getEmail())) {
                         //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
                         commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
                     } else {
@@ -137,15 +135,15 @@ public class CommentController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-        Optional<Post> post = postService.findSinglePost(commentDto.getPostId());
-        List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post.get());
+        Post post = postService.findSinglePost(commentDto.getPostId());
+        List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post);
         Long nextIndex = anonymityMembers.size() + 1L;
 
         log.info("사용자 {}의 댓글 작성", commentDto.getEmail());
         Comment comment = Comment.builder()
                 .comment(commentDto.getComment())
                 .commentTime(LocalDateTime.now())
-                .postId(post.get())
+                .postId(post)
                 .memberId(member)
                 .anonymity(commentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
@@ -155,14 +153,13 @@ public class CommentController {
         commentService.saveComment(comment);
 
         //인기 있는 글 생성
-        Optional<Post> singlePost = postService.findSinglePost(commentDto.getPostId());
-        if (singlePost.isPresent()) {
-            List<Comment> commentByPost = commentService.findCommentByPost(singlePost.get());
-            if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost.get()).size() == 0) {
-                PopularPost build = PopularPost.builder().postId(singlePost.get()).build();
-                popularPostService.savePopularPost(build);
-            }
+        Post singlePost = postService.findSinglePost(commentDto.getPostId());
+        List<Comment> commentByPost = commentService.findCommentByPost(singlePost);
+        if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost).size() == 0) {
+            PopularPost build = PopularPost.builder().postId(singlePost).build();
+            popularPostService.savePopularPost(build);
         }
+
 
         if (commentDto.getAnonymity().equals(Boolean.TRUE)) {
             if (anonymityMembers.contains(commentDto.getEmail())) {
@@ -170,7 +167,7 @@ public class CommentController {
             } else {
                 AnonymityMember anonymityMember = AnonymityMember.builder()
                         .userEmail(member.getEmail())
-                        .postId(post.get())
+                        .postId(post)
                         .anonymityIndex(nextIndex)
                         .build();
                 anonymityMemberService.save(anonymityMember);
@@ -225,8 +222,8 @@ public class CommentController {
                                           @RequestParam("commentId") Long commentId,
                                           @RequestParam("replyId") Long replyId,
                                           @RequestParam("userEmail") String userEmail){
-        Optional<Post> post = postService.findSinglePost(postId);
-        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
+        Post post = postService.findSinglePost(postId);
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
 
         List<ReplyDetailDto> replyDtoList = new ArrayList<>();
@@ -240,7 +237,7 @@ public class CommentController {
 
             //비밀 대댓글에 따른 저장 로직
             if (reply.getSecretMode() == Boolean.TRUE) {
-                if (userEmail.equals(post.get().getMemberId().getEmail())) {
+                if (userEmail.equals(post.getMemberId().getEmail())) {
                     //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
                     replyDetailDto = new ReplyDetailDto(reply, reply.getReply() ,isReplyWrittenByMember);
                 } else {

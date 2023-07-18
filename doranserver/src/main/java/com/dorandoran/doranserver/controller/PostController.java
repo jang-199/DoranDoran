@@ -51,7 +51,7 @@ public class PostController {
     private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
-
+    private final CommonService commonService;
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
         Member member = memberService.findByEmail(postDto.getEmail());
@@ -123,7 +123,7 @@ public class PostController {
 
         //HashTag 테이블 생성
         if (postDto.getHashTagName() != null) {
-            Optional<Post> hashTagPost = postService.findSinglePost(post.getPostId());
+            Post hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
 
                 log.info("해시태그 존재");
@@ -151,11 +151,11 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private void savePostHash(Optional<Post> hashTagPost, String hashTag) {
+    private void savePostHash(Post hashTagPost, String hashTag) {
         Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
         if (byHashTagName.isPresent()) {
             PostHash postHash = PostHash.builder()
-                    .postId(hashTagPost.get())
+                    .postId(hashTagPost)
                     .hashTagId(byHashTagName.get())
                     .build();
             postHashService.savePostHash(postHash);
@@ -171,10 +171,10 @@ public class PostController {
     @Transactional
     @PostMapping("/post-delete")
     public ResponseEntity<?> postDelete(@RequestBody PostDeleteDto postDeleteDto) throws IOException {
-        Optional<Post> post = postService.findSinglePost(postDeleteDto.getPostId());
-        List<Comment> commentList = commentService.findCommentByPost(post.get());
+        Post post = postService.findSinglePost(postDeleteDto.getPostId());
+        List<Comment> commentList = commentService.findCommentByPost(post);
 
-        if (post.get().getMemberId().getEmail().equals(postDeleteDto.getUserEmail())) {
+        if (post.getMemberId().getEmail().equals(postDeleteDto.getUserEmail())) {
             //댓글 삭제
             if (commentList.size() != 0) {
                 log.info("글 삭제 전 댓글 삭제");
@@ -189,7 +189,7 @@ public class PostController {
             }
 
             //글 공감 삭제
-            List<PostLike> postLikeList = postLikeService.findByPost(post.get());
+            List<PostLike> postLikeList = postLikeService.findByPost(post);
             if (postLikeList.size() != 0) {
                 log.info("글 삭제 전 글 공감 삭제 로직 실행");
                 for (PostLike postLike : postLikeList) {
@@ -198,7 +198,7 @@ public class PostController {
             }
 
             //해시태그 삭제
-            List<PostHash> postHashList = postHashService.findPostHash(post.get());
+            List<PostHash> postHashList = postHashService.findPostHash(post);
             if (postHashList.size() != 0) {
                 log.info("글 삭제 전 해시태그 삭제 로직 실행");
                 for (PostHash postHash : postHashList) {
@@ -207,7 +207,7 @@ public class PostController {
             }
 
             //인기있는 글 삭제
-            List<PopularPost> popularPostList = popularPostService.findPopularPostByPost(post.get());
+            List<PopularPost> popularPostList = popularPostService.findPopularPostByPost(post);
             if (popularPostList.size() != 0){
                 log.info("글 삭제 전 인기있는 글 삭제 로직 실행");
                 for (PopularPost popularPost : popularPostList) {
@@ -216,12 +216,12 @@ public class PostController {
             }
 
             //사용자 이미지 삭제 (imageName은 이미지 이름)
-            if (post.get().getSwitchPic().equals(ImgType.UserUpload)) {
+            if (post.getSwitchPic().equals(ImgType.UserUpload)) {
                 //window전용
 //                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
 
                 //리눅스
-                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.get().getImgName());
+                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.getImgName());
 
                 log.info("path : {}",path);
                 try {
@@ -231,7 +231,7 @@ public class PostController {
                 }
             }
 
-            postService.deletePost(post.get());
+            postService.deletePost(post);
         }
         else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -242,7 +242,7 @@ public class PostController {
 
     @PostMapping("/post-like")
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
-        Optional<Post> post = postService.findSinglePost(postLikeDto.getPostId());
+        Post post = postService.findSinglePost(postLikeDto.getPostId());
         Member byEmail = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
         for (PostLike postLike : byMemberId) {
@@ -254,7 +254,7 @@ public class PostController {
         }
         log.info("{}번 글 좋아요", postLikeDto.getPostId());
         PostLike postLike = PostLike.builder()
-                .postId(post.get())
+                .postId(post)
                 .memberId(byEmail)
                 .build();
         postLikeService.savePostLike(postLike);
@@ -265,50 +265,50 @@ public class PostController {
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
-        Optional<Post> post = postService.findSinglePost(postRequestDetailDto.getPostId());
-        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post.get());
-        Boolean isWrittenByUser = post.get().getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()) ? Boolean.TRUE : Boolean.FALSE;
+        String userEmail = postRequestDetailDto.getUserEmail();
+        Post post = postService.findSinglePost(postRequestDetailDto.getPostId());
+        List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
+        Boolean isWrittenByUser = post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE;
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
-                .content(post.get().getContent())
-                .postTime(post.get().getPostTime())
-                .postLikeCnt(postLikeService.findLIkeCnt(post.get()))
-                .postLikeResult(postLikeService.findLikeResult(postRequestDetailDto.getUserEmail(), post.get()))
-                .commentCnt(commentService.findCommentAndReplyCntByPostId(post.get()))
-                .postAnonymity(post.get().getAnonymity())
-                .postNickname(post.get().getMemberId().getNickname())
+                .content(post.getContent())
+                .postTime(post.getPostTime())
+                .postLikeCnt(postLikeService.findLIkeCnt(post))
+                .postLikeResult(postLikeService.findLikeResult(userEmail, post))
+                .commentCnt(commentService.findCommentAndReplyCntByPostId(post))
+                .postAnonymity(post.getAnonymity())
+                .postNickname(post.getMemberId().getNickname())
                 .isWrittenByMember(isWrittenByUser)
-                .font(post.get().getFont())
-                .fontColor(post.get().getFontColor())
-                .fontSize(post.get().getFontSize())
-                .fontBold(post.get().getFontBold())
+                .font(post.getFont())
+                .fontColor(post.getFontColor())
+                .fontSize(post.getFontSize())
+                .fontBold(post.getFontBold())
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (postRequestDetailDto.getLocation().isBlank() || post.get().getLatitude()==null || post.get().getLongitude()==null) {
+        if (postRequestDetailDto.getLocation().isBlank() || post.getLatitude()==null || post.getLongitude()==null) {
             postDetailDto.setLocation(null);
         } else {
             String[] userLocation = postRequestDetailDto.getLocation().split(",");
             Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                     Double.parseDouble(userLocation[1]),
-                    post.get().getLatitude(),
-                    post.get().getLongitude());
+                    post.getLatitude(),
+                    post.getLongitude());
             postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
         }
 
         boolean checkWrite = Boolean.FALSE;
         //댓글 builder
-        List<Comment> comments = commentService.findFirstCommentsFetchMember(post.get());
+        List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
 
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
             for (Comment comment : comments) {
                 Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
-                Boolean commentLikeResult = commentLikeService.findCommentLikeResult(postRequestDetailDto.getUserEmail(), comment);
+                Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
                 //댓글 작성 유무 확인
-                if (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
+                if (commonService.compareEmails(comment.getMemberId().getEmail(), userEmail))
                     checkWrite = Boolean.TRUE;
-
 
                 //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
@@ -317,67 +317,25 @@ public class PostController {
                 for (Reply reply : replies) {
                     Boolean isReplyWrittenByUser = Boolean.FALSE;
                     //대댓글 작성 유무 확인
-                    if (reply.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail())) {
+                    if (commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
                         checkWrite = Boolean.TRUE;
                         isReplyWrittenByUser = Boolean.TRUE;
                     }
-                    ReplyDetailDto replyDetailDto = null;
                     //비밀 대댓글에 따른 저장 로직
-                    if (reply.getSecretMode() == Boolean.TRUE) {
-                        log.info("{}는 비밀 댓글로직 실행", reply.getReplyId());
-                        if (postRequestDetailDto.getUserEmail().equals(post.get().getMemberId().getEmail())) {
-                            //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                            replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser);
-                            log.info("글쓴이입니다.");
-                        } else {
-                            //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
-                            replyDetailDto =
-                                    (reply.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
-                                            ? new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser)
-                                            : new ReplyDetailDto(reply, "비밀 댓글입니다.", isReplyWrittenByUser);
-                            log.info("글쓴이가 아닙니다.");
-                        }
-                    }else {
-                        log.info("{}는 비밀 댓글로직 실행 안함",reply.getReplyId());
-                        replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser);
-                    }
-                    if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
-                        int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
-                        log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
-                        replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
-                    }
+                    ReplyDetailDto replyDetailDto = checkSecretReply(post, reply, isReplyWrittenByUser, userEmail);
+                    checkReplyAnonymityMember(anonymityMemberList, reply, replyDetailDto);
                     replyDetailDtoList.add(replyDetailDto);
                 }
                 Collections.reverse(replyDetailDtoList);
 
-
                 //내가 쓴 댓글인지 확인
                 Boolean isCommentWrittenByMember = Boolean.FALSE;
-                if (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
+                if (commonService.compareEmails(comment.getMemberId().getEmail(), userEmail))
                     isCommentWrittenByMember = Boolean.TRUE;
 
                 //비밀 댓글에 따른 저장 로직
-                CommentDetailDto commentDetailDto = null;
-                if (comment.getSecretMode() == Boolean.TRUE) {
-                    if (postRequestDetailDto.getUserEmail().equals(post.get().getMemberId().getEmail())) {
-                        //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
-                        commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
-                    } else {
-                        //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
-                        commentDetailDto =
-                                (comment.getMemberId().getEmail().equals(postRequestDetailDto.getUserEmail()))
-                                        ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList)
-                                        : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
-                    }
-                }else {
-                    commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
-                }
-
-                if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
-                    int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
-                    log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
-                    commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
-                }
+                CommentDetailDto commentDetailDto = checkSecretComment(userEmail, post, comment, commentLikeCnt, commentLikeResult, replyDetailDtoList, isCommentWrittenByMember);
+                checkCommentAnonymityMember(anonymityMemberList, comment, commentDetailDto);
                 commentDetailDtoList.add(commentDetailDto);
             }
         }
@@ -387,7 +345,7 @@ public class PostController {
 
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
-        List<PostHash> postHashList = postHashService.findPostHash(post.get());
+        List<PostHash> postHashList = postHashService.findPostHash(post);
         if (postHashList.size() != 0){
             for (PostHash postHash : postHashList) {
                 String hashTagName = postHash.getHashTagId().getHashTagName();
@@ -397,8 +355,8 @@ public class PostController {
         postDetailDto.setPostHashes(postHashListDto);
 
         //배경사진 builder
-        String[] split = post.get().getImgName().split("[.]");
-        if (post.get().getSwitchPic().equals(ImgType.DefaultBackground)) {
+        String[] split = post.getImgName().split("[.]");
+        if (post.getSwitchPic().equals(ImgType.DefaultBackground)) {
             postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
         } else {
             postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/userpic/" + split[0]);
@@ -406,4 +364,75 @@ public class PostController {
 
         return ResponseEntity.ok().body(postDetailDto);
     }
+
+    private CommentDetailDto checkSecretComment(String userEmail, Post post, Comment comment, Integer commentLikeCnt, Boolean commentLikeResult, List<ReplyDetailDto> replyDetailDtoList, Boolean isCommentWrittenByMember) {
+        CommentDetailDto commentDetailDto;
+        if (comment.checkSecretMode()) {
+            if (commonService.compareEmails(post.getMemberId().getEmail(), userEmail)) {
+                //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
+                commentDetailDto = CommentDetailDto.builder()
+                        .comment(comment)
+                        .content(comment.getComment())
+                        .commentLikeResult(commentLikeResult)
+                        .commentLikeCnt(commentLikeCnt)
+                        .isWrittenByMember(isCommentWrittenByMember)
+                        .replies(replyDetailDtoList)
+                        .build();
+            } else {
+                //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
+                commentDetailDto =
+                        (commonService.compareEmails(comment.getMemberId().getEmail(), userEmail))
+                                ? new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList)
+                                : new CommentDetailDto(comment, "비밀 댓글입니다.", commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
+            }
+        }else {
+            commentDetailDto = new CommentDetailDto(comment, comment.getComment(), commentLikeCnt, commentLikeResult, isCommentWrittenByMember, replyDetailDtoList);
+        }
+        return commentDetailDto;
+    }
+
+    private void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDetailDto replyDetailDto) {
+        if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
+            int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
+            log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
+            replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
+        }
+    }
+
+    private void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDetailDto commentDetailDto) {
+        if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
+            int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
+            log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
+            commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
+        }
+    }
+
+    private ReplyDetailDto checkSecretReply(Post post,
+                                            Reply reply,
+                                            Boolean isReplyWrittenByUser,
+                                            String userEmail) {
+        ReplyDetailDto replyDetailDto;
+        if (reply.checkSecretMode()) {
+            log.info("{}는 비밀 댓글로직 실행", reply.getReplyId());
+            if (commonService.compareEmails(post.getMemberId().getEmail(), userEmail)) {
+                //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능
+                replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser);
+                log.info("글쓴이입니다.");
+            } else {
+                //글쓴이가 아닐 시 해당 댓글 작성 사용자만 비밀댓글 조회 가능
+                replyDetailDto =
+                        (reply.getMemberId().getEmail().equals(userEmail))
+                                ? new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser)
+                                : new ReplyDetailDto(reply, "비밀 댓글입니다.", isReplyWrittenByUser);
+                log.info("글쓴이가 아닙니다.");
+            }
+        }else {
+            log.info("{}는 비밀 댓글로직 실행 안함",reply.getReplyId());
+            replyDetailDto = new ReplyDetailDto(reply, reply.getReply(), isReplyWrittenByUser);
+        }
+
+        return replyDetailDto;
+    }
+
+
 }

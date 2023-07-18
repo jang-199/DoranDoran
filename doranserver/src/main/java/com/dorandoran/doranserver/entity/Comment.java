@@ -59,4 +59,7 @@ public class Comment {
 
     public void setLocked(){this.isLocked = Boolean.TRUE;}
     public void addReportCount(){this.reportCount += 1;}
+    public Boolean checkSecretMode(){
+        return this.getSecretMode() == Boolean.TRUE ? Boolean.TRUE : Boolean.FALSE;
+    }
 }

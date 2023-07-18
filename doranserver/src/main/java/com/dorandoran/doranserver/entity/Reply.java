@@ -54,4 +54,8 @@ public class Reply {
     private Member memberId;
 
     public void setLocked(){this.isLocked = Boolean.TRUE;}
+
+    public Boolean checkSecretMode(){
+        return this.secretMode == Boolean.TRUE ? Boolean.TRUE : Boolean.FALSE;
+    }
 }

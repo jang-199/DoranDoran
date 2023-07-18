@@ -357,7 +357,7 @@ public class PostController {
                     isCommentWrittenByMember = Boolean.TRUE;
 
                 //비밀 댓글에 따른 저장 로직
-                CommentDetailDto commentDetailDto = null;
+                CommentDetailDto commentDetailDto;
                 if (comment.getSecretMode() == Boolean.TRUE) {
                     if (postRequestDetailDto.getUserEmail().equals(post.get().getMemberId().getEmail())) {
                         //글쓴이일 시 비밀댓글 상관없이 모두 조회 가능

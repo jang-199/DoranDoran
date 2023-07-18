@@ -130,13 +130,13 @@ public class BackgroundPicDBInitializer {
             postService.savePost(post); //글 50개 생성
 
             //popular에 데이터 추가하고 테스트 진행
-            PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i).get()).build();
+            PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i)).build();
             postLikeService.savePostLike(buildPostLike);
 
             Comment comment = Comment.builder()
                     .comment("나는" + i + "야 반가워")
                     .commentTime(LocalDateTime.now())
-                    .postId(postService.findSinglePost(i).get())
+                    .postId(postService.findSinglePost(i))
                     .memberId(buildMember)
                     .countReply(1)
                     .reportCount(0)

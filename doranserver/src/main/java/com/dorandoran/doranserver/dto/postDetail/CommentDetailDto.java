@@ -12,7 +12,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class CommentDetailDto {
     Long commentId; //댓글 pk값
     String comment; //댓글 내용
@@ -26,7 +25,7 @@ public class CommentDetailDto {
     LocalDateTime commentTime; //댓글 작성 시간
     List<ReplyDetailDto> replies; //대댓글
 
-
+    @Builder
     public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();
         this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;

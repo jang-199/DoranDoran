@@ -12,7 +12,7 @@ public interface PostService {
     public List<Post> findFirstPost();
 
     public List<Post> findPost(Long startPost);
-    public Optional<Post> findSinglePost(Long postId);
+    public Post findSinglePost(Long postId);
     public void deletePost(Post post);
 
     public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude);

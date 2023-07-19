@@ -51,4 +51,4 @@ jobs:
           script: |
             cd ~/DoranDoran/doranserver/build/libs
             ps -ef | grep java | grep -v grep | awk '{print $2}' | xargs kill -9
-            nohup java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar > /dev/null 2>&1 &
+            nohup java -jar -Djasypt.encryptor.password=${{secrets.jasypt_encryptor_password}} *.jar > Doran.log 2>&1 &

@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.CommentLike;
 import com.dorandoran.doranserver.entity.Post;
@@ -22,6 +24,7 @@ public class CommentServiceImpl implements CommentService {
     private final ReplyRepository replyRepository;
     private final ReplyService replyService;
     private final CommentLikeService commentLikeService;
+    private final CommonService commonService;
 
     @Override
     public void saveComment(Comment comment) {
@@ -90,5 +93,24 @@ public class CommentServiceImpl implements CommentService {
     public List<Comment> findNextComments(Long postId, Long commentId) {
         PageRequest of = PageRequest.of(0, 10);
         return commentRepository.findNextComments(postId, commentId, of);
+    }
+
+    @Override
+    public void checkSecretComment(CommentDetailDto commentDetailDto, Post post, Comment comment, String userEmail) {
+        if (comment.checkSecretMode()
+                && !commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)
+                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")) {
+            commentDetailDto.setComment("비밀 댓글입니다.");
+        }
+    }
+
+    @Override
+    public void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDetailDto commentDetailDto) {
+        if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
+            int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
+            log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
+            commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
+        }
     }
 }

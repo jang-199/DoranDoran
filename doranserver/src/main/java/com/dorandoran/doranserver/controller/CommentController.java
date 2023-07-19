@@ -38,6 +38,7 @@ public class CommentController {
     private final CommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
+    private final FirebaseService firebaseService;
 
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
@@ -106,7 +107,10 @@ public class CommentController {
                 log.info("익명 테이블에 저장");
             }
         }
-            return new ResponseEntity<>(HttpStatus.OK);
+
+        firebaseService.notifyComment(post.getMemberId(), comment);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

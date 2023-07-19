@@ -54,6 +54,7 @@ public class PostController {
     private final CommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
+    @Transactional
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
         Member member = memberService.findByEmail(postDto.getEmail());

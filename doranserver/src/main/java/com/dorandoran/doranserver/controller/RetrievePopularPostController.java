@@ -56,22 +56,26 @@ public class RetrievePopularPostController {
             log.info("조건문0");
             List<PopularPost> firstPost = popularPostService.findFirstPopularPost();
             List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(firstPost, memberBlockListByBlockingMember);
-            return makePopularPostResponseList(userEmail, postResponseDtoList, builder, popularPostFilter, location);
+            return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, popularPostFilter, location);
         } else {
             log.info("조건문 else");
             List<PopularPost> postList = popularPostService.findPopularPost(postCnt);
             List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(postList, memberBlockListByBlockingMember);
             log.info("{}",postList.size());
-            return makePopularPostResponseList(userEmail, postResponseDtoList, builder, popularPostFilter, location);
+            return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, popularPostFilter, location);
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makePopularPostResponseList(String userEmail,
+    private ResponseEntity<ArrayList<PostResponseDto>> makePopularPostResponseList(Member member,
+                                                                                   String userEmail,
                                                           ArrayList<PostResponseDto> postResponseDtoList,
                                                           PostResponseDto.PostResponseDtoBuilder builder,
                                                           List<PopularPost> postList,
                                                           String location) {
         for (PopularPost popularPost : postList) {
+            if (!popularPost.getPostId().getMemberId().equals(member) && popularPost.getPostId().getForMe()==true) {
+                continue;
+            }
             Integer lIkeCnt = postLikeService.findLIkeCnt(popularPost.getPostId());
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(popularPost.getPostId());
             if (location.isBlank() || popularPost.getPostId().getLongitude() == null || popularPost.getPostId().getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴

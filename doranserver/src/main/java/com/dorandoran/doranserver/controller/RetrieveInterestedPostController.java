@@ -61,6 +61,9 @@ public class RetrieveInterestedPostController {
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
             if (optionalPostHash.isPresent()) {
+                if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==true) {
+                    continue;
+                }
                 PostResponseDto responseDto = PostResponseDto.builder()
                         .backgroundPicUri(
                                 optionalPostHash.get().getPostId().getSwitchPic() == ImgType.DefaultBackground ? ipAddress + ":8080/api/background/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)

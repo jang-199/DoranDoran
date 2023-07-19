@@ -48,8 +48,7 @@ public class ReportController {
                                             @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
-        Post post = postService.findSinglePost(reportPostRequestDto.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+        Post post = postService.findSinglePost(reportPostRequestDto.getPostId());
 
         if (reportPostService.existReportPost(post,member)){
             log.info("이미 신고한 회원입니다.");

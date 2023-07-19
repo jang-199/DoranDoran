@@ -32,8 +32,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Optional<Post> findSinglePost(Long postId) {
-        return postRepository.findById(postId);
+    public Post findSinglePost(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
     }
 
     @Override

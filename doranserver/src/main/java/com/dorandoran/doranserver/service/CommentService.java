@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
+import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.CommentLike;
 import com.dorandoran.doranserver.entity.Post;
@@ -19,4 +21,6 @@ public interface CommentService {
     public List<Comment> findFirstComments(Post post);
     public List<Comment> findFirstCommentsFetchMember(Post post);
     public List<Comment> findNextComments(Long postId, Long commentId);
+    void checkSecretComment(CommentDetailDto commentDetailDto, Post post, Comment comment, String userEmail);
+    void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDetailDto commentDetailDto);
 }

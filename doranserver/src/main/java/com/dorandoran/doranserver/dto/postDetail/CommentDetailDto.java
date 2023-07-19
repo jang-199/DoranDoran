@@ -27,6 +27,7 @@ public class CommentDetailDto {
     List<ReplyDetailDto> replies; //대댓글
 
 
+    @Builder
     public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();
         this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;

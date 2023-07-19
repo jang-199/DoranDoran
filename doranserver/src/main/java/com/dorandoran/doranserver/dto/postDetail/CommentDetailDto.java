@@ -25,10 +25,7 @@ public class CommentDetailDto {
     LocalDateTime commentTime; //댓글 작성 시간
     List<ReplyDetailDto> replies; //대댓글
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 256f683d6bb915776075ce5bbb1ddc7e3108c602
     @Builder
     public CommentDetailDto(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDetailDto> replies) {
         this.commentId = comment.getCommentId();

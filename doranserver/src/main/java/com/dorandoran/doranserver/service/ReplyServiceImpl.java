@@ -69,7 +69,8 @@ public class ReplyServiceImpl implements ReplyService{
     public void checkSecretReply(ReplyDetailDto replyDetailDto, Post post, Reply reply, String userEmail) {
         if (reply.checkSecretMode()
                 && !commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)
-                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)) {
+                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !reply.getReply().equals("차단된 사용자가 작성한 내용입니다.")) {
             replyDetailDto.setReply("비밀 댓글입니다.");
         }
     }

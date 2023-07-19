@@ -99,7 +99,8 @@ public class CommentServiceImpl implements CommentService {
     public void checkSecretComment(CommentDetailDto commentDetailDto, Post post, Comment comment, String userEmail) {
         if (comment.checkSecretMode()
                 && !commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)
-                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)) {
+                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")) {
             commentDetailDto.setComment("비밀 댓글입니다.");
         }
     }

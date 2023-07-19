@@ -52,6 +52,8 @@ public class PostController {
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
     private final CommonService commonService;
+    private final MemberBlockListService memberBlockListService;
+    private final BlockMemberFilter blockMemberFilter;
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto postDto) {
         Member member = memberService.findByEmail(postDto.getEmail());
@@ -268,6 +270,9 @@ public class PostController {
         String userEmail = postRequestDetailDto.getUserEmail();
         Post post = postService.findSinglePost(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
+        Member member = memberService.findByEmail(userEmail);
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+
         Boolean isWrittenByUser = post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE;
         //리턴할 postDetail builder
         PostDetailDto postDetailDto = PostDetailDto.builder()
@@ -300,15 +305,17 @@ public class PostController {
         boolean checkWrite = Boolean.FALSE;
         //댓글 builder
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
+        List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
 
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
-            for (Comment comment : comments) {
+            for (Comment comment : commentList) {
                 //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
+                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
                 List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
                 log.info("대댓글 로직 실행");
-                for (Reply reply : replies) {
+                for (Reply reply : replyList) {
                     Boolean isReplyWrittenByUser = Boolean.FALSE;
                     if (commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
                         checkWrite = Boolean.TRUE;

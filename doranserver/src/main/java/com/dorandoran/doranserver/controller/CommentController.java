@@ -36,16 +36,20 @@ public class CommentController {
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
     private final CommonService commonService;
+    private final MemberBlockListService memberBlockListService;
+    private final BlockMemberFilter blockMemberFilter;
 
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
                                             @RequestParam("commentId") Long commentId,
                                             @RequestParam("userEmail") String userEmail) {
         Post post = postService.findSinglePost(postId);
+        Member member = memberService.findByEmail(userEmail);
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
         log.info("글쓴이 email : {}", post.getMemberId().getEmail());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         List<Comment> comments = commentService.findNextComments(postId, commentId);
-        List<CommentDetailDto> commentDetailDtoList = makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments);
+        List<CommentDetailDto> commentDetailDtoList = makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember);
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
@@ -152,9 +156,12 @@ public class CommentController {
                                           @RequestParam("userEmail") String userEmail){
         Post post = postService.findSinglePost(postId);
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
+        Member member = memberService.findByEmail(userEmail);
+        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
+        List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-        List<ReplyDetailDto> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replies);
+        List<ReplyDetailDto> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
 
         return ResponseEntity.ok().body(replyDetailDtoList);
     }
@@ -228,13 +235,16 @@ public class CommentController {
         }
     }
 
-    private List<CommentDetailDto> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments) {
+    private List<CommentDetailDto> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<MemberBlockList> memberBlockListByBlockingMember) {
         List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
+
         if (comments.size() != 0) {
             for (Comment comment : comments) {
                 //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
-                List<ReplyDetailDto> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replies);
+                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
+
+                List<ReplyDetailDto> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
                 Collections.reverse(replyDetailDtoList);
 
                 //댓글 10개 저장 로직

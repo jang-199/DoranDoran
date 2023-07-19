@@ -63,17 +63,20 @@ public class RetrieveClosePostController {
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
             List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
-            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, postFilter);
+            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postFilter);
         }else {
             List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt);
             List<Post> postFilter = blockMemberFilter.postFilter(postList, memberBlockListByBlockingMember);
-            makeClosePostResponseList(userEmail, postResponseDtoList, split, builder, postFilter);
+            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postFilter);
         }
         return ResponseEntity.ok().body(postResponseDtoList);
     }
 
-    private void makeClosePostResponseList(String userEmail, ArrayList<PostResponseDto> postResponseDtoList, String[] split, PostResponseDto.PostResponseDtoBuilder builder, List<Post> firstPost) {
+    private void makeClosePostResponseList(Member member, String userEmail, ArrayList<PostResponseDto> postResponseDtoList, String[] split, PostResponseDto.PostResponseDtoBuilder builder, List<Post> firstPost) {
         firstPost.iterator().forEachRemaining(e->{
+            if (!e.getMemberId().equals(member) && e.getForMe() == true) {
+                return;
+            }
             Integer lIkeCnt = postLikeService.findLIkeCnt(e);
 
             Boolean likeResult = postLikeService.findLikeResult(userEmail, e);

@@ -1,10 +1,7 @@
 package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.config.FirebaseConfig;
-import com.dorandoran.doranserver.entity.Comment;
-import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.Post;
-import com.dorandoran.doranserver.entity.Reply;
+import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +37,10 @@ public class FirebaseServiceImpl implements FirebaseService {
 
     @Override
     public void notifyReply(List<Member> memberList, Comment comment, Reply reply) {
-        List<String> aosTokenList = makeMemberListByOs(memberList, OsType.Aos);
-        List<String> iosTokenList = makeMemberListByOs(memberList, OsType.Ios);
-        List<String> commentMemberTokenList = Collections.singletonList(comment.getMemberId().getFirebaseToken());
+        String commentMemberFirebaseToken = comment.getMemberId().getFirebaseToken();
+        List<String> aosTokenList = makeMemberListByOs(memberList, commentMemberFirebaseToken, OsType.Aos);
+        List<String> iosTokenList = makeMemberListByOs(memberList, commentMemberFirebaseToken, OsType.Ios);
+        List<String> commentMemberTokenList = Collections.singletonList(commentMemberFirebaseToken);
 
         List<List<String>> combineTokenList = new ArrayList<>();
         combineTokenList.add(aosTokenList);
@@ -59,6 +57,14 @@ public class FirebaseServiceImpl implements FirebaseService {
                     .putData("replyId", String.valueOf(reply.getReplyId()))
                     .addAllTokens(tokenList)
                     .build();
+
+            if(tokenList.equals(aosTokenList)){
+                sendToAos(message);
+            } else if (tokenList.equals(iosTokenList)) {
+                sendToIos(message);
+            }else {
+                notifyOneMemberByOsType(comment.getMemberId(),message);
+            }
         }
 
 
@@ -76,10 +82,11 @@ public class FirebaseServiceImpl implements FirebaseService {
 
     }
 
-    private static List<String> makeMemberListByOs(List<Member> memberList, OsType osType) {
+    private static List<String> makeMemberListByOs(List<Member> memberList, String commentFirebaseToken, OsType osType) {
         return memberList.stream()
                 .distinct()
-                .filter((member) -> member.getOsType().equals(osType))
+                .filter((member) -> member.getOsType().equals(osType)
+                        && !member.getFirebaseToken().equals(commentFirebaseToken))
                 .map(Member::getFirebaseToken)
                 .collect(Collectors.toList());
     }
@@ -117,7 +124,18 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     @Override
-    public void notifyBlockedMember(String firebaseToken) {
+    public void notifyBlockedMember(LockMember lockMember) {
+        List<String> tokenList = Collections.singletonList(lockMember.getMemberId().getFirebaseToken());
+        String content = "지속적인 신고로 귀하의 계정이 " + lockMember.getLockEndTime() + "까지 정지되었습니다.";
+        MulticastMessage message = MulticastMessage.builder()
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(content)
+                        .build())
+                .addAllTokens(tokenList)
+                .build();
+
+        notifyOneMemberByOsType(lockMember.getMemberId(), message);
 
     }
 

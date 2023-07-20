@@ -1,9 +1,6 @@
 package com.dorandoran.doranserver.service;
 
-import com.dorandoran.doranserver.entity.Comment;
-import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.Post;
-import com.dorandoran.doranserver.entity.Reply;
+import com.dorandoran.doranserver.entity.*;
 import com.google.firebase.messaging.FirebaseMessagingException;
 
 import java.io.IOException;
@@ -18,5 +15,5 @@ public interface FirebaseService {
 
     void notifyCommentLike(Member member, Comment comment);
 
-    void notifyBlockedMember(String firebaseToken);
+    void notifyBlockedMember(LockMember lockMember);
 }

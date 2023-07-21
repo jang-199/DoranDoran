@@ -20,7 +20,7 @@ public class FirebaseServiceImpl implements FirebaseService {
     private static final String title = "도란도란";
 
     @Override
-    public void notifyComment(Member member, Comment comment, Member writeMember){
+    public void notifyComment(Member member, Comment comment){
         List<String> tokenList = Collections.singletonList(member.getFirebaseToken());
         String content = "새로운 댓글이 달렸습니다 : " + comment;
         MulticastMessage message = MulticastMessage.builder()

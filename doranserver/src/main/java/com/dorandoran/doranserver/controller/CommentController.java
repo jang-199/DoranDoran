@@ -86,7 +86,7 @@ public class CommentController {
         commentService.saveComment(comment);
 
         if (!post.getMemberId().equals(member)) {
-            firebaseService.notifyComment(post.getMemberId(), comment, member);
+            firebaseService.notifyComment(post.getMemberId(), comment);
         }
 
         //인기 있는 글 생성
@@ -150,7 +150,7 @@ public class CommentController {
                 .build();
         commentLikeService.saveCommentLike(commentLikeBuild);
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
-        firebaseService.notifyCommentLike(member, comment.get());
+        firebaseService.notifyCommentLike(comment.get().getMemberId(), comment.get());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

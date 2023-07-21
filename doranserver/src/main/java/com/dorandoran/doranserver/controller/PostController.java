@@ -262,7 +262,7 @@ public class PostController {
                 .memberId(member)
                 .build();
         postLikeService.savePostLike(postLike);
-        firebaseService.notifyPostLike(member, post);
+        firebaseService.notifyPostLike(post.getMemberId(), post);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

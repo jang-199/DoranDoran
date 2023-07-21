@@ -55,20 +55,24 @@ public class RetrievePostController {
         if (postCnt == 0) { //first find
             List<Post> firstPost = postService.findFirstPost();
             List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
-            return makePostResponseList(userEmail, postResponseDtoList, builder, postFilter, location);
+            return makePostResponseList(member, userEmail, postResponseDtoList, builder, postFilter, location);
         } else {
             List<Post> postList = postService.findPost(postCnt);
             List<Post> postFilter = blockMemberFilter.postFilter(postList, memberBlockListByBlockingMember);
-            return makePostResponseList(userEmail, postResponseDtoList, builder, postFilter, location);
+            return makePostResponseList(member, userEmail, postResponseDtoList, builder, postFilter, location);
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makePostResponseList(String userEmail,
+    private ResponseEntity<ArrayList<PostResponseDto>> makePostResponseList(Member member,
+                                                                            String userEmail,
                                                    ArrayList<PostResponseDto> postResponseDtoList,
                                                    PostResponseDto.PostResponseDtoBuilder builder,
                                                    List<Post> postList,
                                                    String location) {
         for (Post post : postList) {
+            if (!post.getMemberId().equals(member) && post.getForMe()==true) {
+                continue;
+            }
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
             if (location.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴

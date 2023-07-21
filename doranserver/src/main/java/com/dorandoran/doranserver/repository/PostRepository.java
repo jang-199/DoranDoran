@@ -14,17 +14,17 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select m from Post m " +
-            "where m.forMe = false " +
+            "where m.isLocked = false " +
             "order by m.postId desc")
     List<Post> findFirstPost(PageRequest pageRequest);
 
     @Query(value = "select m from Post m " +
-            "where m.postId <= :pos  and m.forMe = false " +
+            "where m.postId <= :pos  and m.isLocked = false " +
             "order by m.postId desc ")
     List<Post> findPost(@Param("pos") Long pos, PageRequest pageRequest);
 
     @Query("select m from Post m " +
-            "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and m.forMe = false " +
+            "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false " +
             "order by m.postId desc")
     List<Post> findFirstClosePost(@Param("Slat") Double Slat,
                                   @Param("Llat") Double Llat,
@@ -32,7 +32,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                   @Param("Llon") Double Llon,
                                   PageRequest pageRequest);
     @Query("select m from Post m " +
-            "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and m.forMe = false " +
+            "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon  and m.isLocked = false " +
             "order by m.postId desc ")
     List<Post> findClosePost(@Param("pos") Long pos,
                              @Param("Slat") Double Slat,

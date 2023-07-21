@@ -66,19 +66,22 @@ public class RetrieveHashTagPostController {
         if (retrieveHashTagPostDto.getPostCnt() == 0) { //first find
             List<PostHash> postHashes = postHashService.inquiryFirstPostHash(hashTag);
             List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
-            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
+            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
 
         } else {
             List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, retrieveHashTagPostDto.getPostCnt());
             List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
-            return makeResponseList(encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
+            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makeResponseList(String encodeLocation, String encodeEmail, ArrayList<PostResponseDto> postResponseDtoList, PostResponseDto.PostResponseDtoBuilder builder, List<PostHash> postHashes) {
+    private ResponseEntity<ArrayList<PostResponseDto>> makeResponseList(Member member, String encodeLocation, String encodeEmail, ArrayList<PostResponseDto> postResponseDtoList, PostResponseDto.PostResponseDtoBuilder builder, List<PostHash> postHashes) {
         List<Post> postList = postHashes.stream().map((postHash -> postHash.getPostId())).collect(Collectors.toList());
 
         for (Post post : postList) {
+            if (!post.getMemberId().equals(member) && post.getForMe()==true) {
+                continue;
+            }
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
             if (encodeLocation.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴

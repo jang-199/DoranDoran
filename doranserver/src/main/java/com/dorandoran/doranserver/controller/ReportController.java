@@ -42,6 +42,7 @@ public class ReportController {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final LockMemberService lockMemberService;
+    private final FirebaseService firebaseService;
 
     @PostMapping("/post/report")
     public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,
@@ -133,6 +134,7 @@ public class ReportController {
             LockDto lockDto = setLockDto(member.getTotalReportTime());
             LockMember lockMember = new LockMember(member, lockDto.getLockTime(), lockDto.getLockType());
             lockMemberService.saveLockMember(lockMember);
+            firebaseService.notifyBlockedMember(lockMember);
         }
     }
 

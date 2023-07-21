@@ -84,6 +84,7 @@ public class CommentController {
                 .isLocked(Boolean.FALSE)
                 .build();
         commentService.saveComment(comment);
+        firebaseService.notifyComment(post.getMemberId(), comment);
 
         //인기 있는 글 생성
         Post singlePost = postService.findSinglePost(commentDto.getPostId());
@@ -92,7 +93,6 @@ public class CommentController {
             PopularPost build = PopularPost.builder().postId(singlePost).build();
             popularPostService.savePopularPost(build);
         }
-
 
         if (commentDto.getAnonymity().equals(Boolean.TRUE)) {
             if (anonymityMembers.contains(commentDto.getEmail())) {
@@ -107,8 +107,6 @@ public class CommentController {
                 log.info("익명 테이블에 저장");
             }
         }
-
-        firebaseService.notifyComment(post.getMemberId(), comment);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -149,6 +147,7 @@ public class CommentController {
                 .build();
         commentLikeService.saveCommentLike(commentLikeBuild);
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
+        firebaseService.notifyCommentLike(member, comment.get());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -173,7 +172,8 @@ public class CommentController {
     @Transactional
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
-        Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
+        Comment comment = commentService.findCommentByCommentId(replyDto.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
         Member member = memberService.findByEmail(replyDto.getUserEmail());
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
@@ -184,43 +184,42 @@ public class CommentController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-        if (comment.isPresent()) {
-            comment.get().setCountReply(comment.get().getCountReply()+1);
-            List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());
-            Long nextIndex = anonymityMembers.size() + 1L;
 
-            Reply buildReply = Reply.builder()
-                    .reply(replyDto.getReply())
-                    .ReplyTime(LocalDateTime.now())
-                    .anonymity(replyDto.getAnonymity())
-                    .commentId(comment.get())
-                    .memberId(member)
-                    .checkDelete(Boolean.FALSE)
-                    .secretMode(replyDto.getSecretMode())
-                    .isLocked(Boolean.FALSE)
-                    .build();
+        comment.setCountReply(comment.getCountReply()+1);
+        List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.getPostId());
+        Long nextIndex = anonymityMembers.size() + 1L;
 
-            replyService.saveReply(buildReply);
+        Reply buildReply = Reply.builder()
+                .reply(replyDto.getReply())
+                .ReplyTime(LocalDateTime.now())
+                .anonymity(replyDto.getAnonymity())
+                .commentId(comment)
+                .memberId(member)
+                .checkDelete(Boolean.FALSE)
+                .secretMode(replyDto.getSecretMode())
+                .isLocked(Boolean.FALSE)
+                .build();
 
-            if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
-                if (anonymityMembers.contains(replyDto.getUserEmail())) {
-                    log.info("이미 익명 테이블에 저장된 사용자입니다.");
-                } else {
-                    AnonymityMember anonymityMember = AnonymityMember.builder()
-                            .userEmail(member.getEmail())
-                            .postId(comment.get().getPostId())
-                            .anonymityIndex(nextIndex)
-                            .build();
-                    anonymityMemberService.save(anonymityMember);
-                    log.info("익명 테이블에 저장");
-                }
+        replyService.saveReply(buildReply);
+
+        List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
+        firebaseService.notifyReply(replyMemberList, comment, buildReply);
+
+        if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
+            if (anonymityMembers.contains(replyDto.getUserEmail())) {
+                log.info("이미 익명 테이블에 저장된 사용자입니다.");
+            } else {
+                AnonymityMember anonymityMember = AnonymityMember.builder()
+                        .userEmail(member.getEmail())
+                        .postId(comment.getPostId())
+                        .anonymityIndex(nextIndex)
+                        .build();
+                anonymityMemberService.save(anonymityMember);
+                log.info("익명 테이블에 저장");
             }
-            return new ResponseEntity<>(HttpStatus.OK);
         }
-        else {
-            log.info("해당 상위 댓글이 없거나 존재하지 않는 멤버입니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     @PostMapping("/reply-delete")

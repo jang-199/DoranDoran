@@ -36,4 +36,7 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
     List<Reply> findAllByMember(@Param("member") Member member);
     @Query("select r from Reply r where r.commentId = :comment")
     List<Reply> findAllByComment(@Param("comment") Comment comment);
+
+    @Query("select distinct r.memberId from Reply r where r.commentId = :commentId")
+    List<Member> findReplyMemberByCommentId(@Param("commentId") Comment comment);
 }

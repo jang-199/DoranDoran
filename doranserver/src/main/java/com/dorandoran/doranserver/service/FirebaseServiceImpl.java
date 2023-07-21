@@ -66,29 +66,6 @@ public class FirebaseServiceImpl implements FirebaseService {
                 notifyOneMemberByOsType(comment.getMemberId(),message);
             }
         }
-
-
-
-
-        String content = "새로운 대댓글이 달렸습니다 : " + reply.getReply();
-        MulticastMessage message = MulticastMessage.builder()
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(content)
-                        .build())
-                .putData("replyId", String.valueOf(reply.getReplyId()))
-                .addAllTokens(iosTokenList)
-                .build();
-
-    }
-
-    private static List<String> makeMemberListByOs(List<Member> memberList, String commentFirebaseToken, OsType osType) {
-        return memberList.stream()
-                .distinct()
-                .filter((member) -> member.getOsType().equals(osType)
-                        && !member.getFirebaseToken().equals(commentFirebaseToken))
-                .map(Member::getFirebaseToken)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -144,6 +121,15 @@ public class FirebaseServiceImpl implements FirebaseService {
             case Aos -> sendToAos(message);
             case Ios -> sendToIos(message);
         }
+    }
+
+    private static List<String> makeMemberListByOs(List<Member> memberList, String commentFirebaseToken, OsType osType) {
+        return memberList.stream()
+                .distinct()
+                .filter((member) -> member.getOsType().equals(osType)
+                        && !member.getFirebaseToken().equals(commentFirebaseToken))
+                .map(Member::getFirebaseToken)
+                .collect(Collectors.toList());
     }
 
     public void sendToAos(MulticastMessage message){

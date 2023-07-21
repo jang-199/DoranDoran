@@ -54,9 +54,10 @@ public class PostController {
     private final CommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
+    private final FirebaseService firebaseService;
     @Transactional
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto postDto) {
+    public ResponseEntity<?> post(PostDto postDto) {
         Member member = memberService.findByEmail(postDto.getEmail());
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
@@ -246,7 +247,7 @@ public class PostController {
     @PostMapping("/post-like")
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Post post = postService.findSinglePost(postLikeDto.getPostId());
-        Member byEmail = memberService.findByEmail(postLikeDto.getEmail());
+        Member member = memberService.findByEmail(postLikeDto.getEmail());
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
         for (PostLike postLike : byMemberId) {
             if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
@@ -258,9 +259,10 @@ public class PostController {
         log.info("{}번 글 좋아요", postLikeDto.getPostId());
         PostLike postLike = PostLike.builder()
                 .postId(post)
-                .memberId(byEmail)
+                .memberId(member)
                 .build();
         postLikeService.savePostLike(postLike);
+        firebaseService.notifyPostLike(member, post);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

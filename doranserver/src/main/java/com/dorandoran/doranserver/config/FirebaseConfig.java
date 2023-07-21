@@ -15,32 +15,15 @@ import java.io.IOException;
 @Slf4j
 @Configuration
 public class FirebaseConfig {
-/*    @PostConstruct
-    public void initialize() throws IOException {
-        try {
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials
-                            .fromStream(new ClassPathResource("dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json").getInputStream()))
-                    .setProjectId("dorandoran-374312")
-                    .build();
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-                log.info("Firebase application has been initialized");
-            }
-        }catch (IOException e){
-            log.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-    }*/
-
     @Bean
     public FirebaseApp aosFirebaseApp() throws IOException {
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(
-                        GoogleCredentials
-                                .fromStream(new ClassPathResource("dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json").getInputStream()))
-                .setProjectId("dorandoran-374312")
-                .build();
+                    .setCredentials(
+                            GoogleCredentials
+                                    .fromStream(new ClassPathResource("dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json").getInputStream()))
+                    .setProjectId("dorandoran-374312")
+                    .build();
+
         return FirebaseApp.initializeApp(options, "aosApp");
     }
 

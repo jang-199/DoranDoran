@@ -157,6 +157,6 @@ public class SignUpController {
 
     public Boolean existedNickname(String nickname){
         Optional<Member> member = signUp.findByNickname(nickname);
-        return member.isPresent() || nickname.isBlank() ? Boolean.FALSE : Boolean.TRUE;
+        return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
     }
 }

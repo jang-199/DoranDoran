@@ -84,7 +84,10 @@ public class CommentController {
                 .isLocked(Boolean.FALSE)
                 .build();
         commentService.saveComment(comment);
-        firebaseService.notifyComment(post.getMemberId(), comment);
+
+        if (!post.getMemberId().equals(member)) {
+            firebaseService.notifyComment(post.getMemberId(), comment, member);
+        }
 
         //인기 있는 글 생성
         Post singlePost = postService.findSinglePost(commentDto.getPostId());
@@ -203,7 +206,10 @@ public class CommentController {
         replyService.saveReply(buildReply);
 
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
-        firebaseService.notifyReply(replyMemberList, comment, buildReply);
+        replyMemberList.add(comment.getMemberId());
+        if (replyMemberList.size() != 1) {
+            firebaseService.notifyReply(replyMemberList, buildReply, member);
+        }
 
         if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
             if (anonymityMembers.contains(replyDto.getUserEmail())) {

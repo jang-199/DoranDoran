@@ -20,14 +20,14 @@ public class FirebaseServiceImpl implements FirebaseService {
     private static final String title = "도란도란";
 
     @Override
-    public void notifyComment(Member member, Comment comment){
+    public void notifyComment(Member member, Comment comment, Member writeMember){
         List<String> tokenList = Collections.singletonList(member.getFirebaseToken());
         String content = "새로운 댓글이 달렸습니다 : " + comment;
         MulticastMessage message = MulticastMessage.builder()
                 .setNotification(Notification.builder()
-                                .setTitle(title)
-                                .setBody(content)
-                                .build())
+                        .setTitle(title)
+                        .setBody(content)
+                        .build())
                 .putData("commentId", String.valueOf(comment.getCommentId()))
                 .addAllTokens(tokenList)
                 .build();
@@ -36,16 +36,13 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     @Override
-    public void notifyReply(List<Member> memberList, Comment comment, Reply reply) {
-        String commentMemberFirebaseToken = comment.getMemberId().getFirebaseToken();
-        List<String> aosTokenList = makeMemberListByOs(memberList, commentMemberFirebaseToken, OsType.Aos);
-        List<String> iosTokenList = makeMemberListByOs(memberList, commentMemberFirebaseToken, OsType.Ios);
-        List<String> commentMemberTokenList = Collections.singletonList(commentMemberFirebaseToken);
+    public void notifyReply(List<Member> memberList, Reply reply, Member writeMember) {
+        List<String> aosTokenList = makeMemberListByOs(memberList, OsType.Aos ,writeMember);
+        List<String> iosTokenList = makeMemberListByOs(memberList, OsType.Ios, writeMember);
 
         List<List<String>> combineTokenList = new ArrayList<>();
         combineTokenList.add(aosTokenList);
         combineTokenList.add(iosTokenList);
-        combineTokenList.add(commentMemberTokenList);
 
         for (List<String> tokenList : combineTokenList) {
             String content = "새로운 대댓글이 달렸습니다 : " + reply.getReply();
@@ -60,10 +57,10 @@ public class FirebaseServiceImpl implements FirebaseService {
 
             if(tokenList.equals(aosTokenList)){
                 sendToAos(message);
-            } else if (tokenList.equals(iosTokenList)) {
+            }
+
+            if(tokenList.equals(iosTokenList)){
                 sendToIos(message);
-            }else {
-                notifyOneMemberByOsType(comment.getMemberId(),message);
             }
         }
     }
@@ -123,11 +120,12 @@ public class FirebaseServiceImpl implements FirebaseService {
         }
     }
 
-    private static List<String> makeMemberListByOs(List<Member> memberList, String commentFirebaseToken, OsType osType) {
+    private static List<String> makeMemberListByOs(List<Member> memberList, OsType osType, Member writeMember) {
         return memberList.stream()
                 .distinct()
                 .filter((member) -> member.getOsType().equals(osType)
-                        && !member.getFirebaseToken().equals(commentFirebaseToken))
+                                && !member.equals(writeMember)
+                        )
                 .map(Member::getFirebaseToken)
                 .collect(Collectors.toList());
     }

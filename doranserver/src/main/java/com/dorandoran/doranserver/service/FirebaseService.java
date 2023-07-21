@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FirebaseService {
-    void notifyComment(Member member, Comment content);
+    void notifyComment(Member member, Comment content, Member writeMember);
 
-    void notifyReply(List<Member> memberList, Comment comment, Reply reply);
+    void notifyReply(List<Member> memberList, Reply reply, Member writeMember);
 
     void notifyPostLike(Member member, Post post);
 

@@ -136,6 +136,10 @@ public class CommentController {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Member member = memberService.findByEmail(commentLikeDto.getUserEmail());
 
+        if (comment.get().getMemberId().equals(member)){
+            return new ResponseEntity<>("자신의 댓글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
+        }
+
         List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
         for (CommentLike commentLike : commentLikeList) {
             if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {

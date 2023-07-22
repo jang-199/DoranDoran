@@ -248,6 +248,11 @@ public class PostController {
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Post post = postService.findSinglePost(postLikeDto.getPostId());
         Member member = memberService.findByEmail(postLikeDto.getEmail());
+
+        if (post.getMemberId().equals(member)){
+            return new ResponseEntity<>("자신의 글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
+        }
+
         List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
         for (PostLike postLike : byMemberId) {
             if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {

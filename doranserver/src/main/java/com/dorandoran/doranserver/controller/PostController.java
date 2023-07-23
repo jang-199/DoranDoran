@@ -93,7 +93,8 @@ public class PostController {
         }
 
         //파일 처리
-        if (postDto.getFile() != null) {
+        if (!postDto.getFile().isEmpty() && postDto.getBackgroundImgName().isBlank()) {
+            log.info("사진 생성 중");
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
@@ -116,7 +117,6 @@ public class PostController {
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
             log.info("사용자 지정 이미지 이름 : {}",fileNameSubstring);
-
         } else {
             post.setSwitchPic(ImgType.DefaultBackground);
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");

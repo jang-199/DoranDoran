@@ -175,8 +175,8 @@ public class BackgroundPicDBInitializer {
             for (int a = 0; a <= random.nextInt(2); a++) {
 
                 int a1 = random.nextInt(15);
-                log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)).get());
-                HashTag hashTag = hashTagService.findByHashTagName(tagList.get(a + a1)).get();
+                log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)));
+                HashTag hashTag = hashTagService.findByHashTagName(tagList.get(a + a1));
                 hashTag.setHashTagCount(hashTag.getHashTagCount()+1L);
                 hashTagService.saveHashTag(hashTag);
                 postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTag).build());

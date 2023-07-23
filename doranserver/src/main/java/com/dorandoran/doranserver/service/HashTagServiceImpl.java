@@ -27,19 +27,14 @@ public class HashTagServiceImpl implements HashTagService{
     }
 
     @Override
-    public Optional<HashTag> findByHashTagName(String hashTag) {
-        return hashTagRepository.findByHashTagName(hashTag);
+    public HashTag findByHashTagName(String hashTag) {
+        return hashTagRepository.findByHashTagName(hashTag).orElseThrow(() -> new RuntimeException("검색한 해시태그가 없습니다."));
     }
 
     @Override
     public List<HashTag> findTop5BySearchHashTag(String hashTag) {
         PageRequest of = PageRequest.of(0, 5);
         return hashTagRepository.findTop5BySearchHashTag(of, hashTag);
-    }
-
-    @Override
-    public List<HashTag> findByHashTagNameList(List<String> hashTag) {
-        return hashTagRepository.findByHashTagNameList(hashTag);
     }
 
     @Override

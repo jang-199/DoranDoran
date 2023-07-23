@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HashTagService {
-    public void saveHashTag(HashTag hashTag);
-    public Boolean duplicateCheckHashTag(String hashTag);
-    public Optional<HashTag> findByHashTagName(String hashTag);
-    public List<HashTag> findTop5BySearchHashTag(String hashTag);
-    public List<HashTag> findByHashTagNameList(List<String> hashTag);
-    public List<HashTag> findPopularHashTagTop5();
+    void saveHashTag(HashTag hashTag);
+    Boolean duplicateCheckHashTag(String hashTag);
+    HashTag findByHashTagName(String hashTag);
+    List<HashTag> findTop5BySearchHashTag(String hashTag);
+    List<HashTag> findPopularHashTagTop5();
 }

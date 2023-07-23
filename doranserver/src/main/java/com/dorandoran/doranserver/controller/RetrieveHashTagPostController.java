@@ -58,8 +58,7 @@ public class RetrieveHashTagPostController {
         ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
 
-        HashTag hashTag = hashTagService.findByHashTagName(encodeTagName)
-                .orElseThrow(() -> new RuntimeException("검색한 해시태그가 없습니다."));//hashtag로 키 값 검색
+        HashTag hashTag = hashTagService.findByHashTagName(encodeTagName);
 
 
 

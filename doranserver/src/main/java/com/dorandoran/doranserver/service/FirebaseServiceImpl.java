@@ -5,16 +5,18 @@ import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FirebaseServiceImpl implements FirebaseService {
     private final FirebaseConfig firebaseConfig;
     private static final String title = "도란도란";
@@ -22,7 +24,7 @@ public class FirebaseServiceImpl implements FirebaseService {
     @Override
     public void notifyComment(Member member, Comment comment){
         List<String> tokenList = Collections.singletonList(member.getFirebaseToken());
-        String content = "새로운 댓글이 달렸습니다 : " + comment;
+        String content = "새로운 댓글이 달렸습니다 : " + comment.getComment();
         MulticastMessage message = MulticastMessage.builder()
                 .setNotification(Notification.builder()
                         .setTitle(title)
@@ -36,16 +38,17 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     @Override
-    public void notifyReply(List<Member> memberList, Reply reply, Member writeMember) {
-        List<String> aosTokenList = makeMemberListByOs(memberList, OsType.Aos ,writeMember);
-        List<String> iosTokenList = makeMemberListByOs(memberList, OsType.Ios, writeMember);
+    public void notifyReply(List<Member> memberList, Reply reply) {
+        List<String> aosTokenList = makeMemberListByOs(memberList, OsType.Aos);
+        List<String> iosTokenList = makeMemberListByOs(memberList, OsType.Ios);
+        
+        String content = "새로운 대댓글이 달렸습니다 : " + reply.getReply();
+        notifyMessageByOs(reply, aosTokenList, content, OsType.Aos);
+        notifyMessageByOs(reply, iosTokenList, content, OsType.Ios);
+    }
 
-        List<List<String>> combineTokenList = new ArrayList<>();
-        combineTokenList.add(aosTokenList);
-        combineTokenList.add(iosTokenList);
-
-        for (List<String> tokenList : combineTokenList) {
-            String content = "새로운 대댓글이 달렸습니다 : " + reply.getReply();
+    private void notifyMessageByOs(Reply reply, List<String> tokenList, String content, OsType osType) {
+        if (!tokenList.isEmpty()) {
             MulticastMessage message = MulticastMessage.builder()
                     .setNotification(Notification.builder()
                             .setTitle(title)
@@ -55,15 +58,15 @@ public class FirebaseServiceImpl implements FirebaseService {
                     .addAllTokens(tokenList)
                     .build();
 
-            if(tokenList.equals(aosTokenList)){
+            if (osType.equals(OsType.Aos)) {
                 sendToAos(message);
             }
 
-            if(tokenList.equals(iosTokenList)){
+            if (osType.equals(OsType.Ios)) {
                 sendToIos(message);
             }
         }
-    }
+}
 
     @Override
     public void notifyPostLike(Member member, Post post) {
@@ -120,11 +123,10 @@ public class FirebaseServiceImpl implements FirebaseService {
         }
     }
 
-    private static List<String> makeMemberListByOs(List<Member> memberList, OsType osType, Member writeMember) {
+    private static List<String> makeMemberListByOs(List<Member> memberList, OsType osType) {
         return memberList.stream()
                 .distinct()
                 .filter((member) -> member.getOsType().equals(osType)
-                                && !member.equals(writeMember)
                         )
                 .map(Member::getFirebaseToken)
                 .collect(Collectors.toList());

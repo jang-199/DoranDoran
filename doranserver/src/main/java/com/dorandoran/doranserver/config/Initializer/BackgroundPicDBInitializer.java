@@ -73,7 +73,7 @@ public class BackgroundPicDBInitializer {
                     .policyTermsId(build)
                     .email(i + "@gmail.com")
                     .dateOfBirth(LocalDate.now())
-                    .firebaseToken("firebasetoken")
+                    .firebaseToken("cekww1BXT4GCJM8cvkw45v:APA91bEJ0Z_iZXwKoIjIxLvb9X4g9AOCBpsLtjujy5jlmRZsboFVx6TM0Av9ChDNivcuY_zhREf_ClAN4BIr2qPXMNQctwqtVmRzpadv6fwbdoHwoNZf7numWEFYzYrltOVHnNmJBUZc")
                     .nickname("nickname" + i)
                     .closureDate(LocalDate.of(2000,12,12))
                     .signUpDate(LocalDateTime.now())

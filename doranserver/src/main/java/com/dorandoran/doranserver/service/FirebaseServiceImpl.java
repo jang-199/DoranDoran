@@ -30,6 +30,7 @@ public class FirebaseServiceImpl implements FirebaseService {
                         .setTitle(title)
                         .setBody(content)
                         .build())
+                .putData("postId", String.valueOf(comment.getPostId().getPostId()))
                 .putData("commentId", String.valueOf(comment.getCommentId()))
                 .addAllTokens(tokenList)
                 .build();
@@ -54,6 +55,7 @@ public class FirebaseServiceImpl implements FirebaseService {
                             .setTitle(title)
                             .setBody(content)
                             .build())
+                    .putData("postId", String.valueOf(reply.getCommentId().getPostId().getPostId()))
                     .putData("replyId", String.valueOf(reply.getReplyId()))
                     .addAllTokens(tokenList)
                     .build();
@@ -93,6 +95,7 @@ public class FirebaseServiceImpl implements FirebaseService {
                         .setTitle(title)
                         .setBody(content)
                         .build())
+                .putData("postId", String.valueOf(comment.getPostId().getPostId()))
                 .putData("commentId", String.valueOf(comment.getCommentId()))
                 .addAllTokens(tokenList)
                 .build();
@@ -113,7 +116,6 @@ public class FirebaseServiceImpl implements FirebaseService {
                 .build();
 
         notifyOneMemberByOsType(lockMember.getMemberId(), message);
-
     }
 
     private void notifyOneMemberByOsType(Member member, MulticastMessage message) {

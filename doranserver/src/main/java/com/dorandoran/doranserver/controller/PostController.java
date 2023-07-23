@@ -167,7 +167,7 @@ public class PostController {
     }
 
     /**
-     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 인기있는 글 삭제 ->글 삭제
+     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 인기있는 글 삭제 -> 익명 테이블 삭제 -> 사용자 이미지 삭제 -> 글 삭제
      * 삭제하려는 사용자가 본인 글이 아닐 경우 bad request
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
@@ -217,6 +217,12 @@ public class PostController {
                 for (PopularPost popularPost : popularPostList) {
                     popularPostService.deletePopularPost(popularPost);
                 }
+            }
+
+            //익명 테이블 삭제
+            List<String> anonymityMemberByPost = anonymityMemberService.findAllUserEmail(post);
+            if (anonymityMemberByPost.size() != 0) {
+                anonymityMemberService.deletePostByPostId(post);
             }
 
             //사용자 이미지 삭제 (imageName은 이미지 이름)

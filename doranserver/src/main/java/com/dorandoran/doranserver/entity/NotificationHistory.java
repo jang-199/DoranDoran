@@ -26,6 +26,9 @@ public class NotificationHistory {
     @Column(name = "NOTIFICATION_TIME")
     private LocalDateTime notificationTime;
 
+    @Column(name = "NOTIFICATION_READ_TIME")
+    private LocalDateTime notificationReadTime;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
@@ -41,6 +44,7 @@ public class NotificationHistory {
     public NotificationHistory(String message, NotificationType notificationType, Long objectId, Member memberId) {
         this.message = message;
         this.notificationTime = LocalDateTime.now();
+        this.notificationReadTime = null;
         this.notificationType = notificationType;
         this.objectId = objectId;
         this.memberId = memberId;

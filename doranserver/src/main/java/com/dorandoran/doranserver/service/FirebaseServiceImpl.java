@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.config.FirebaseConfig;
 import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.entity.notificationType.NotificationType;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class FirebaseServiceImpl implements FirebaseService {
     private final FirebaseConfig firebaseConfig;
     private static final String title = "도란도란";
+    private final NotificationHistoryService notificationHistoryService;
 
     @Override
     public void notifyComment(Member member, Comment comment){
@@ -34,8 +36,15 @@ public class FirebaseServiceImpl implements FirebaseService {
                 .putData("commentId", String.valueOf(comment.getCommentId()))
                 .addAllTokens(tokenList)
                 .build();
-
         notifyOneMemberByOsType(member, message);
+
+        NotificationHistory notificationHistory = NotificationHistory.builder()
+                .message(content)
+                .notificationType(NotificationType.Comment)
+                .objectId(comment.getCommentId())
+                .memberId(member)
+                .build();
+        notificationHistoryService.saveNotification(notificationHistory);
     }
 
     @Override
@@ -46,29 +55,17 @@ public class FirebaseServiceImpl implements FirebaseService {
         String content = "새로운 대댓글이 달렸습니다 : " + reply.getReply();
         notifyMessageByOs(reply, aosTokenList, content, OsType.Aos);
         notifyMessageByOs(reply, iosTokenList, content, OsType.Ios);
-    }
 
-    private void notifyMessageByOs(Reply reply, List<String> tokenList, String content, OsType osType) {
-        if (!tokenList.isEmpty()) {
-            MulticastMessage message = MulticastMessage.builder()
-                    .setNotification(Notification.builder()
-                            .setTitle(title)
-                            .setBody(content)
-                            .build())
-                    .putData("postId", String.valueOf(reply.getCommentId().getPostId().getPostId()))
-                    .putData("replyId", String.valueOf(reply.getReplyId()))
-                    .addAllTokens(tokenList)
+        for (Member member : memberList) {
+            NotificationHistory notificationHistory = NotificationHistory.builder()
+                    .message(content)
+                    .notificationType(NotificationType.Reply)
+                    .objectId(reply.getReplyId())
+                    .memberId(member)
                     .build();
-
-            if (osType.equals(OsType.Aos)) {
-                sendToAos(message);
-            }
-
-            if (osType.equals(OsType.Ios)) {
-                sendToIos(message);
-            }
+            notificationHistoryService.saveNotification(notificationHistory);
         }
-}
+    }
 
     @Override
     public void notifyPostLike(Member member, Post post) {
@@ -84,6 +81,14 @@ public class FirebaseServiceImpl implements FirebaseService {
                 .build();
 
         notifyOneMemberByOsType(member, message);
+
+        NotificationHistory notificationHistory = NotificationHistory.builder()
+                .message(content)
+                .notificationType(NotificationType.PostLike)
+                .objectId(post.getPostId())
+                .memberId(member)
+                .build();
+        notificationHistoryService.saveNotification(notificationHistory);
     }
 
     @Override
@@ -99,8 +104,15 @@ public class FirebaseServiceImpl implements FirebaseService {
                 .putData("commentId", String.valueOf(comment.getCommentId()))
                 .addAllTokens(tokenList)
                 .build();
-
         notifyOneMemberByOsType(member, message);
+
+        NotificationHistory notificationHistory = NotificationHistory.builder()
+                .message(content)
+                .notificationType(NotificationType.CommentLike)
+                .objectId(comment.getCommentId())
+                .memberId(member)
+                .build();
+        notificationHistoryService.saveNotification(notificationHistory);
     }
 
     @Override
@@ -132,6 +144,28 @@ public class FirebaseServiceImpl implements FirebaseService {
                         )
                 .map(Member::getFirebaseToken)
                 .collect(Collectors.toList());
+    }
+
+    private void notifyMessageByOs(Reply reply, List<String> tokenList, String content, OsType osType) {
+        if (!tokenList.isEmpty()) {
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle(title)
+                            .setBody(content)
+                            .build())
+                    .putData("postId", String.valueOf(reply.getCommentId().getPostId().getPostId()))
+                    .putData("replyId", String.valueOf(reply.getReplyId()))
+                    .addAllTokens(tokenList)
+                    .build();
+
+            if (osType.equals(OsType.Aos)) {
+                sendToAos(message);
+            }
+
+            if (osType.equals(OsType.Ios)) {
+                sendToIos(message);
+            }
+        }
     }
 
     public void sendToAos(MulticastMessage message){

@@ -30,9 +30,8 @@ public class NotificationHistory {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn (name = "POST_ID")
-    private Post postId;
+    @Column (name = "OBJECT_ID")
+    private Long objectId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")

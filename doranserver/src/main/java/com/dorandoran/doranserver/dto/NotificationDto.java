@@ -14,6 +14,7 @@ public class NotificationDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class notificationResponse{
+        Long notificationId;
         Long postId;
         Long commentId;
         Long replyId;
@@ -24,6 +25,7 @@ public class NotificationDto {
 
         @Builder
         public notificationResponse(NotificationHistory notificationHistory, Long postId, Long commentId, Long replyId) {
+            this.notificationId = notificationHistory.getNotificationHistoryId();
             this.postId = postId;
             this.commentId = commentId;
             this.replyId = replyId;

@@ -9,6 +9,10 @@ public interface NotificationHistoryService {
     void saveNotification(NotificationHistory notificationHistory);
     void deleteNotification(NotificationHistory notificationHistory);
     void deleteNotificationByMember(Member member);
-    List<NotificationHistory> findNotificationByMember(Member member);
+
+    List<NotificationHistory> findNotification(Member member, Long notCnt);
+
+    List<NotificationHistory> findFirstNotification(Member member);
+
     NotificationHistory findNotificationById(Long notificationId);
 }

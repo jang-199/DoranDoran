@@ -5,7 +5,6 @@ import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.NotificationHistory;
 import com.dorandoran.doranserver.entity.Reply;
-import com.dorandoran.doranserver.entity.notificationType.NotificationType;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Timed
@@ -31,28 +28,16 @@ public class NotificationController {
     private final NotificationHistoryService notificationHistoryService;
     private final CommentService commentService;
     private final ReplyService replyService;
-    @GetMapping("/notification")
-    public ResponseEntity<List<NotificationDto.notificationResponse>> retrieveNotification(@AuthenticationPrincipal UserDetails userDetails){
+    @GetMapping("/notification/{notificationId}")
+    public ResponseEntity<List<NotificationDto.notificationResponse>> retrieveNotification(@PathVariable("notificationId") Long notificationId,
+                                                                                           @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
-        List<NotificationHistory> notificationList = notificationHistoryService.findNotificationByMember(member);
-        List<NotificationDto.notificationResponse> notificationResponseList = notificationList.stream()
-                .map(notificationHistory -> {
-                    switch (notificationHistory.getNotificationType()) {
-                        case PostLike -> {
-                            return makePostNotification(notificationHistory);
-                        }
-                        case CommentLike, Comment -> {
-                            return makeCommentNotification(notificationHistory.getObjectId(), notificationHistory);
-                        }
-                        case Reply -> {
-                            return makeReplyNotification(notificationHistory);
-                        }
-                        default -> {
-                            return null;
-                        }
-                    }
-                }).collect(Collectors.toList());
+        List<NotificationHistory> notificationList = notificationId==0
+                ? notificationHistoryService.findFirstNotification(member)
+                : notificationHistoryService.findNotification(member, notificationId);
+
+        List<NotificationDto.notificationResponse> notificationResponseList = makeNotificationResponseList(notificationList);
 
         return ResponseEntity.ok().body(notificationResponseList);
     }
@@ -101,5 +86,25 @@ public class NotificationController {
                 .commentId(reply.getCommentId().getCommentId())
                 .replyId(notificationHistory.getObjectId())
                 .build();
+    }
+
+    private List<NotificationDto.notificationResponse> makeNotificationResponseList(List<NotificationHistory> notificationList) {
+        return notificationList.stream()
+                .map(notificationHistory -> {
+                    switch (notificationHistory.getNotificationType()) {
+                        case PostLike -> {
+                            return makePostNotification(notificationHistory);
+                        }
+                        case CommentLike, Comment -> {
+                            return makeCommentNotification(notificationHistory.getObjectId(), notificationHistory);
+                        }
+                        case Reply -> {
+                            return makeReplyNotification(notificationHistory);
+                        }
+                        default -> {
+                            return null;
+                        }
+                    }
+                }).collect(Collectors.toList());
     }
 }

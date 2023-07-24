@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.NotificationHistory;
 import com.dorandoran.doranserver.repository.NotificationHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +29,15 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
     }
 
     @Override
-    public List<NotificationHistory> findNotificationByMember(Member member) {
-        return notificationHistoryRepository.findByMemberId(member);
+    public List<NotificationHistory> findNotification(Member member, Long notCnt) {
+        PageRequest of = PageRequest.of(0, 20);
+        return notificationHistoryRepository.findNotByMemberId(member, notCnt, of);
+    }
+
+    @Override
+    public List<NotificationHistory> findFirstNotification(Member member) {
+        PageRequest of = PageRequest.of(0, 20);
+        return notificationHistoryRepository.findFirstNotByMemberId(member, of);
     }
 
     @Override

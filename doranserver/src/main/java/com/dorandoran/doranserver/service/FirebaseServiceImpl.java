@@ -154,6 +154,7 @@ public class FirebaseServiceImpl implements FirebaseService {
                             .setBody(content)
                             .build())
                     .putData("postId", String.valueOf(reply.getCommentId().getPostId().getPostId()))
+                    .putData("commentId", String.valueOf(reply.getCommentId().getCommentId()))
                     .putData("replyId", String.valueOf(reply.getReplyId()))
                     .addAllTokens(tokenList)
                     .build();

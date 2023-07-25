@@ -57,11 +57,11 @@ public class ReportController {
         }else {
             ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
+            post.addReportCount();
             if (post.getReportCount() == 7 && post.getIsLocked() == Boolean.FALSE){
                 post.setLocked();
                 lockLogic(post.getMemberId());
             }
-            post.addReportCount();
             log.info("{}님이 {}번 글에 신고를 했습니다.",userEmail, post.getPostId());
             return new ResponseEntity<>(HttpStatus.OK);
         }

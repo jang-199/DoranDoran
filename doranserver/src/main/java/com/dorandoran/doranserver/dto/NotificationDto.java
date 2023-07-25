@@ -21,6 +21,7 @@ public class NotificationDto {
         String title;
         String message;
         String notificationTime;
+        Boolean isRead;
         NotificationType notificationType;
 
         @Builder
@@ -31,6 +32,7 @@ public class NotificationDto {
             this.replyId = replyId;
             this.title = notificationTitle;
             this.message = notificationHistory.getMessage();
+            this.isRead = notificationHistory.getNotificationReadTime() == null ? Boolean.FALSE : Boolean.TRUE;
             this.notificationTime = notificationHistory.getNotificationTime()
                     .format(DateTimeFormatter.ofPattern("MM/dd HH:mm"));
             this.notificationType = notificationHistory.getNotificationType();

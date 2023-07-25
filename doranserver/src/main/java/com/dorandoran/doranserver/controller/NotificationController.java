@@ -43,7 +43,7 @@ public class NotificationController {
         return ResponseEntity.ok().body(notificationResponseList);
     }
 
-    @GetMapping("/notification/read/{notificationId}")
+    @GetMapping("/notification/{notificationId}/read")
     ResponseEntity<NotificationDto.notificationResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
         NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
         NotificationDto.notificationResponse notificationResponse = setNotificationResponseDto(notification);

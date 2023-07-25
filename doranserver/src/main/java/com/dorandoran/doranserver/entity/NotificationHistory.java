@@ -40,6 +40,9 @@ public class NotificationHistory {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
+    public void readNotification(){
+        this.notificationReadTime = LocalDateTime.now();
+    }
     @Builder
     public NotificationHistory(String message, NotificationType notificationType, Long objectId, Member memberId) {
         this.message = message;

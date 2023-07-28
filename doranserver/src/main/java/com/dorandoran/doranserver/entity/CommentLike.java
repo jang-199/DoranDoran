@@ -22,7 +22,7 @@ public class CommentLike {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;
 }

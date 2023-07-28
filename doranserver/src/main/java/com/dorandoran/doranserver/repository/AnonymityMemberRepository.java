@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.repository;
 import com.dorandoran.doranserver.entity.AnonymityMember;
 import com.dorandoran.doranserver.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,4 +16,8 @@ public interface AnonymityMemberRepository extends JpaRepository<AnonymityMember
 
     @Query("select a from AnonymityMember a where a.postId = :post")
     List<AnonymityMember> findAllByPost(@Param("post") Post post);
+
+    @Modifying
+    @Query("delete from AnonymityMember a where a.postId = :post")
+    void deleteByPostId(@Param("post") Post post);
 }

@@ -41,7 +41,7 @@ public class RetrievePostController {
 
     @GetMapping("/post")
     ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
-                                                            @RequestParam String location,
+                                                            @RequestParam(required = false, defaultValue = "") String location,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
         String userEmail = userDetails.getUsername();
         log.info("getAuthorities : {}",userDetails.getAuthorities());

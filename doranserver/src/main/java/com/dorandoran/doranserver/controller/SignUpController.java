@@ -38,9 +38,9 @@ public class SignUpController {
     private final TokenProvider tokenProvider;
 
 
-    @PostMapping("/check-nickname")
-    ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
 
+    @PostMapping("/nickname")
+    ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         if (existedNickname(nicknameDto.getNickname())) {
             log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
@@ -77,7 +77,7 @@ public class SignUpController {
     }
 
     @Transactional
-    @PatchMapping("/change/nickname")
+    @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
@@ -162,6 +162,6 @@ public class SignUpController {
 
     public Boolean existedNickname(String nickname){
         Optional<Member> member = signUp.findByNickname(nickname);
-        return member.isPresent() || nickname.isBlank() ? Boolean.FALSE : Boolean.TRUE;
+        return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
     }
 }

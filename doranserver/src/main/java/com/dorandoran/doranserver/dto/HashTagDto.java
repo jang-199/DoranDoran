@@ -11,22 +11,22 @@ public class HashTagDto {
     @Getter
     @Setter
     public static class CreateHashTag{
-        private List<String> hashTagList;
+        private String hashTag;
 
         @Builder
-        public CreateHashTag(List<String> hashTagList) {
-            this.hashTagList = hashTagList;
+        public CreateHashTag(String hashTag) {
+            this.hashTag = hashTag;
         }
     }
 
     @Getter
     @Setter
     public static class DeleteHashTag{
-        private List<String> hashTagList;
+        private String hashTag;
 
         @Builder
-        public DeleteHashTag(List<String> hashTagList) {
-            this.hashTagList = hashTagList;
+        public DeleteHashTag(String hashTag) {
+            this.hashTag = hashTag;
         }
     }
 

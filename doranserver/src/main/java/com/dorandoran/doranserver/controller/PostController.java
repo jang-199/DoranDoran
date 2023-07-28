@@ -55,6 +55,8 @@ public class PostController {
     private final CommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
+    private final FirebaseService firebaseService;
+
     @Transactional
     @PostMapping("/post")
     ResponseEntity<?> Post(PostDto.CreatePost postDto,
@@ -94,7 +96,8 @@ public class PostController {
         }
 
         //파일 처리
-        if (postDto.getFile() != null) {
+        if (!postDto.getFile().isEmpty() && postDto.getBackgroundImgName().isBlank()) {
+            log.info("사진 생성 중");
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
@@ -117,7 +120,6 @@ public class PostController {
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
             log.info("사용자 지정 이미지 이름 : {}",fileNameSubstring);
-
         } else {
             post.setSwitchPic(ImgType.DefaultBackground);
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
@@ -130,9 +132,7 @@ public class PostController {
         if (postDto.getHashTagName() != null) {
             Post hashTagPost = postService.findSinglePost(post.getPostId());
             for (String hashTag : postDto.getHashTagName()) {
-
                 log.info("해시태그 존재");
-
                 HashTag buildHashTag = HashTag.builder()
                         .hashTagName(hashTag)
                         .hashTagCount(1L)
@@ -142,39 +142,35 @@ public class PostController {
                     savePostHash(hashTagPost, hashTag);
                     log.info("해시태그 {}", hashTag + " 생성");
                 } else {
-                    Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
-                    if (byHashTagName.isPresent()) {
-                        Long hashTagCount = byHashTagName.get().getHashTagCount();
-                        byHashTagName.get().setHashTagCount(hashTagCount + 1);
-                        hashTagService.saveHashTag(byHashTagName.get());
+                    HashTag byHashTagName = hashTagService.findByHashTagName(hashTag);
+                        Long hashTagCount = byHashTagName.getHashTagCount();
+                        byHashTagName.setHashTagCount(hashTagCount + 1);
+                        hashTagService.saveHashTag(byHashTagName);
                         savePostHash(hashTagPost, hashTag);
                         log.info("해시태그 {}", hashTag + "의 카운트 1증가");
                     }
                 }
             }
-        }
         return ResponseEntity.ok().build();
     }
 
     private void savePostHash(Post hashTagPost, String hashTag) {
-        Optional<HashTag> byHashTagName = hashTagService.findByHashTagName(hashTag);
-        if (byHashTagName.isPresent()) {
+        HashTag byHashTagName = hashTagService.findByHashTagName(hashTag);
             PostHash postHash = PostHash.builder()
                     .postId(hashTagPost)
-                    .hashTagId(byHashTagName.get())
+                    .hashTagId(byHashTagName)
                     .build();
             postHashService.savePostHash(postHash);
         }
-    }
 
     /**
-     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 인기있는 글 삭제 ->글 삭제
+     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 인기있는 글 삭제 -> 익명 테이블 삭제 -> 사용자 이미지 삭제 -> 글 삭제
      * 삭제하려는 사용자가 본인 글이 아닐 경우 bad request
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
      */
     @Transactional
-    @PostMapping("/post-delete")
+    @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
                                         @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         Post post = postService.findSinglePost(postDeleteDto.getPostId());
@@ -221,6 +217,12 @@ public class PostController {
                 }
             }
 
+            //익명 테이블 삭제
+            List<String> anonymityMemberByPost = anonymityMemberService.findAllUserEmail(post);
+            if (anonymityMemberByPost.size() != 0) {
+                anonymityMemberService.deletePostByPostId(post);
+            }
+
             //사용자 이미지 삭제 (imageName은 이미지 이름)
             if (post.getSwitchPic().equals(ImgType.UserUpload)) {
                 //window전용
@@ -246,12 +248,17 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/post-like")
+    @PostMapping("/post/like")
     ResponseEntity<?> postLike(@RequestBody PostDto.LikePost postLikeDto,
                                @AuthenticationPrincipal UserDetails userDetails) {
         Post post = postService.findSinglePost(postLikeDto.getPostId());
-        Member byEmail = memberService.findByEmail(userDetails.getUsername());
+        Member member = memberService.findByEmail(userDetails.getUsername());
         List<PostLike> byMemberId = postLikeService.findByMemberId(userDetails.getUsername());
+
+        if (post.getMemberId().equals(member)){
+            return ResponseEntity.badRequest().body("자신의 글에 추천은 불가능합니다.");
+        }
+
         for (PostLike postLike : byMemberId) {
             if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
                 postLikeService.deletePostLike(postLike);
@@ -262,9 +269,10 @@ public class PostController {
         log.info("{}번 글 좋아요", postLikeDto.getPostId());
         PostLike postLike = PostLike.builder()
                 .postId(post)
-                .memberId(byEmail)
+                .memberId(member)
                 .build();
         postLikeService.savePostLike(postLike);
+        firebaseService.notifyPostLike(post.getMemberId(), post);
 
         return ResponseEntity.ok().build();
     }

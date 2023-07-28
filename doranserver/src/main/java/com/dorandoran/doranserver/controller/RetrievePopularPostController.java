@@ -41,8 +41,8 @@ public class RetrievePopularPostController {
 
     @GetMapping("/post/popular")
     ResponseEntity<ArrayList<RetrievePopularDto.ReadPopularResponse>> retrievePopularPost(@RequestParam Long postCnt,
-                                                                   @RequestParam String location,
-                                                                   @AuthenticationPrincipal UserDetails userDetails){
+                                                                                          @RequestParam(required = false, defaultValue = "") String location,
+                                                                                          @AuthenticationPrincipal UserDetails userDetails){
 
         String userEmail = userDetails.getUsername();
         log.info("{}",postCnt);

@@ -21,4 +21,9 @@ public class AnonymityMemberServiceImpl implements AnonymityMemberService{
     public void save(AnonymityMember anonymityMember) {
         anonymityMemberRepository.save(anonymityMember);
     }
+
+    @Override
+    public void deletePostByPostId(Post post) {
+        anonymityMemberRepository.deleteByPostId(post);
+    }
 }

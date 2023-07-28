@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Timed
 @Controller
@@ -39,6 +40,7 @@ public class CommentController {
     private final CommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
+    private final FirebaseService firebaseService;
 
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
@@ -86,6 +88,10 @@ public class CommentController {
                 .build();
         commentService.saveComment(comment);
 
+        if (!post.getMemberId().equals(member)) {
+            firebaseService.notifyComment(post.getMemberId(), comment);
+        }
+
         //인기 있는 글 생성
         Post singlePost = postService.findSinglePost(createCommentDto.getPostId());
         List<Comment> commentByPost = commentService.findCommentByPost(singlePost);
@@ -93,7 +99,6 @@ public class CommentController {
             PopularPost build = PopularPost.builder().postId(singlePost).build();
             popularPostService.savePopularPost(build);
         }
-
 
         if (createCommentDto.getAnonymity().equals(Boolean.TRUE)) {
             if (anonymityMembers.contains(userDetails.getUsername())) {
@@ -108,11 +113,12 @@ public class CommentController {
                 log.info("익명 테이블에 저장");
             }
         }
-            return new ResponseEntity<>(HttpStatus.OK);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
-    @PostMapping("/comment-delete")
+    @DeleteMapping("/comment")
     @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDto.DeleteComment commentDeleteDto,
                                            @AuthenticationPrincipal UserDetails userDetails){
@@ -129,11 +135,16 @@ public class CommentController {
         }
     }
 
-    @PostMapping("/comment-like")
+
+    @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentDto.LikeComment commentLikeDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Member member = memberService.findByEmail(userDetails.getUsername());
+
+        if (comment.get().getMemberId().equals(member)){
+            return new ResponseEntity<>("자신의 댓글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
+        }
 
         List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
         for (CommentLike commentLike : commentLikeList) {
@@ -149,6 +160,7 @@ public class CommentController {
                 .build();
         commentLikeService.saveCommentLike(commentLikeBuild);
         log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
+        firebaseService.notifyCommentLike(comment.get().getMemberId(), comment.get());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -174,9 +186,9 @@ public class CommentController {
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto.CreateReply replyDto,
                                    @AuthenticationPrincipal UserDetails userDetails) {
-        Optional<Comment> comment = commentService.findCommentByCommentId(replyDto.getCommentId());
         Member member = memberService.findByEmail(userDetails.getUsername());
-
+        Comment comment = commentService.findCommentByCommentId(replyDto.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
@@ -185,46 +197,51 @@ public class CommentController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-        if (comment.isPresent()) {
-            comment.get().setCountReply(comment.get().getCountReply()+1);
-            List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.get().getPostId());
-            Long nextIndex = anonymityMembers.size() + 1L;
 
-            Reply buildReply = Reply.builder()
-                    .reply(replyDto.getReply())
-                    .ReplyTime(LocalDateTime.now())
-                    .anonymity(replyDto.getAnonymity())
-                    .commentId(comment.get())
-                    .memberId(member)
-                    .checkDelete(Boolean.FALSE)
-                    .secretMode(replyDto.getSecretMode())
-                    .isLocked(Boolean.FALSE)
-                    .build();
+        comment.setCountReply(comment.getCountReply()+1);
+        List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.getPostId());
+        Long nextIndex = anonymityMembers.size() + 1L;
 
-            replyService.saveReply(buildReply);
+        Reply buildReply = Reply.builder()
+                .reply(replyDto.getReply())
+                .ReplyTime(LocalDateTime.now())
+                .anonymity(replyDto.getAnonymity())
+                .commentId(comment)
+                .memberId(member)
+                .checkDelete(Boolean.FALSE)
+                .secretMode(replyDto.getSecretMode())
+                .isLocked(Boolean.FALSE)
+                .build();
 
-            if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
-                if (anonymityMembers.contains(userDetails.getUsername())) {
-                    log.info("이미 익명 테이블에 저장된 사용자입니다.");
-                } else {
-                    AnonymityMember anonymityMember = AnonymityMember.builder()
-                            .userEmail(member.getEmail())
-                            .postId(comment.get().getPostId())
-                            .anonymityIndex(nextIndex)
-                            .build();
-                    anonymityMemberService.save(anonymityMember);
-                    log.info("익명 테이블에 저장");
-                }
+
+        replyService.saveReply(buildReply);
+
+        List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
+        replyMemberList.add(comment.getMemberId());
+        List<Member> fcmMemberList = checkMyComment(replyMemberList, member);
+        if (fcmMemberList.size() != 0) {
+            firebaseService.notifyReply(fcmMemberList, buildReply);
+        }
+
+        if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
+            if (anonymityMembers.contains(userDetails.getUsername())) {
+                log.info("이미 익명 테이블에 저장된 사용자입니다.");
+            } else {
+                AnonymityMember anonymityMember = AnonymityMember.builder()
+                        .userEmail(member.getEmail())
+                        .postId(comment.getPostId())
+                        .anonymityIndex(nextIndex)
+                        .build();
+                anonymityMemberService.save(anonymityMember);
+                log.info("익명 테이블에 저장");
             }
-            return new ResponseEntity<>(HttpStatus.OK);
+
+
         }
-        else {
-            log.info("해당 상위 댓글이 없거나 존재하지 않는 멤버입니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/reply-delete")
+    @DeleteMapping("/reply")
     @Transactional
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDto.DeleteReply replyDeleteDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
@@ -303,4 +320,10 @@ public class CommentController {
         return replyDetailDtoList;
     }
 
+    private static List<Member> checkMyComment(List<Member> memberList, Member writeMember) {
+        return memberList.stream()
+                .distinct()
+                .filter((member) -> !member.equals(writeMember))
+                .collect(Collectors.toList());
+    }
 }

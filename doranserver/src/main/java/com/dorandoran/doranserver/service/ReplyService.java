@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.Comment;
+import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.Reply;
 
@@ -19,5 +20,6 @@ public interface ReplyService {
     List<Reply> findNextReplies(Long commentId, Long replyId);
     void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, String userEmail);
     void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDto.ReadReplyResponse replyDetailDto);
+    List<Member> findReplyMemberByComment(Comment comment);
 
 }

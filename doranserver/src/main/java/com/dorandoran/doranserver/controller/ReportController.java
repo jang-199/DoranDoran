@@ -1,9 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.LockDto;
-import com.dorandoran.doranserver.dto.ReportCommentRequestDto;
-import com.dorandoran.doranserver.dto.ReportReplyRequestDto;
-import com.dorandoran.doranserver.dto.ReportPostRequestDto;
+import com.dorandoran.doranserver.dto.ReportDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.lockType.LockType;
 import com.dorandoran.doranserver.service.*;
@@ -44,7 +42,7 @@ public class ReportController {
     private final LockMemberService lockMemberService;
 
     @PostMapping("/post/report")
-    public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,
+    public ResponseEntity<?> saveReportPost(@RequestBody ReportDto.CreateReportPost reportPostRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -67,7 +65,8 @@ public class ReportController {
     }
 
     @PostMapping("/comment/report")
-    public ResponseEntity<?> saveReportComment(@RequestBody ReportCommentRequestDto reportCommentRequestDto,
+    public ResponseEntity<?> saveReportComment(@RequestBody ReportDto.CreateReportComment
+                                                           reportCommentRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -92,7 +91,7 @@ public class ReportController {
 
 
     @PostMapping("/reply/report")
-    public ResponseEntity<?> saveReportReply(@RequestBody ReportReplyRequestDto reportReplyRequestDto,
+    public ResponseEntity<?> saveReportReply(@RequestBody ReportDto.CreateReportReply reportReplyRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);

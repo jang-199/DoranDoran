@@ -1,18 +1,19 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.*;
-import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
-import com.dorandoran.doranserver.dto.postDetail.PostDetailDto;
-import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
+import com.dorandoran.doranserver.dto.CommentDto;
+import com.dorandoran.doranserver.dto.PostDto;
+import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -56,18 +57,19 @@ public class PostController {
     private final BlockMemberFilter blockMemberFilter;
     @Transactional
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto postDto) {
-        Member member = memberService.findByEmail(postDto.getEmail());
+    ResponseEntity<?> Post(PostDto.CreatePost postDto,
+                           @AuthenticationPrincipal UserDetails userDetails) {
+        Member member = memberService.findByEmail(userDetails.getUsername());
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
-                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body("정지된 회원은 댓글을 작성할 수 없습니다.");
             }else {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
 
-        log.info("{}",postDto.getEmail());
+        log.info("{}",userDetails.getUsername());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
@@ -100,11 +102,11 @@ public class PostController {
                 postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
             }catch (IOException e){
                 log.info("IO Exception 발생",e);
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().build();
             }
             catch (MaxUploadSizeExceededException e){
                 log.info("파일 업로드 크기 제한 exception",e);
-                return new ResponseEntity<>("파일 업로드 크기 제한", HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body("파일 업로드 크기 제한");
             }
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -151,7 +153,7 @@ public class PostController {
                 }
             }
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     private void savePostHash(Post hashTagPost, String hashTag) {
@@ -173,11 +175,12 @@ public class PostController {
      */
     @Transactional
     @PostMapping("/post-delete")
-    public ResponseEntity<?> postDelete(@RequestBody PostDeleteDto postDeleteDto) throws IOException {
+    public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
+                                        @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         Post post = postService.findSinglePost(postDeleteDto.getPostId());
         List<Comment> commentList = commentService.findCommentByPost(post);
 
-        if (post.getMemberId().getEmail().equals(postDeleteDto.getUserEmail())) {
+        if (post.getMemberId().getEmail().equals(userDetails.getUsername())) {
             //댓글 삭제
             if (commentList.size() != 0) {
                 log.info("글 삭제 전 댓글 삭제");
@@ -237,22 +240,23 @@ public class PostController {
             postService.deletePost(post);
         }
         else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/post-like")
-    ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
+    ResponseEntity<?> postLike(@RequestBody PostDto.LikePost postLikeDto,
+                               @AuthenticationPrincipal UserDetails userDetails) {
         Post post = postService.findSinglePost(postLikeDto.getPostId());
-        Member byEmail = memberService.findByEmail(postLikeDto.getEmail());
-        List<PostLike> byMemberId = postLikeService.findByMemberId(postLikeDto.getEmail());
+        Member byEmail = memberService.findByEmail(userDetails.getUsername());
+        List<PostLike> byMemberId = postLikeService.findByMemberId(userDetails.getUsername());
         for (PostLike postLike : byMemberId) {
             if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
                 postLikeService.deletePostLike(postLike);
                 log.info("{} 글의 공감 취소", postLikeDto.getPostId());
-                return new ResponseEntity<>(HttpStatus.OK);
+                return ResponseEntity.ok().build();
             }
         }
         log.info("{}번 글 좋아요", postLikeDto.getPostId());
@@ -262,13 +266,14 @@ public class PostController {
                 .build();
         postLikeService.savePostLike(postLike);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
     @PostMapping("/post/detail")
-    ResponseEntity<?> postDetails(@RequestBody PostRequestDetailDto postRequestDetailDto) {
-        String userEmail = postRequestDetailDto.getUserEmail();
+    ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
+                                  @AuthenticationPrincipal UserDetails userDetails) {
+        String userEmail = userDetails.getUsername();
         Post post = postService.findSinglePost(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);
@@ -276,7 +281,7 @@ public class PostController {
 
         Boolean isWrittenByUser = post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE;
         //리턴할 postDetail builder
-        PostDetailDto postDetailDto = PostDetailDto.builder()
+        PostDto.ReadPostResponse postDetailDto = PostDto.ReadPostResponse.builder()
                 .content(post.getContent())
                 .postTime(post.getPostTime())
                 .postLikeCnt(postLikeService.findLIkeCnt(post))
@@ -308,13 +313,13 @@ public class PostController {
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
 
-        List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
+        List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
             for (Comment comment : commentList) {
                 //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
                 List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
-                List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
+                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
                 log.info("대댓글 로직 실행");
                 for (Reply reply : replyList) {
                     Boolean isReplyWrittenByUser = Boolean.FALSE;
@@ -322,7 +327,7 @@ public class PostController {
                         checkWrite = Boolean.TRUE;
                         isReplyWrittenByUser = Boolean.TRUE;
                     }
-                    ReplyDetailDto replyDetailDto = ReplyDetailDto.builder()
+                    ReplyDto.ReadReplyResponse replyDetailDto = ReplyDto.ReadReplyResponse.builder()
                             .reply(reply)
                             .content(reply.getReply())
                             .isWrittenByMember(isReplyWrittenByUser)
@@ -341,7 +346,7 @@ public class PostController {
                     isCommentWrittenByMember = Boolean.TRUE;
                 }
 
-                CommentDetailDto commentDetailDto = CommentDetailDto.builder()
+                CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
                         .comment(comment)
                         .content(comment.getComment())
                         .commentLikeResult(commentLikeResult)

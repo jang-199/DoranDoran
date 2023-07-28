@@ -1,10 +1,10 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostResponseDto;
-import com.dorandoran.doranserver.dto.RetrieveHashTagPostDto;
+import com.dorandoran.doranserver.dto.RetrieveHashtagDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +39,8 @@ public class RetrieveHashTagPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
-    @PostMapping("/hashtag")
-    ResponseEntity<ArrayList<PostResponseDto>> retrievePostByHashTag(@RequestBody RetrieveHashTagPostDto retrieveHashTagPostDto,
+    @GetMapping("/post/hashtag")
+    ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> retrievePostByHashTag(@RequestBody RetrieveHashtagDto.ReadHashtag retrieveHashTagPostDto,
                                                                      @AuthenticationPrincipal UserDetails userDetails) {
 
         String encodeTagName = retrieveHashTagPostDto.getHashtagName();
@@ -55,8 +55,8 @@ public class RetrieveHashTagPostController {
 
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
-        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
-        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
+        ArrayList<RetrieveHashtagDto.ReadHashtagResponse> postResponseDtoList = new ArrayList<>();
+        RetrieveHashtagDto.ReadHashtagResponse.ReadHashtagResponseBuilder builder = RetrieveHashtagDto.ReadHashtagResponse.builder();
 
         HashTag hashTag = hashTagService.findByHashTagName(encodeTagName)
                 .orElseThrow(() -> new RuntimeException("검색한 해시태그가 없습니다."));//hashtag로 키 값 검색
@@ -75,11 +75,11 @@ public class RetrieveHashTagPostController {
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makeResponseList(Member member, String encodeLocation, String encodeEmail, ArrayList<PostResponseDto> postResponseDtoList, PostResponseDto.PostResponseDtoBuilder builder, List<PostHash> postHashes) {
+    private ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> makeResponseList(Member member, String encodeLocation, String encodeEmail, ArrayList<RetrieveHashtagDto.ReadHashtagResponse> postResponseDtoList, RetrieveHashtagDto.ReadHashtagResponse.ReadHashtagResponseBuilder builder, List<PostHash> postHashes) {
         List<Post> postList = postHashes.stream().map((postHash -> postHash.getPostId())).collect(Collectors.toList());
 
         for (Post post : postList) {
-            if (!post.getMemberId().equals(member) && post.getForMe()==true) {
+            if (!post.getMemberId().equals(member) && post.getForMe()) {
                 continue;
             }
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
@@ -93,7 +93,7 @@ public class RetrieveHashTagPostController {
                         .postId(post.getPostId())
                         .contents(post.getContent())
                         .postTime(post.getPostTime())
-                        .ReplyCnt(commentCntByPostId)
+                        .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = encodeLocation.split(",");
@@ -107,7 +107,7 @@ public class RetrieveHashTagPostController {
                         .contents(post.getContent())
                         .postTime(post.getPostTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
-                        .ReplyCnt(commentCntByPostId)
+                        .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())

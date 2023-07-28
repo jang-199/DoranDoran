@@ -2,10 +2,8 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.entity.BackgroundPic;
 import com.dorandoran.doranserver.entity.UserUploadPic;
-import com.dorandoran.doranserver.service.BackGroundPicServiceImpl;
 import com.dorandoran.doranserver.service.BackgroundPicService;
 import com.dorandoran.doranserver.service.UserUploadPicService;
-import com.dorandoran.doranserver.service.UserUploadPicServiceImpl;
 
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -44,13 +42,13 @@ public class BackGroundPicController {
     private final UserUploadPicService userUploadPicService;
 
 
-    @GetMapping("/background/maxcount")
+    @GetMapping("/pic/default/count")
     ResponseEntity<Integer> backgroundPic() {
         return ResponseEntity.ok().body(backgroundPicCnt);
 
     }
 
-    @GetMapping("/background/{picName}")
+    @GetMapping("/pic/default/{picName}")
     ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
 
         Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(picName);
@@ -67,7 +65,7 @@ public class BackGroundPicController {
         }
     }
 
-    @GetMapping("/userpic/{picName}")
+    @GetMapping("/pic/member/{picName}")
     ResponseEntity<Resource> findUserUploadPic(@PathVariable String picName) {
 
         try {

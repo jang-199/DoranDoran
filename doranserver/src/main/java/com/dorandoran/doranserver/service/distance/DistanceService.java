@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.service;
+package com.dorandoran.doranserver.service.distance;
 
 import org.springframework.stereotype.Service;
 

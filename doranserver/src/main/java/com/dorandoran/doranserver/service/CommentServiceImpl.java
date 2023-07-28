@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.service;
 
-import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
-import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
+import com.dorandoran.doranserver.dto.CommentDto;
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.CommentLike;
 import com.dorandoran.doranserver.entity.Post;
@@ -96,7 +95,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void checkSecretComment(CommentDetailDto commentDetailDto, Post post, Comment comment, String userEmail) {
+    public void checkSecretComment(CommentDto.ReadCommentResponse commentDetailDto, Post post, Comment comment, String userEmail) {
         if (comment.checkSecretMode()
                 && !commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)
                 && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
@@ -106,7 +105,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDetailDto commentDetailDto) {
+    public void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDto.ReadCommentResponse commentDetailDto) {
         if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
             int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
             log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);

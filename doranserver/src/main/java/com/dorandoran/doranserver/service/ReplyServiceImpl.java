@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.service;
 
-import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
+import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.Reply;
@@ -66,7 +66,7 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
-    public void checkSecretReply(ReplyDetailDto replyDetailDto, Post post, Reply reply, String userEmail) {
+    public void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, String userEmail) {
         if (reply.checkSecretMode()
                 && !commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)
                 && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
@@ -76,7 +76,7 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
-    public void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDetailDto replyDetailDto) {
+    public void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDto.ReadReplyResponse replyDetailDto) {
         if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
             int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
             log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);

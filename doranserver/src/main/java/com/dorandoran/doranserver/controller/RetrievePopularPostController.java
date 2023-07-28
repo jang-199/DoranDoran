@@ -1,12 +1,12 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.dto.RetrievePopularDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.PopularPost;
-import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,14 +40,15 @@ public class RetrievePopularPostController {
     private final MemberBlockListService memberBlockListService;
 
     @GetMapping("/post/popular")
-    ResponseEntity<ArrayList<PostResponseDto>> retrievePopularPost(@RequestParam String userEmail,
-                                                                   @RequestParam Long postCnt,
+    ResponseEntity<ArrayList<RetrievePopularDto.ReadPopularResponse>> retrievePopularPost(@RequestParam Long postCnt,
                                                                    @RequestParam String location,
                                                                    @AuthenticationPrincipal UserDetails userDetails){
+
+        String userEmail = userDetails.getUsername();
         log.info("{}",postCnt);
         log.info("{}",location);
-        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
-        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
+        ArrayList<RetrievePopularDto.ReadPopularResponse> postResponseDtoList = new ArrayList<>();
+        RetrievePopularDto.ReadPopularResponse.ReadPopularResponseBuilder builder = RetrievePopularDto.ReadPopularResponse.builder();
 
         Member member = memberService.findByEmail(userDetails.getUsername());
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
@@ -66,14 +67,14 @@ public class RetrievePopularPostController {
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makePopularPostResponseList(Member member,
-                                                                                   String userEmail,
-                                                          ArrayList<PostResponseDto> postResponseDtoList,
-                                                          PostResponseDto.PostResponseDtoBuilder builder,
-                                                          List<PopularPost> postList,
-                                                          String location) {
+    private ResponseEntity<ArrayList<RetrievePopularDto.ReadPopularResponse>> makePopularPostResponseList(Member member,
+                                                                                                          String userEmail,
+                                                                                                          ArrayList<RetrievePopularDto.ReadPopularResponse> postResponseDtoList,
+                                                                                                          RetrievePopularDto.ReadPopularResponse.ReadPopularResponseBuilder builder,
+                                                                                                          List<PopularPost> postList,
+                                                                                                          String location) {
         for (PopularPost popularPost : postList) {
-            if (!popularPost.getPostId().getMemberId().equals(member) && popularPost.getPostId().getForMe()==true) {
+            if (!popularPost.getPostId().getMemberId().equals(member) && popularPost.getPostId().getForMe()) {
                 continue;
             }
             Integer lIkeCnt = postLikeService.findLIkeCnt(popularPost.getPostId());
@@ -87,7 +88,7 @@ public class RetrievePopularPostController {
                         .postId(popularPost.getPostId().getPostId())
                         .contents(popularPost.getPostId().getContent())
                         .postTime(popularPost.getPostId().getPostTime())
-                        .ReplyCnt(commentCntByPostId)
+                        .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = location.split(",");
@@ -101,7 +102,7 @@ public class RetrievePopularPostController {
                         .contents(popularPost.getPostId().getContent())
                         .postTime(popularPost.getPostId().getPostTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
-                        .ReplyCnt(commentCntByPostId)
+                        .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt)
                         .font(popularPost.getPostId().getFont())
                         .fontColor(popularPost.getPostId().getFontColor())

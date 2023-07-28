@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostDto;
-import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -36,8 +35,8 @@ public class RetrieveAllPostsController {
     private final PostService postService;
     private final PostLikeService postLikeService;
 
-    @GetMapping("/all-posts/{position}")
-    ResponseEntity<LinkedList<PostResponseDto>> getAllPosts(@PathVariable("position") Long position,
+    @GetMapping("/post/member/{position}")
+    ResponseEntity<LinkedList<RetrievePostDto.ReadPostResponse>> getAllPosts(@PathVariable("position") Long position,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
 
         Member member = memberService.findByEmail(userDetails.getUsername());
@@ -48,17 +47,17 @@ public class RetrieveAllPostsController {
             myPost = postService.findMyPost(member, position);
         }
 
-        LinkedList<PostResponseDto> postDtoList = new LinkedList<>();
+        LinkedList<RetrievePostDto.ReadPostResponse> postDtoList = new LinkedList<>();
         for (Post post : myPost) {
             String[] split = post.getImgName().split("[.]");
 
-            PostResponseDto postResponseDto = PostResponseDto.builder().postId(post.getPostId())
+            RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder().postId(post.getPostId())
                     .contents(post.getContent())
                     .postTime(post.getPostTime())
                     .location(null)
                     .likeCnt(postLikeService.findLIkeCnt(post))
                     .likeResult(null)
-                    .ReplyCnt(null)
+                    .replyCnt(null)
                     .backgroundPicUri(
                             post.getSwitchPic() == ImgType.DefaultBackground
                                     ? ipAddress + ":8080/api/userpic/" + split[0]

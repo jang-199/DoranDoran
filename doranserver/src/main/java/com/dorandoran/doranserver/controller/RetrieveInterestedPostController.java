@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.dto.RetrieveInterestedDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -36,7 +36,7 @@ public class RetrieveInterestedPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
-    @GetMapping("/interestedPost")
+    @GetMapping("/post/interested")
     ResponseEntity<LinkedList<Map>> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
         log.info(userDetails.getUsername());
         log.info(userDetails.getAuthorities().toString());
@@ -56,7 +56,7 @@ public class RetrieveInterestedPostController {
                 .collect(Collectors.toList());
         List<Optional<PostHash>> optionalPostHashFilter = blockMemberFilter.optionalPostHashFilter(optionalPostHashList, memberBlockListByBlockingMember);
 
-        HashMap<String, PostResponseDto> stringPostResponseDtoHashMap = new LinkedHashMap<>();
+        HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
         LinkedList<Map> mapLinkedList = new LinkedList<>();
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
@@ -64,7 +64,7 @@ public class RetrieveInterestedPostController {
                 if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==true) {
                     continue;
                 }
-                PostResponseDto responseDto = PostResponseDto.builder()
+                RetrieveInterestedDto.ReadInterestedResponse responseDto = RetrieveInterestedDto.ReadInterestedResponse.builder()
                         .backgroundPicUri(
                                 optionalPostHash.get().getPostId().getSwitchPic() == ImgType.DefaultBackground ? ipAddress + ":8080/api/background/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
                                         : ipAddress + ":8080/api/userpic/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
@@ -78,7 +78,7 @@ public class RetrieveInterestedPostController {
                         .postId(optionalPostHash.get().getPostId().getPostId())
                         .contents(optionalPostHash.get().getPostId().getContent())
                         .postTime(optionalPostHash.get().getPostId().getPostTime())
-                        .ReplyCnt(commentService.findCommentAndReplyCntByPostId(optionalPostHash.get().getPostId()))
+                        .replyCnt(commentService.findCommentAndReplyCntByPostId(optionalPostHash.get().getPostId()))
                         .likeCnt(postLikeService.findLIkeCnt(optionalPostHash.get().getPostId())).build();
 
 

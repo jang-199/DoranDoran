@@ -33,22 +33,26 @@ public class NotificationController {
                                                                                     @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
+        log.info("{}", member);
         List<NotificationHistory> notificationList =
                 notCnt == 0
                 ? notificationHistoryService.findFirstNotification(member)
                 : notificationHistoryService.findNotification(member, notCnt);
 
-        List<NotificationDto.notificationResponse> notificationResponseList = makeNotificationResponseList(notificationList);
+        List<NotificationDto.notificationResponse> notificationResponse = notificationList.stream()
+                .map((notificationHistory) -> NotificationDto.notificationResponse.builder()
+                        .notificationHistory(notificationHistory)
+                        .build())
+                .toList();
 
-        return ResponseEntity.ok().body(notificationResponseList);
+        return ResponseEntity.ok().body(notificationResponse);
     }
 
     @GetMapping("/notification/{notificationId}/read")
-    ResponseEntity<NotificationDto.notificationResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
+    ResponseEntity<NotificationDto.notificationReadResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
         NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
-        NotificationDto.notificationResponse notificationResponse = setNotificationResponseDto(notification);
-        notification.readNotification();
-        return ResponseEntity.ok().body(notificationResponse);
+        NotificationDto.notificationReadResponse notificationReadResponse = notificationHistoryService.readNotification(notification);
+        return ResponseEntity.ok().body(notificationReadResponse);
     }
 
     @DeleteMapping("/notification")
@@ -64,56 +68,5 @@ public class NotificationController {
         Member member = memberService.findByEmail(userEmail);
         notificationHistoryService.deleteNotificationByMember(member);
         return ResponseEntity.ok().body("해당 사용자의 모든 알람 삭제가 완료되었습니다.");
-    }
-
-    private static NotificationDto.notificationResponse makePostNotification(NotificationHistory notificationHistory) {
-        return NotificationDto.notificationResponse.builder()
-                .notificationHistory(notificationHistory)
-                .postId(notificationHistory.getObjectId())
-                .commentId(null)
-                .replyId(null)
-                .build();
-    }
-
-    private NotificationDto.notificationResponse makeCommentNotification(Long notificationObjectId, NotificationHistory notificationHistory) {
-        Comment comment = commentService.findCommentByCommentId(notificationObjectId)
-                .orElseThrow(() -> new NoSuchElementException("해당 댓글이 존재하지 않습니다."));
-        return NotificationDto.notificationResponse.builder()
-                .notificationHistory(notificationHistory)
-                .postId(comment.getPostId().getPostId())
-                .commentId(notificationObjectId)
-                .replyId(null)
-                .build();
-    }
-
-    private NotificationDto.notificationResponse makeReplyNotification(NotificationHistory notificationHistory) {
-        Reply reply = replyService.findReplyByReplyId(notificationHistory.getObjectId())
-                .orElseThrow(() -> new NoSuchElementException("해당 대댓글이 존재하지 않습니다."));
-        return NotificationDto.notificationResponse.builder()
-                .notificationHistory(notificationHistory)
-                .postId(reply.getCommentId().getPostId().getPostId())
-                .commentId(reply.getCommentId().getCommentId())
-                .replyId(notificationHistory.getObjectId())
-                .build();
-    }
-
-    private List<NotificationDto.notificationResponse> makeNotificationResponseList(List<NotificationHistory> notificationList) {
-        return notificationList.stream()
-                .map(notificationHistory -> setNotificationResponseDto(notificationHistory)).collect(Collectors.toList());
-    }
-
-    private NotificationDto.notificationResponse setNotificationResponseDto(NotificationHistory notificationHistory) {
-        switch (notificationHistory.getNotificationType()) {
-            case PostLike -> {
-                return makePostNotification(notificationHistory);
-            }
-            case CommentLike, Comment -> {
-                return makeCommentNotification(notificationHistory.getObjectId(), notificationHistory);
-            }
-            case Reply -> {
-                return makeReplyNotification(notificationHistory);
-            }
-            default -> throw new IllegalArgumentException("해당 타입의 알림은 존재하지않습니다.");
-        }
     }
 }

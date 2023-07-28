@@ -32,7 +32,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Transactional
+//@Transactional
 public class ReportController {
     private final MemberService memberService;
     private final PostService postService;

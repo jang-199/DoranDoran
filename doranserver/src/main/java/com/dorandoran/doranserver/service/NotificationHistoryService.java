@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.dto.NotificationDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.NotificationHistory;
 
@@ -15,4 +16,5 @@ public interface NotificationHistoryService {
     List<NotificationHistory> findFirstNotification(Member member);
 
     NotificationHistory findNotificationById(Long notificationId);
+    NotificationDto.notificationReadResponse readNotification(NotificationHistory notificationHistory);
 }

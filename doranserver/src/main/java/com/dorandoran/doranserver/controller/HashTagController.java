@@ -1,10 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.config.jwt.TokenProvider;
-import com.dorandoran.doranserver.dto.HashTagListDto;
-import com.dorandoran.doranserver.dto.HashTagPopularDto;
-import com.dorandoran.doranserver.dto.HashTagRequestDto;
-import com.dorandoran.doranserver.dto.HashTagResponseDto;
+import com.dorandoran.doranserver.dto.HashTagDto;
 import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberHash;
@@ -13,7 +9,6 @@ import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,10 +35,10 @@ public class HashTagController {
         String userEmail = userDetails.getUsername();
         List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
         List<HashTag> findHashTag = hashTagService.findTop5BySearchHashTag(reqHashTag);
-        ArrayList<HashTagResponseDto> hashTagResponseDtos = new ArrayList<>();
+        ArrayList<HashTagDto.ReadHashtagResponse> hashTagResponseDtos = new ArrayList<>();
         for (HashTag hashTag : findHashTag) {
             Boolean hashTagCheck = (memberHashes.contains(hashTag.getHashTagName())) ? Boolean.TRUE : Boolean.FALSE;
-            HashTagResponseDto hashTagBuild = HashTagResponseDto.builder()
+            HashTagDto.ReadHashtagResponse hashTagBuild = HashTagDto.ReadHashtagResponse.builder()
                     .hashTagName(hashTag.getHashTagName())
                     .hashTagCount(hashTag.getHashTagCount())
                     .hashTagCheck(hashTagCheck)
@@ -60,8 +55,8 @@ public class HashTagController {
         if (hashTag.size() == 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
-            List<HashTagPopularDto> hashTagList = hashTag.stream()
-                    .map(h -> new HashTagPopularDto(h))
+            List<HashTagDto.ReadPopularHashTagResponse> hashTagList = hashTag.stream()
+                    .map(h -> new HashTagDto.ReadPopularHashTagResponse(h))
                     .collect(Collectors.toList());
             log.info("인기 있는 태그 검색");
             return ResponseEntity.ok().body(hashTagList);
@@ -75,14 +70,14 @@ public class HashTagController {
         if (memberHash.size() == 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
-            HashTagListDto hashTagList = HashTagListDto.builder().hashTagList(memberHash).build();
+            HashTagDto.ReadMemberHashTagResponse hashTagList = HashTagDto.ReadMemberHashTagResponse.builder().hashTagList(memberHash).build();
             log.info("{}의 관심 있는 태그 검색",userEmail);
             return ResponseEntity.ok().body(hashTagList);
         }
     }
 
     @PostMapping("/hashTag/member")
-    public ResponseEntity<?> saveHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
+    public ResponseEntity<?> saveHashTag(@RequestBody HashTagDto.CreateHashTag hashTagRequestDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -103,7 +98,7 @@ public class HashTagController {
     }
 
     @DeleteMapping("/hashTag/member")
-    public ResponseEntity<?> deleteHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
+    public ResponseEntity<?> deleteHashTag(@RequestBody HashTagDto.DeleteHashTag hashTagRequestDto,
                                            @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Optional<MemberHash> memberHash = memberHashService.findMemberHashByEmailAndHashTag(userEmail, hashTagRequestDto.getHashTag());

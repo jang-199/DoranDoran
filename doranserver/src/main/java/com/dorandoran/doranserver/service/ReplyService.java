@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.service;
 
-import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
+import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
@@ -18,8 +18,8 @@ public interface ReplyService {
     List<Reply> findFirstReplies(Comment comment);
     List<Reply> findFirstRepliesFetchMember(Comment comment);
     List<Reply> findNextReplies(Long commentId, Long replyId);
-    void checkSecretReply(ReplyDetailDto replyDetailDto, Post post, Reply reply, String userEmail);
-    void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDetailDto replyDetailDto);
+    void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, String userEmail);
+    void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDto.ReadReplyResponse replyDetailDto);
     List<Member> findReplyMemberByComment(Comment comment);
 
 }

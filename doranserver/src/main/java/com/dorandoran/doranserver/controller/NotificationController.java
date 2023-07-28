@@ -1,10 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.NotificationDto;
-import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.NotificationHistory;
-import com.dorandoran.doranserver.entity.Reply;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Timed
 @RestController

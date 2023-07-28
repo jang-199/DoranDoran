@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.blockMember.BlockMemberDto;
+import com.dorandoran.doranserver.dto.BlockDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
@@ -28,8 +28,9 @@ public class BlockMemberController {
     private final ReplyService replyService;
     private final MemberBlockListService memberBlockListService;
 
-    @PostMapping("/block/member")
-    ResponseEntity blockMember(@RequestBody BlockMemberDto blockMemberDto,
+
+    @PostMapping("/member/block")
+    ResponseEntity<?> blockMember(@RequestBody BlockDto.BlockMember blockMemberDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
         Member blockingMember = memberService.findByEmail(userDetails.getUsername());
 
@@ -37,21 +38,17 @@ public class BlockMemberController {
             case post -> {
                 Member blockedMember = postService.findSinglePost(blockMemberDto.getId()).getMemberId();
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
-                break;
             }
             case comment -> {
                 Member blockedMember = commentService.findCommentByCommentId(blockMemberDto.getId()).orElseThrow().getMemberId();
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
-                break;
             }
             case reply -> {
                 Member blockedMember = replyService.findReplyByReplyId(blockMemberDto.getId()).orElseThrow().getMemberId();
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
-                break;
             }
         }
         return ResponseEntity.ok().build();
 
     }
-
 }

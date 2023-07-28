@@ -1,9 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
-import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.PostLike;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.BlockMemberFilter;
@@ -44,9 +43,9 @@ public class RetrieveAllLikedPostsController {
     private final BlockMemberFilter blockMemberFilter;
     private final MemberBlockListService memberBlockListService;
 
-    @GetMapping("liked-posts/{position}")
-    public ResponseEntity<LinkedList<PostResponseDto>> getAllLikedPosts(@PathVariable("position") Long position,
-                                                                        @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/post/member/like/{position}")
+    public ResponseEntity<LinkedList<RetrievePostDto.ReadPostResponse>> getAllLikedPosts(@PathVariable("position") Long position,
+                                                                @AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
         Member member = memberService.findByEmail(username);
@@ -61,17 +60,18 @@ public class RetrieveAllLikedPostsController {
             myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         }
 
-        LinkedList<PostResponseDto> postDtoList = new LinkedList<>();
+        LinkedList<RetrievePostDto.ReadPostResponse> postDtoList = new LinkedList<>();
         for (PostLike post : myPost) {
             String[] split = post.getPostId().getImgName().split("[.]");
 
-            PostResponseDto postResponseDto = PostResponseDto.builder().postId(post.getPostId().getPostId())
+            RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder()
+                    .postId(post.getPostId().getPostId())
                     .contents(post.getPostId().getContent())
                     .postTime(post.getPostId().getPostTime())
                     .location(null)
                     .likeCnt(postLikeService.findLIkeCnt(post.getPostId()))
                     .likeResult(null)
-                    .ReplyCnt(null)
+                    .replyCnt(null)
                     .backgroundPicUri(
                             post.getPostId().getSwitchPic() == ImgType.DefaultBackground
                                     ?

@@ -1,16 +1,60 @@
 package com.dorandoran.doranserver.dto;
 
-import lombok.*;
+import com.dorandoran.doranserver.entity.Reply;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+import java.time.LocalDateTime;
+
 public class ReplyDto {
-    Long commentId;
-    String userEmail;
-    String reply;
-    Boolean anonymity;
-    Boolean secretMode;
-}
+    @Getter
+    @Setter
+    public static class CreateReply{
+        private Long commentId;
+        private String reply;
+        private Boolean anonymity;
+        private Boolean secretMode;
 
+        @Builder
+        public CreateReply(Long commentId, String reply, Boolean anonymity, Boolean secretMode) {
+            this.commentId = commentId;
+            this.reply = reply;
+            this.anonymity = anonymity;
+            this.secretMode = secretMode;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class ReadReplyResponse{
+        Long replyId;
+        String replyNickname;
+        String reply;
+        String replyAnonymityNickname;
+        Boolean replyCheckDelete;
+        Boolean isWrittenByMember;
+        LocalDateTime replyTime;
+
+        @Builder
+        public ReadReplyResponse(Reply reply, String content, Boolean isWrittenByMember) {
+            this.replyId = reply.getReplyId();
+            this.replyNickname = reply.getMemberId().getNickname();
+            this.reply = reply.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
+            this.replyAnonymityNickname = null;
+            this.replyCheckDelete = reply.getCheckDelete();
+            this.isWrittenByMember = isWrittenByMember;
+            this.replyTime = reply.getReplyTime();
+        }
+    }
+    @Getter
+    @Setter
+    public static class DeleteReply{
+        private Long replyId;
+
+        @Builder
+        public DeleteReply(Long replyId) {
+            this.replyId = replyId;
+        }
+    }
+}

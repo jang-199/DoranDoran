@@ -1,11 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.LockDto;
-import com.dorandoran.doranserver.dto.ReportCommentRequestDto;
-import com.dorandoran.doranserver.dto.ReportReplyRequestDto;
-import com.dorandoran.doranserver.dto.ReportPostRequestDto;
+import com.dorandoran.doranserver.dto.ReportDto;
 import com.dorandoran.doranserver.entity.*;
-import com.dorandoran.doranserver.entity.lockType.LockType;
 import com.dorandoran.doranserver.service.*;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
@@ -19,12 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Optional;
 
 @Timed
@@ -43,7 +36,7 @@ public class ReportController {
     private final LockMemberService lockMemberService;
 
     @PostMapping("/post/report")
-    public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,
+    public ResponseEntity<?> saveReportPost(@RequestBody ReportDto.CreateReportPost reportPostRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -62,7 +55,8 @@ public class ReportController {
     }
 
     @PostMapping("/comment/report")
-    public ResponseEntity<?> saveReportComment(@RequestBody ReportCommentRequestDto reportCommentRequestDto,
+    public ResponseEntity<?> saveReportComment(@RequestBody ReportDto.CreateReportComment
+                                                           reportCommentRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -83,7 +77,7 @@ public class ReportController {
 
 
     @PostMapping("/reply/report")
-    public ResponseEntity<?> saveReportReply(@RequestBody ReportReplyRequestDto reportReplyRequestDto,
+    public ResponseEntity<?> saveReportReply(@RequestBody ReportDto.CreateReportReply reportReplyRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);

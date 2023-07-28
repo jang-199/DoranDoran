@@ -24,7 +24,7 @@ public class AccountClosureController {
     private final MemberService memberService;
     private final AccountClosureMemberService accountClosureMemberService;
 
-    @DeleteMapping("/account-closure")
+    @DeleteMapping("/member")
     public ResponseEntity.BodyBuilder deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();

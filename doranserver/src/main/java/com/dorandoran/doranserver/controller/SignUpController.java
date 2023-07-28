@@ -1,13 +1,13 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
-import com.dorandoran.doranserver.dto.*;
+import com.dorandoran.doranserver.dto.AccountDto;
+import com.dorandoran.doranserver.dto.AuthenticationDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.PolicyTerms;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
-import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -35,26 +35,31 @@ public class SignUpController {
     private final SignUp signUp;
     private final PolicyTermsCheck policyTermsCheck;
     private final MemberService memberService;
-    private final TokenService tokenService;
     private final TokenProvider tokenProvider;
 
 
-    @PostMapping("/nickname")
-    ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
 
+    @PostMapping("/nickname")
+    ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         if (existedNickname(nicknameDto.getNickname())) {
             log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }else {
             log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다.");
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.ok().build();
         }
     }
 
-    @PostMapping("/check/registered")
-    ResponseEntity<?> checkRegisteredMember(@RequestBody CheckRegisteredMemberDto memberDto) {
-        Member member = memberService.findByEmail(memberDto.getEmail());
+    @PostMapping("registered")
+    ResponseEntity<?> checkRegisteredMember(@RequestBody AccountDto.CheckRegisteredMember memberDto) {
+        Member member = null;
+        try {
+            member = memberService.findByEmail(memberDto.getEmail());
+        } catch (RuntimeException e) {
+            log.info("{}은 가입되지 않은 회원입니다.",memberDto.getEmail());
+            return ResponseEntity.badRequest().build();
+        }
 
         String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
         String refreshToken = member.getRefreshToken();
@@ -64,18 +69,16 @@ public class SignUpController {
             member.setClosureDate(null);
         }
         memberService.saveMember(member);
-        return new ResponseEntity<>(
-                UserInfoDto.builder()
-                        .email(member.getEmail())
-                        .nickName(member.getNickname())
-                        .tokenDto(new TokenDto(refreshToken,accessToken))
-                        .build(),
-                HttpStatus.OK);
+        return ResponseEntity.ok()
+                .body(AccountDto.CheckRegisteredMemberResponse.builder()
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .tokenDto(new AuthenticationDto.TokenResponse(refreshToken,accessToken)).build());
     }
 
     @Transactional
     @PatchMapping("/nickname")
-    public ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
+    public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member findMember = memberService.findByEmail(userEmail);
@@ -91,15 +94,15 @@ public class SignUpController {
     }
 
 
-    @PostMapping("/signup")
-    ResponseEntity<?> SignUp(@RequestBody SignUpDto loginDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+    @PostMapping("/member")
+    ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
-        log.info("fireBaseToken: {}", loginDto.getFirebaseToken());
+        log.info("fireBaseToken: {}", signUp.getFirebaseToken());
 
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + loginDto.getKakaoAccessToken());
+        httpHeaders.add("Authorization", "Bearer " + signUp.getKakaoAccessToken());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(httpHeaders);
 
@@ -123,13 +126,13 @@ public class SignUpController {
                 policyTermsCheck.policyTermsSave(policyTerms);
 
 
-                Member member = Member.builder().dateOfBirth(loginDto.getDateOfBirth())
+                Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
                         .signUpDate(LocalDateTime.now())
-                        .firebaseToken(loginDto.getFirebaseToken())
-                        .nickname(loginDto.getNickName())
+                        .firebaseToken(signUp.getFirebaseToken())
+                        .nickname(signUp.getNickname())
                         .policyTermsId(policyTerms)
                         .email(email)
-                        .osType(loginDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
+                        .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
                         .refreshToken("Dummy").build();
 
                 String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6)); //약 6개월 기간의 refreshToken create
@@ -137,22 +140,24 @@ public class SignUpController {
                 member.setRefreshToken(refreshToken);
                 log.info("refreshToken : {}",refreshToken);
 
-                signUp.saveMember(member);
+                this.signUp.saveMember(member);
 
                 String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1)); //AccessToken generate
                 log.info("accessToken : {}",accessToken);
 
-                return new ResponseEntity<>(UserInfoDto.builder()
+                return ResponseEntity.ok().body(
+                        AccountDto.SignUpResponse.builder()
                         .email(member.getEmail())
-                        .nickName(member.getNickname())
-                        .tokenDto(TokenDto.builder().accessToken(accessToken).refreshToken(refreshToken).build())
-                        .build(), HttpStatus.OK);
+                        .nickname(member.getNickname())
+                        .tokenDto(AuthenticationDto.TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build())
+                        .build()
+                );
             }
 
         } catch (HttpClientErrorException e) {
             log.error("access token err : {}", e.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().build();
     }
 
     public Boolean existedNickname(String nickname){

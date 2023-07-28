@@ -1,10 +1,8 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.*;
-import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
-import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
+import com.dorandoran.doranserver.dto.CommentDto;
+import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.*;
-import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
@@ -12,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -52,15 +52,16 @@ public class CommentController {
         log.info("글쓴이 email : {}", post.getMemberId().getEmail());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         List<Comment> comments = commentService.findNextComments(postId, commentId);
-        List<CommentDetailDto> commentDetailDtoList = makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember);
+        List<CommentDto.ReadCommentResponse> commentDetailDtoList = makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember);
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
 
 
     @PostMapping("/comment")
-    ResponseEntity<?> comment(@RequestBody CommentDto commentDto) {
-        Member member = memberService.findByEmail(commentDto.getEmail());
+    ResponseEntity<?> comment(@RequestBody CommentDto.CreateComment createCommentDto,
+                              @AuthenticationPrincipal UserDetails userDetails) {
+        Member member = memberService.findByEmail(userDetails.getUsername());
 
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
@@ -70,19 +71,19 @@ public class CommentController {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
-        Post post = postService.findSinglePost(commentDto.getPostId());
+        Post post = postService.findSinglePost(createCommentDto.getPostId());
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(post);
         Long nextIndex = anonymityMembers.size() + 1L;
 
-        log.info("사용자 {}의 댓글 작성", commentDto.getEmail());
+        log.info("사용자 {}의 댓글 작성", userDetails.getUsername());
         Comment comment = Comment.builder()
-                .comment(commentDto.getComment())
+                .comment(createCommentDto.getComment())
                 .commentTime(LocalDateTime.now())
                 .postId(post)
                 .memberId(member)
-                .anonymity(commentDto.getAnonymity())
+                .anonymity(createCommentDto.getAnonymity())
                 .checkDelete(Boolean.FALSE)
-                .secretMode(commentDto.getSecretMode())
+                .secretMode(createCommentDto.getSecretMode())
                 .isLocked(Boolean.FALSE)
                 .build();
         commentService.saveComment(comment);
@@ -92,15 +93,15 @@ public class CommentController {
         }
 
         //인기 있는 글 생성
-        Post singlePost = postService.findSinglePost(commentDto.getPostId());
+        Post singlePost = postService.findSinglePost(createCommentDto.getPostId());
         List<Comment> commentByPost = commentService.findCommentByPost(singlePost);
         if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost).size() == 0) {
             PopularPost build = PopularPost.builder().postId(singlePost).build();
             popularPostService.savePopularPost(build);
         }
 
-        if (commentDto.getAnonymity().equals(Boolean.TRUE)) {
-            if (anonymityMembers.contains(commentDto.getEmail())) {
+        if (createCommentDto.getAnonymity().equals(Boolean.TRUE)) {
+            if (anonymityMembers.contains(userDetails.getUsername())) {
                 log.info("이미 익명 테이블에 저장된 사용자입니다.");
             } else {
                 AnonymityMember anonymityMember = AnonymityMember.builder()
@@ -119,9 +120,10 @@ public class CommentController {
 
     @DeleteMapping("/comment")
     @Transactional
-    public ResponseEntity<?> deleteComment(@RequestBody CommentDeleteDto commentDeleteDto){
+    public ResponseEntity<?> deleteComment(@RequestBody CommentDto.DeleteComment commentDeleteDto,
+                                           @AuthenticationPrincipal UserDetails userDetails){
         Optional<Comment> comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
-        if (comment.get().getMemberId().getEmail().equals(commentDeleteDto.getUserEmail())) {
+        if (comment.get().getMemberId().getEmail().equals(userDetails.getUsername())) {
             //댓글 checkDelete 삭제로 표시
             comment.get().setCheckDelete(Boolean.TRUE);
             log.info("댓글 숨김 처리");
@@ -133,10 +135,12 @@ public class CommentController {
         }
     }
 
+
     @PostMapping("/comment/like")
-    ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
+    ResponseEntity<?> commentLike(@RequestBody CommentDto.LikeComment commentLikeDto,
+                                  @AuthenticationPrincipal UserDetails userDetails) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
-        Member member = memberService.findByEmail(commentLikeDto.getUserEmail());
+        Member member = memberService.findByEmail(userDetails.getUsername());
 
         if (comment.get().getMemberId().equals(member)){
             return new ResponseEntity<>("자신의 댓글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
@@ -144,7 +148,7 @@ public class CommentController {
 
         List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
         for (CommentLike commentLike : commentLikeList) {
-            if (commentLike.getMemberId().getEmail().equals(commentLikeDto.getUserEmail())) {
+            if (commentLike.getMemberId().getEmail().equals(userDetails.getUsername())) {
                 commentLikeService.deleteCommentLike(commentLike);
                 log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId().getCommentId());
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -173,18 +177,18 @@ public class CommentController {
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
         List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-        List<ReplyDetailDto> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
 
         return ResponseEntity.ok().body(replyDetailDtoList);
     }
 
     @Transactional
     @PostMapping("/reply")
-    public ResponseEntity<?> reply(@RequestBody ReplyDto replyDto) {
+    public ResponseEntity<?> reply(@RequestBody ReplyDto.CreateReply replyDto,
+                                   @AuthenticationPrincipal UserDetails userDetails) {
+        Member member = memberService.findByEmail(userDetails.getUsername());
         Comment comment = commentService.findCommentByCommentId(replyDto.getCommentId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
-        Member member = memberService.findByEmail(replyDto.getUserEmail());
-
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
@@ -209,6 +213,7 @@ public class CommentController {
                 .isLocked(Boolean.FALSE)
                 .build();
 
+
         replyService.saveReply(buildReply);
 
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
@@ -219,7 +224,7 @@ public class CommentController {
         }
 
         if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
-            if (anonymityMembers.contains(replyDto.getUserEmail())) {
+            if (anonymityMembers.contains(userDetails.getUsername())) {
                 log.info("이미 익명 테이블에 저장된 사용자입니다.");
             } else {
                 AnonymityMember anonymityMember = AnonymityMember.builder()
@@ -230,15 +235,18 @@ public class CommentController {
                 anonymityMemberService.save(anonymityMember);
                 log.info("익명 테이블에 저장");
             }
+
+
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/reply")
     @Transactional
-    public ResponseEntity<?> replyDelete(@RequestBody ReplyDeleteDto replyDeleteDto){
+    public ResponseEntity<?> replyDelete(@RequestBody ReplyDto.DeleteReply replyDeleteDto,
+                                         @AuthenticationPrincipal UserDetails userDetails){
         Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId()).orElseThrow(() -> new CannotFindReplyException("에러 발생"));
-        if (reply.getMemberId().getEmail().equals(replyDeleteDto.getUserEmail())){
+        if (reply.getMemberId().getEmail().equals(userDetails.getUsername())){
             //대댓글 checkDelete 삭제로 표시
             reply.setCheckDelete(Boolean.TRUE);
             log.info("대댓글 숨김 처리");
@@ -250,8 +258,8 @@ public class CommentController {
         }
     }
 
-    private List<CommentDetailDto> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<MemberBlockList> memberBlockListByBlockingMember) {
-        List<CommentDetailDto> commentDetailDtoList = new ArrayList<>();
+    private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<MemberBlockList> memberBlockListByBlockingMember) {
+        List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
 
         if (comments.size() != 0) {
             for (Comment comment : comments) {
@@ -259,7 +267,7 @@ public class CommentController {
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
                 List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-                List<ReplyDetailDto> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
+                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
                 Collections.reverse(replyDetailDtoList);
 
                 //댓글 10개 저장 로직
@@ -271,7 +279,7 @@ public class CommentController {
         return commentDetailDtoList;
     }
 
-    private void makeCommentList(String userEmail, Post post, List<String> anonymityMemberList, List<CommentDetailDto> commentDetailDtoList, Comment comment, List<ReplyDetailDto> replyDetailDtoList) {
+    private void makeCommentList(String userEmail, Post post, List<String> anonymityMemberList, List<CommentDto.ReadCommentResponse> commentDetailDtoList, Comment comment, List<ReplyDto.ReadReplyResponse> replyDetailDtoList) {
         Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
         Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
         Boolean isCommentWrittenByMember = Boolean.FALSE;
@@ -279,7 +287,7 @@ public class CommentController {
             isCommentWrittenByMember = Boolean.TRUE;
         }
 
-        CommentDetailDto commentDetailDto = CommentDetailDto.builder()
+        CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
                 .comment(comment)
                 .content(comment.getComment())
                 .commentLikeResult(commentLikeResult)
@@ -292,15 +300,15 @@ public class CommentController {
         commentDetailDtoList.add(commentDetailDto);
     }
 
-    private List<ReplyDetailDto> makeReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Reply> replies) {
-        List<ReplyDetailDto> replyDetailDtoList = new ArrayList<>();
+    private List<ReplyDto.ReadReplyResponse> makeReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Reply> replies) {
+        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
         log.info("대댓글 로직 실행");
         for (Reply reply : replies) {
             Boolean isReplyWrittenByUser = Boolean.FALSE;
             if (commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
                 isReplyWrittenByUser = Boolean.TRUE;
             }
-            ReplyDetailDto replyDetailDto = ReplyDetailDto.builder()
+            ReplyDto.ReadReplyResponse replyDetailDto = ReplyDto.ReadReplyResponse.builder()
                     .reply(reply)
                     .content(reply.getReply())
                     .isWrittenByMember(isReplyWrittenByUser)

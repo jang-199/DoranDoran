@@ -1,11 +1,12 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +40,15 @@ public class RetrievePostController {
     private final BlockMemberFilter blockMemberFilter;
 
     @GetMapping("/post")
-    ResponseEntity<ArrayList<PostResponseDto>> retrievePost(@RequestParam String userEmail,
-                                                            @RequestParam Long postCnt,
-                                                            @RequestParam String location,
+    ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
+                                                            @RequestParam(required = false, defaultValue = "") String location,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
+        String userEmail = userDetails.getUsername();
         log.info("getAuthorities : {}",userDetails.getAuthorities());
         log.info("getUsername : {}",userDetails.getUsername());
 
-        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
-        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
+        ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList = new ArrayList<>();
+        RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder = RetrievePostDto.ReadPostResponse.builder();
 
         Member member = memberService.findByEmail(userDetails.getUsername());
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
@@ -63,14 +64,14 @@ public class RetrievePostController {
         }
     }
 
-    private ResponseEntity<ArrayList<PostResponseDto>> makePostResponseList(Member member,
-                                                                            String userEmail,
-                                                   ArrayList<PostResponseDto> postResponseDtoList,
-                                                   PostResponseDto.PostResponseDtoBuilder builder,
-                                                   List<Post> postList,
-                                                   String location) {
+    private ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> makePostResponseList(Member member,
+                                                                                             String userEmail,
+                                                                                             ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList,
+                                                                                             RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder,
+                                                                                             List<Post> postList,
+                                                                                             String location) {
         for (Post post : postList) {
-            if (!post.getMemberId().equals(member) && post.getForMe()==true) {
+            if (!post.getMemberId().equals(member) && post.getForMe()) {
                 continue;
             }
             Integer lIkeCnt = postLikeService.findLIkeCnt(post);
@@ -84,7 +85,7 @@ public class RetrievePostController {
                         .postId(post.getPostId())
                         .contents(post.getContent())
                         .postTime(post.getPostTime())
-                        .ReplyCnt(commentCntByPostId)
+                        .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt);
             } else {
                 String[] userLocation = location.split(",");
@@ -98,7 +99,7 @@ public class RetrievePostController {
                         .contents(post.getContent())
                         .postTime(post.getPostTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
-                        .ReplyCnt(commentCntByPostId)
+                        .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())

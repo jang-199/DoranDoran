@@ -1,11 +1,12 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.PostResponseDto;
+import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
+import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,16 +40,16 @@ public class RetrieveClosePostController {
     String ipAddress;
 
     @GetMapping("/post/close")
-    ResponseEntity<ArrayList<PostResponseDto>> retrievePost(@RequestParam String userEmail,
-                                                            @RequestParam Long postCnt,
-                                                            @RequestParam String location,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+    ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
+                                                                             @RequestParam(required = false, defaultValue = "") String location,
+                                                                             @AuthenticationPrincipal UserDetails userDetails) {
 
+        String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userDetails.getUsername());
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         log.info(location);
-        ArrayList<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList = new ArrayList<>();
         String[] split = location.split(",");
         double Slat = Double.parseDouble(split[0])-0.1;
         log.info("{}",Slat);
@@ -59,7 +60,7 @@ public class RetrieveClosePostController {
         double Llon = Double.parseDouble(split[1])+0.1;
         log.info("{}",Llon);
 
-        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder();
+        RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder = RetrievePostDto.ReadPostResponse.builder();
         if (postCnt == 0) {
             List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
             List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
@@ -72,7 +73,7 @@ public class RetrieveClosePostController {
         return ResponseEntity.ok().body(postResponseDtoList);
     }
 
-    private void makeClosePostResponseList(Member member, String userEmail, ArrayList<PostResponseDto> postResponseDtoList, String[] split, PostResponseDto.PostResponseDtoBuilder builder, List<Post> firstPost) {
+    private void makeClosePostResponseList(Member member, String userEmail, ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList, String[] split, RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder, List<Post> firstPost) {
         firstPost.iterator().forEachRemaining(e->{
             if (!e.getMemberId().equals(member) && e.getForMe() == true) {
                 return;
@@ -94,7 +95,7 @@ public class RetrieveClosePostController {
                     .location(distance.intValue())
                     .likeCnt(lIkeCnt)
                     .likeResult(likeResult)
-                    .ReplyCnt(commentAndReplyCntByPostId)
+                    .replyCnt(commentAndReplyCntByPostId)
                     .font(e.getFont())
                     .fontColor(e.getFontColor())
                     .fontSize(e.getFontSize())

@@ -18,6 +18,9 @@ public class PostLike {
     @Column(name = "POST_LIKE_ID")
     private Long postLikeId;
 
+    @Column(name = "CHECK_DELETE")
+    private Boolean checkDelete;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;

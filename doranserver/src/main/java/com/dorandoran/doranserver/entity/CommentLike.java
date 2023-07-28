@@ -18,6 +18,9 @@ public class CommentLike {
     @Column(name = "COMMENT_LIKE_ID")
     private Long commentLikeId;
 
+    @Column(name = "CHECK_DELETE")
+    private Boolean checkDelete;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;

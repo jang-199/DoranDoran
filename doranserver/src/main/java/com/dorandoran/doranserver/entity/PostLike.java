@@ -28,4 +28,12 @@ public class PostLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;
+
+    public void delete(){
+        this.checkDelete = Boolean.TRUE;
+    }
+
+    public void restore(){
+        this.checkDelete = Boolean.FALSE;
+    }
 }

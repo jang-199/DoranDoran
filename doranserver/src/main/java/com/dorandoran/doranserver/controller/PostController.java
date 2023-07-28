@@ -253,26 +253,13 @@ public class PostController {
                                @AuthenticationPrincipal UserDetails userDetails) {
         Post post = postService.findSinglePost(postLikeDto.getPostId());
         Member member = memberService.findByEmail(userDetails.getUsername());
-        List<PostLike> byMemberId = postLikeService.findByMemberId(userDetails.getUsername());
+        Optional<PostLike> postLike = postLikeService.findLikeOne(userDetails.getUsername(), post);
 
         if (post.getMemberId().equals(member)){
             return ResponseEntity.badRequest().body("자신의 글에 추천은 불가능합니다.");
         }
 
-        for (PostLike postLike : byMemberId) {
-            if ((postLike.getPostId().getPostId()).equals(postLikeDto.getPostId())) {
-                postLikeService.deletePostLike(postLike);
-                log.info("{} 글의 공감 취소", postLikeDto.getPostId());
-                return ResponseEntity.ok().build();
-            }
-        }
-        log.info("{}번 글 좋아요", postLikeDto.getPostId());
-        PostLike postLike = PostLike.builder()
-                .postId(post)
-                .memberId(member)
-                .build();
-        postLikeService.savePostLike(postLike);
-        firebaseService.notifyPostLike(post.getMemberId(), post);
+        postLikeService.checkPostLike(postLikeDto, userDetails, post, member, postLike);
 
         return ResponseEntity.ok().build();
     }

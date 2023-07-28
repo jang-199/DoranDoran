@@ -17,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Timed
@@ -139,28 +136,16 @@ public class CommentController {
     @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentDto.LikeComment commentLikeDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
-        Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
+        Comment comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId())
+                .orElseThrow(() -> new NoSuchElementException("해당 댓글이 존재하지 않습니다."));
         Member member = memberService.findByEmail(userDetails.getUsername());
+        Optional<CommentLike> commentLike = commentLikeService.findCommentLikeOne(userDetails.getUsername(), comment);
 
-        if (comment.get().getMemberId().equals(member)){
+        if (comment.getMemberId().equals(member)){
             return new ResponseEntity<>("자신의 댓글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
         }
 
-        List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
-        for (CommentLike commentLike : commentLikeList) {
-            if (commentLike.getMemberId().getEmail().equals(userDetails.getUsername())) {
-                commentLikeService.deleteCommentLike(commentLike);
-                log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.getCommentId().getCommentId());
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-        }
-        CommentLike commentLikeBuild = CommentLike.builder()
-                .commentId(comment.get())
-                .memberId(member)
-                .build();
-        commentLikeService.saveCommentLike(commentLikeBuild);
-        log.info("{} 글의 {} 댓글 공감", commentLikeDto.getPostId(), comment.get().getCommentId());
-        firebaseService.notifyCommentLike(comment.get().getMemberId(), comment.get());
+        commentLikeService.checkCommentLike(commentLikeDto, userDetails, comment, member, commentLike);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

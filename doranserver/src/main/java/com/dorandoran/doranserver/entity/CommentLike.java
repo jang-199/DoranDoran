@@ -28,4 +28,12 @@ public class CommentLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;
+
+    public void delete(){
+        this.checkDelete = Boolean.TRUE;
+    }
+
+    public void restore(){
+        this.checkDelete = Boolean.FALSE;
+    }
 }

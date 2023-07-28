@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.entity.ReportPost;
 import com.dorandoran.doranserver.repository.ReportPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReportPostServiceImpl implements ReportPostService {
     private final ReportPostRepository reportPostRepository;
+    private final ReportCommonService reportCommonService;
 
     @Override
     public void saveReportPost(ReportPost reportPost) {
@@ -26,6 +28,16 @@ public class ReportPostServiceImpl implements ReportPostService {
             return Boolean.TRUE;
         }else {
             return Boolean.FALSE;
+        }
+    }
+
+    @Override
+    @Transactional
+    public void postBlockLogic(Post post) {
+        post.addReportCount();
+        if (post.getReportCount() == 7 && post.getIsLocked() == Boolean.FALSE) {
+            post.setLocked();
+            reportCommonService.memberLockLogic(post.getMemberId());
         }
     }
 }

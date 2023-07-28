@@ -53,12 +53,4 @@ public class NotificationDto {
             this.notificationType = notificationHistory.getNotificationType();
         }
     }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class notification{
-        Long notificationId;
-    }
 }

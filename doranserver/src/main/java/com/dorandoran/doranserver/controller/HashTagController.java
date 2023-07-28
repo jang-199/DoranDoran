@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class HashTagController {
-    private final TokenProvider tokenProvider;
     private final HashTagService hashTagService;
     private final MemberService memberService;
     private final MemberHashService memberHashService;
@@ -55,54 +54,7 @@ public class HashTagController {
         return ResponseEntity.ok().body(hashTagResponseDtos);
     }
 
-    @PostMapping("/hashTag")
-    public ResponseEntity<?> saveHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
-                                         @AuthenticationPrincipal UserDetails userDetails){
-        String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail);
-        List<String> hashTagList = hashTagRequestDto.getHashTagList();
-        List<HashTag> findHashTagList = hashTagService.findByHashTagNameList(hashTagList);
-        List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
-        if (hashTagList.size() != 0) {
-            for (HashTag hashTag : findHashTagList) {
-                if (memberHashes.contains(hashTag.getHashTagName())){
-                    log.info("\"{}\" 해시태그는 이미 즐겨찾기 목록에 있습니다.",hashTag.getHashTagName());
-                }
-                else {
-                    MemberHash memberHashBuild = MemberHash.builder()
-                            .member(member)
-                            .hashTagId(hashTag)
-                            .build();
-                    memberHashService.saveMemberHash(memberHashBuild);
-                    log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 추가하였습니다.", userEmail, hashTag.getHashTagName());
-                }
-            }
-        }
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-
-    @DeleteMapping("/hashTag")
-    public ResponseEntity<?> deleteHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
-                                           @AuthenticationPrincipal UserDetails userDetails){
-        String userEmail = userDetails.getUsername();
-        List<String> hashTagList = hashTagRequestDto.getHashTagList();
-        if (hashTagList.size() != 0) {
-            for (String hashTag : hashTagList) {
-                Optional<MemberHash> memberHash = memberHashService.findMemberHashByEmailAndHashTag(userEmail, hashTag);
-                if (memberHash.isEmpty()) {
-                    log.info("즐겨찾기된 해시태그가 없습니다.");
-                } else {
-                    memberHashService.deleteMemberHash(memberHash.get());
-                    log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 삭제하였습니다.",userEmail, hashTag);
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/hashTag-popular")
+    @GetMapping("/hashTag/popular")
     public ResponseEntity<?> popularHashTag(){
         List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
         if (hashTag.size() == 0){
@@ -116,7 +68,7 @@ public class HashTagController {
         }
     }
 
-    @GetMapping("/hashTag-member")
+    @GetMapping("/hashTag/member")
     public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         List<String> memberHash = memberHashService.findHashByEmail(userEmail);
@@ -127,5 +79,40 @@ public class HashTagController {
             log.info("{}의 관심 있는 태그 검색",userEmail);
             return ResponseEntity.ok().body(hashTagList);
         }
+    }
+
+    @PostMapping("/hashTag/member")
+    public ResponseEntity<?> saveHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
+                                         @AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail);
+        HashTag hashTag = hashTagService.findByHashTagName(hashTagRequestDto.getHashTag());
+        List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
+        if (memberHashes.contains(hashTagRequestDto.getHashTag())){
+            log.info("\"{}\" 해시태그는 이미 즐겨찾기 목록에 있습니다.",hashTagRequestDto.getHashTag());
+        }
+        else {
+            MemberHash memberHashBuild = MemberHash.builder()
+                    .member(member)
+                    .hashTagId(hashTag)
+                    .build();
+            memberHashService.saveMemberHash(memberHashBuild);
+            log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 추가하였습니다.", userEmail, hashTagRequestDto.getHashTag());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/hashTag/member")
+    public ResponseEntity<?> deleteHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
+                                           @AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        Optional<MemberHash> memberHash = memberHashService.findMemberHashByEmailAndHashTag(userEmail, hashTagRequestDto.getHashTag());
+        if (memberHash.isEmpty()) {
+            log.info("즐겨찾기된 해시태그가 없습니다.");
+        } else {
+            memberHashService.deleteMemberHash(memberHash.get());
+            log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 삭제하였습니다.",userEmail, hashTagRequestDto.getHashTag());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

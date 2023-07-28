@@ -9,7 +9,7 @@ import java.util.List;
 public interface FirebaseService {
     void notifyComment(Member member, Comment content);
 
-    void notifyReply(List<Member> memberList, Reply reply, Member writeMember);
+    void notifyReply(List<Member> memberList, Reply reply);
 
     void notifyPostLike(Member member, Post post);
 

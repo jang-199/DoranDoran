@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.dto.postDetail.CommentDetailDto;
 import com.dorandoran.doranserver.dto.postDetail.ReplyDetailDto;
 import com.dorandoran.doranserver.entity.*;
+import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.exception.CannotFindReplyException;
 import com.dorandoran.doranserver.service.*;
 import io.micrometer.core.annotation.Timed;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Timed
 @Controller
@@ -115,7 +117,7 @@ public class CommentController {
     }
 
 
-    @PostMapping("/comment-delete")
+    @DeleteMapping("/comment")
     @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDeleteDto commentDeleteDto){
         Optional<Comment> comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
@@ -131,10 +133,14 @@ public class CommentController {
         }
     }
 
-    @PostMapping("/comment-like")
+    @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Member member = memberService.findByEmail(commentLikeDto.getUserEmail());
+
+        if (comment.get().getMemberId().equals(member)){
+            return new ResponseEntity<>("자신의 댓글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
+        }
 
         List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
         for (CommentLike commentLike : commentLikeList) {
@@ -207,8 +213,9 @@ public class CommentController {
 
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
         replyMemberList.add(comment.getMemberId());
-        if (replyMemberList.size() != 1) {
-            firebaseService.notifyReply(replyMemberList, buildReply, member);
+        List<Member> fcmMemberList = checkMyComment(replyMemberList, member);
+        if (fcmMemberList.size() != 0) {
+            firebaseService.notifyReply(fcmMemberList, buildReply);
         }
 
         if (replyDto.getAnonymity().equals(Boolean.TRUE)) {
@@ -225,10 +232,9 @@ public class CommentController {
             }
         }
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
 
-    @PostMapping("/reply-delete")
+    @DeleteMapping("/reply")
     @Transactional
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDeleteDto replyDeleteDto){
         Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId()).orElseThrow(() -> new CannotFindReplyException("에러 발생"));
@@ -306,4 +312,10 @@ public class CommentController {
         return replyDetailDtoList;
     }
 
+    private static List<Member> checkMyComment(List<Member> memberList, Member writeMember) {
+        return memberList.stream()
+                .distinct()
+                .filter((member) -> !member.equals(writeMember))
+                .collect(Collectors.toList());
+    }
 }

@@ -5,6 +5,8 @@ import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.ReportPost;
 
 public interface ReportPostService {
-    public void saveReportPost(ReportPost reportPost);
-    public Boolean existReportPost(Post post, Member member);
+    void saveReportPost(ReportPost reportPost);
+    Boolean existReportPost(Post post, Member member);
+    void postBlockLogic(Post post);
+
 }

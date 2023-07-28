@@ -73,7 +73,7 @@ public class BackgroundPicDBInitializer {
                     .policyTermsId(build)
                     .email(i + "@gmail.com")
                     .dateOfBirth(LocalDate.now())
-                    .firebaseToken("firebasetoken")
+                    .firebaseToken("cekww1BXT4GCJM8cvkw45v:APA91bEJ0Z_iZXwKoIjIxLvb9X4g9AOCBpsLtjujy5jlmRZsboFVx6TM0Av9ChDNivcuY_zhREf_ClAN4BIr2qPXMNQctwqtVmRzpadv6fwbdoHwoNZf7numWEFYzYrltOVHnNmJBUZc")
                     .nickname("nickname" + i)
                     .closureDate(LocalDate.of(2000,12,12))
                     .signUpDate(LocalDateTime.now())
@@ -175,8 +175,8 @@ public class BackgroundPicDBInitializer {
             for (int a = 0; a <= random.nextInt(2); a++) {
 
                 int a1 = random.nextInt(15);
-                log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)).get());
-                HashTag hashTag = hashTagService.findByHashTagName(tagList.get(a + a1)).get();
+                log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)));
+                HashTag hashTag = hashTagService.findByHashTagName(tagList.get(a + a1));
                 hashTag.setHashTagCount(hashTag.getHashTagCount()+1L);
                 hashTagService.saveHashTag(hashTag);
                 postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTag).build());

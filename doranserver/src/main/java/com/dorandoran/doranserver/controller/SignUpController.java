@@ -39,7 +39,7 @@ public class SignUpController {
     private final TokenProvider tokenProvider;
 
 
-    @PostMapping("/check-nickname")
+    @PostMapping("/nickname")
     ResponseEntity<?> CheckNickname(@RequestBody NicknameDto nicknameDto) {
 
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
@@ -74,7 +74,7 @@ public class SignUpController {
     }
 
     @Transactional
-    @PatchMapping("/change/nickname")
+    @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody ChangeNicknameDto changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();

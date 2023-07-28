@@ -41,7 +41,6 @@ public class ReportController {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final LockMemberService lockMemberService;
-    private final FirebaseService firebaseService;
 
     @PostMapping("/post/report")
     public ResponseEntity<?> saveReportPost(@RequestBody ReportPostRequestDto reportPostRequestDto,

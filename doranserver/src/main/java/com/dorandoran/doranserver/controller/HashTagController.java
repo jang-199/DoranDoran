@@ -54,7 +54,34 @@ public class HashTagController {
         return ResponseEntity.ok().body(hashTagResponseDtos);
     }
 
-    @PostMapping("/hashTag")
+    @GetMapping("/hashTag/popular")
+    public ResponseEntity<?> popularHashTag(){
+        List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
+        if (hashTag.size() == 0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            List<HashTagPopularDto> hashTagList = hashTag.stream()
+                    .map(h -> new HashTagPopularDto(h))
+                    .collect(Collectors.toList());
+            log.info("인기 있는 태그 검색");
+            return ResponseEntity.ok().body(hashTagList);
+        }
+    }
+
+    @GetMapping("/hashTag/member")
+    public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        List<String> memberHash = memberHashService.findHashByEmail(userEmail);
+        if (memberHash.size() == 0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            HashTagListDto hashTagList = HashTagListDto.builder().hashTagList(memberHash).build();
+            log.info("{}의 관심 있는 태그 검색",userEmail);
+            return ResponseEntity.ok().body(hashTagList);
+        }
+    }
+
+    @PostMapping("/hashTag/member")
     public ResponseEntity<?> saveHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
@@ -75,8 +102,7 @@ public class HashTagController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-    @DeleteMapping("/hashTag")
+    @DeleteMapping("/hashTag/member")
     public ResponseEntity<?> deleteHashTag(@RequestBody HashTagRequestDto hashTagRequestDto,
                                            @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
@@ -88,32 +114,5 @@ public class HashTagController {
             log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 삭제하였습니다.",userEmail, hashTagRequestDto.getHashTag());
         }
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/hashTag-popular")
-    public ResponseEntity<?> popularHashTag(){
-        List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
-        if (hashTag.size() == 0){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            List<HashTagPopularDto> hashTagList = hashTag.stream()
-                    .map(h -> new HashTagPopularDto(h))
-                    .collect(Collectors.toList());
-            log.info("인기 있는 태그 검색");
-            return ResponseEntity.ok().body(hashTagList);
-        }
-    }
-
-    @GetMapping("/hashTag-member")
-    public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
-        String userEmail = userDetails.getUsername();
-        List<String> memberHash = memberHashService.findHashByEmail(userEmail);
-        if (memberHash.size() == 0){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            HashTagListDto hashTagList = HashTagListDto.builder().hashTagList(memberHash).build();
-            log.info("{}의 관심 있는 태그 검색",userEmail);
-            return ResponseEntity.ok().body(hashTagList);
-        }
     }
 }

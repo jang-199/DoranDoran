@@ -167,7 +167,7 @@ public class PostController {
      * @return Ok
      */
     @Transactional
-    @PostMapping("/post-delete")
+    @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDeleteDto postDeleteDto) throws IOException {
         Post post = postService.findSinglePost(postDeleteDto.getPostId());
         List<Comment> commentList = commentService.findCommentByPost(post);
@@ -244,7 +244,7 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/post-like")
+    @PostMapping("/post/like")
     ResponseEntity<?> postLike(@RequestBody PostLikeDto postLikeDto) {
         Post post = postService.findSinglePost(postLikeDto.getPostId());
         Member member = memberService.findByEmail(postLikeDto.getEmail());

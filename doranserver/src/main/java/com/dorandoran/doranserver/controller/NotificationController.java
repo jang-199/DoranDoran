@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 public class NotificationController {
     private final MemberService memberService;
     private final NotificationHistoryService notificationHistoryService;
-    private final CommentService commentService;
-    private final ReplyService replyService;
     @GetMapping("/notification/{notCnt}")
     ResponseEntity<List<NotificationDto.notificationResponse>> retrieveNotification(@PathVariable Long notCnt,
                                                                                     @AuthenticationPrincipal UserDetails userDetails){
@@ -48,21 +46,22 @@ public class NotificationController {
         return ResponseEntity.ok().body(notificationResponse);
     }
 
-    @GetMapping("/notification/{notificationId}/read")
+    @GetMapping("/notification/{notificationId}/detail")
     ResponseEntity<NotificationDto.notificationReadResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
         NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
         NotificationDto.notificationReadResponse notificationReadResponse = notificationHistoryService.readNotification(notification);
         return ResponseEntity.ok().body(notificationReadResponse);
     }
 
-    @DeleteMapping("/notification")
+    @DeleteMapping("/notification/{notificationId}")
     ResponseEntity<String> deleteNotification(@RequestBody NotificationDto.notification notificationRequest){
         NotificationHistory notification = notificationHistoryService.
                 findNotificationById(notificationRequest.getNotificationId());
         notificationHistoryService.deleteNotification(notification);
         return ResponseEntity.ok().body("해당 알람이 삭제되었습니다.");
     }
-    @DeleteMapping("/notification/member")
+
+    @DeleteMapping("/notification")
     ResponseEntity<String> deleteNotificationByMember(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);

@@ -117,7 +117,7 @@ public class CommentController {
     }
 
 
-    @PostMapping("/comment-delete")
+    @DeleteMapping("/comment")
     @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDeleteDto commentDeleteDto){
         Optional<Comment> comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
@@ -133,7 +133,7 @@ public class CommentController {
         }
     }
 
-    @PostMapping("/comment-like")
+    @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentLikeDto commentLikeDto) {
         Optional<Comment> comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Member member = memberService.findByEmail(commentLikeDto.getUserEmail());
@@ -234,7 +234,7 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/reply-delete")
+    @DeleteMapping("/reply")
     @Transactional
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDeleteDto replyDeleteDto){
         Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId()).orElseThrow(() -> new CannotFindReplyException("에러 발생"));

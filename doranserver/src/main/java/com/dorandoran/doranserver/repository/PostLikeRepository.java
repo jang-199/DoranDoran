@@ -13,9 +13,9 @@ import java.util.Optional;
 
 public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
 
-    List<PostLike> findByPostId(Post post);
+    @Query("select pl from PostLike pl where pl.postId = :post and pl.checkDelete = false")
+    List<PostLike> findByPostId(@Param("post") Post post);
     List<PostLike> findByMemberId_Email(String email);
-    List<PostLike> findByMemberId(Member member);
     @Query("select p from PostLike p " +
             "inner join Member m on m.memberId=p.memberId.memberId " +
             "where m.email=:email and p.postId=:postId")

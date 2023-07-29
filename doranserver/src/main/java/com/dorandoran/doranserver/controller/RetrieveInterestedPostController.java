@@ -70,6 +70,7 @@ public class RetrieveInterestedPostController {
                                         : ipAddress + ":8080/api/userpic/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
                         )
                         .location(null)
+                        .isWrittenByMember(optionalPostHash.get().getPostId().getMemberId().getEmail().equals(userDetails.getUsername()) ? Boolean.TRUE : Boolean.FALSE)
                         .font(optionalPostHash.get().getPostId().getFont())
                         .fontSize(optionalPostHash.get().getPostId().getFontSize())
                         .likeResult(postLikeService.findLikeResult(userDetails.getUsername(),optionalPostHash.get().getPostId()))

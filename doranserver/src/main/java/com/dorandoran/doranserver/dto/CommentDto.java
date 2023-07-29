@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.dto;
 import com.dorandoran.doranserver.entity.Comment;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ public class CommentDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreateComment {
         private Long postId;
         private String comment;
@@ -29,6 +31,7 @@ public class CommentDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadCommentResponse{
         private Long commentId; //댓글 pk값
         private String comment; //댓글 내용
@@ -61,6 +64,7 @@ public class CommentDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class DeleteComment{
         private Long commentId;
 
@@ -72,6 +76,7 @@ public class CommentDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class LikeComment{
         private Long postId;
         private Long commentId;

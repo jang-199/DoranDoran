@@ -38,6 +38,7 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
     private final PopularPostRepository popularPostRepository;
     private final AnonymityMemberRepository anonymityMemberRepository;
     private final MemberRepository memberRepository;
+    private final ReportPostRepository reportPostRepository;
 
     @Override
     public Optional<AccountClosureMember> findClosureMemberByEmail(String email) {
@@ -61,7 +62,7 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                 .filter(ac->ac.getClosureMemberId().getClosureDate().plusDays(7).isBefore(now))
                 .forEach(ac-> {
 
-                    Member member = ac.getClosureMemberId(); //ToDo delete
+                    Member member = ac.getClosureMemberId();
 
                     List<MemberHash> memberHashList = memberHashService.findHashByMember(member);
                     memberHashRepository.deleteAll(memberHashList);
@@ -135,9 +136,8 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                         List<AnonymityMember> anonymityMemberList = anonymityMemberRepository.findAllByPost(post);
                         anonymityMemberRepository.deleteAll(anonymityMemberList);
 
-
-
-                        //Todo 신고된 글 삭제 구현 예정
+                        List<ReportPost> allByPostId = reportPostRepository.findAllByPostId(post);
+                        reportPostRepository.deleteAll(allByPostId);
                     });
                     postRepository.deleteAll(postList);
 

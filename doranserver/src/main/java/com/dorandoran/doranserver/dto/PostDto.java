@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +13,7 @@ public class PostDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreatePost{
         private String content;
         private Boolean forMe;
@@ -43,6 +45,7 @@ public class PostDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class DeletePost{
         private Long postId;
 
@@ -54,6 +57,7 @@ public class PostDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class LikePost{
         private Long postId;
 
@@ -65,6 +69,7 @@ public class PostDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadPost {
         private Long postId;
         private String location;
@@ -78,6 +83,7 @@ public class PostDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadPostResponse {
         private String content;
         private LocalDateTime postTime;

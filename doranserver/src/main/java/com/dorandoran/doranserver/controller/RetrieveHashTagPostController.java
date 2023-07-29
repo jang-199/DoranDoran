@@ -85,6 +85,7 @@ public class RetrieveHashTagPostController {
             Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
             if (encodeLocation.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
+                        .isWrittenByMember(post.getMemberId().getEmail().equals(encodeEmail) ? Boolean.TRUE : Boolean.FALSE)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())

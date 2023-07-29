@@ -147,6 +147,10 @@ public class CommentController {
 
         commentLikeService.checkCommentLike(commentLikeDto, userDetails, comment, member, commentLike);
 
+        if (commentLike.isEmpty()) {
+            firebaseService.notifyCommentLike(comment.getMemberId(), comment);
+        }
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -19,7 +19,6 @@ import java.util.Optional;
 @Slf4j
 public class CommentLikeServiceImpl implements CommentLikeService{
     private final CommentLikeRepository commentLikeRepository;
-    private final FirebaseService firebaseService;
 
     @Override
     public Integer findCommentLikeCnt(Comment comment) {
@@ -64,7 +63,7 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     @Override
     @Transactional
     public void checkCommentLike(CommentDto.LikeComment commentLikeDto, UserDetails userDetails, Comment comment, Member member, Optional<CommentLike> commentLike) {
-        if (findCommentLikeResult(userDetails.getUsername(), comment)){
+        if (commentLike.isPresent()){
             if (commentLike.get().getCheckDelete().equals(Boolean.TRUE)){
                 commentLike.get().restore();
             }else {
@@ -75,9 +74,9 @@ public class CommentLikeServiceImpl implements CommentLikeService{
             CommentLike commentLikeBuild = CommentLike.builder()
                     .commentId(comment)
                     .memberId(member)
+                    .checkDelete(Boolean.FALSE)
                     .build();
             saveCommentLike(commentLikeBuild);
-            firebaseService.notifyCommentLike(comment.getMemberId(), comment);
         }
     }
 }

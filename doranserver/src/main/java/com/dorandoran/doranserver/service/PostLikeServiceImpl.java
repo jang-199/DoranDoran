@@ -21,7 +21,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostLikeServiceImpl implements PostLikeService {
     private final PostLikeRepository postLikeRepository;
-    private final FirebaseService firebaseService;
 
     @Override
     public void savePostLike(PostLike postLike) {
@@ -79,7 +78,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     @Transactional
     public void checkPostLike(PostDto.LikePost postLikeDto, UserDetails userDetails, Post post, Member member, Optional<PostLike> postLike) {
-        if (findLikeResult(userDetails.getUsername(), post)){
+        if (postLike.isPresent()){
             if (postLike.get().getCheckDelete().equals(Boolean.TRUE)){
                 postLike.get().restore();
             }else {
@@ -90,9 +89,9 @@ public class PostLikeServiceImpl implements PostLikeService {
             PostLike postLikeBuild = PostLike.builder()
                     .postId(post)
                     .memberId(member)
+                    .checkDelete(Boolean.FALSE)
                     .build();
             savePostLike(postLikeBuild);
-            firebaseService.notifyPostLike(post.getMemberId(), post);
         }
     }
 

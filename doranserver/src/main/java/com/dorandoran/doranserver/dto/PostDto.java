@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,6 +55,7 @@ public class PostDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class LikePost{
         private Long postId;
 

@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentLikeRepository extends JpaRepository<CommentLike,Long> {
-    @Query("select cl from CommentLike cl where cl.commentId = :comment and cl.checkDelete = false")
     List<CommentLike> findCommentLikeByCommentId(@Param("comment") Comment comment);
+    @Query("select cl from CommentLike cl where cl.commentId = :comment and cl.checkDelete = false")
+    List<CommentLike> findUnDeletedByCommentId(@Param("comment") Comment comment);
     List<CommentLike> findByCommentId(Comment comment);
     @Query("select cl from CommentLike cl where cl.memberId.email = :userEmail and cl.commentId = :commentId")
     Optional<CommentLike> findCommentLikeResult(@Param("userEmail") String userEmail,@Param("commentId") Comment commentId);

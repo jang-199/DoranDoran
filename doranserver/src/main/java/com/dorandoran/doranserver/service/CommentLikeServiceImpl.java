@@ -23,7 +23,7 @@ public class CommentLikeServiceImpl implements CommentLikeService{
 
     @Override
     public Integer findCommentLikeCnt(Comment comment) {
-        List<CommentLike> commentLikeByCommentId = commentLikeRepository.findCommentLikeByCommentId(comment);
+        List<CommentLike> commentLikeByCommentId = commentLikeRepository.findUnDeletedByCommentId(comment);
         return commentLikeByCommentId.size();
     }
 

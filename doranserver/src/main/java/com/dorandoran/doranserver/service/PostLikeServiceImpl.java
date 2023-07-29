@@ -30,7 +30,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     public Integer findLIkeCnt(Post post) {
-        List<PostLike> byPostId = postLikeRepository.findByPostId(post);
+        List<PostLike> byPostId = postLikeRepository.findUnDeletedByPost(post);
         return byPostId.size();
     }
 

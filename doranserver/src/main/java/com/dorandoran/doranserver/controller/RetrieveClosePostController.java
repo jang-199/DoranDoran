@@ -90,6 +90,7 @@ public class RetrieveClosePostController {
                     e.getLongitude());
 
             builder.postId(e.getPostId())
+                    .isWrittenByMember(e.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                     .contents(e.getContent())
                     .postTime(e.getPostTime())
                     .location(distance.intValue())

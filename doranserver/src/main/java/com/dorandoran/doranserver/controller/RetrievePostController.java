@@ -79,6 +79,7 @@ public class RetrievePostController {
             if (location.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
                         .font(post.getFont())
+                        .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
                         .fontBold(post.getFontBold())

@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.dto;
 import com.dorandoran.doranserver.entity.Reply;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 public class ReplyDto {
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreateReply{
         private Long commentId;
         private String reply;
@@ -27,6 +29,7 @@ public class ReplyDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadReplyResponse{
         Long replyId;
         String replyNickname;
@@ -49,6 +52,7 @@ public class ReplyDto {
     }
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class DeleteReply{
         private Long replyId;
 

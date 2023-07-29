@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 public class RetrieveHashtagDto {
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadHashtag{
         private String hashtagName;
         private Long postCnt;
@@ -24,6 +26,7 @@ public class RetrieveHashtagDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadHashtagResponse{
         private Long postId;
         private String contents;
@@ -37,9 +40,10 @@ public class RetrieveHashtagDto {
         private String fontColor;
         private Integer fontSize;
         private Integer fontBold;
+        private Boolean isWrittenByMember;
 
         @Builder
-        public ReadHashtagResponse(Long postId, String contents, LocalDateTime postTime, Integer location, Integer likeCnt, Boolean likeResult, Integer replyCnt, String backgroundPicUri, String font, String fontColor, Integer fontSize, Integer fontBold) {
+        public ReadHashtagResponse(Long postId, String contents, LocalDateTime postTime, Integer location, Integer likeCnt, Boolean likeResult, Integer replyCnt, String backgroundPicUri, String font, String fontColor, Integer fontSize, Integer fontBold, Boolean isWrittenByMember) {
             this.postId = postId;
             this.contents = contents;
             this.postTime = postTime;
@@ -52,6 +56,7 @@ public class RetrieveHashtagDto {
             this.fontColor = fontColor;
             this.fontSize = fontSize;
             this.fontBold = fontBold;
+            this.isWrittenByMember = isWrittenByMember;
         }
     }
 }

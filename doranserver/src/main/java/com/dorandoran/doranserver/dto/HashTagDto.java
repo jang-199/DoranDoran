@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.dto;
 import com.dorandoran.doranserver.entity.HashTag;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 public class HashTagDto {
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreateHashTag{
         private String hashTag;
 
@@ -21,6 +23,7 @@ public class HashTagDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class DeleteHashTag{
         private String hashTag;
 
@@ -32,6 +35,7 @@ public class HashTagDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadHashtagResponse{
         String hashTagName;
         Long hashTagCount;
@@ -47,6 +51,7 @@ public class HashTagDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadPopularHashTagResponse {
         private String hashTagName;
         private Long hashTagCount;
@@ -60,6 +65,7 @@ public class HashTagDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadMemberHashTagResponse{
         private List<String> hashTagList;
 

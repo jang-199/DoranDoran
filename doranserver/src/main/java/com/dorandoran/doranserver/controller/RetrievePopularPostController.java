@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Timed
 @Slf4j
 @RequiredArgsConstructor
@@ -82,6 +83,7 @@ public class RetrievePopularPostController {
             if (location.isBlank() || popularPost.getPostId().getLongitude() == null || popularPost.getPostId().getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
                 builder.location(null)
                         .font(popularPost.getPostId().getFont())
+                        .isWrittenByMember(popularPost.getPostId().getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                         .fontColor(popularPost.getPostId().getFontColor())
                         .fontSize(popularPost.getPostId().getFontSize())
                         .fontBold(popularPost.getPostId().getFontBold())

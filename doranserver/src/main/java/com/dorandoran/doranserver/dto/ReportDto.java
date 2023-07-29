@@ -2,12 +2,14 @@ package com.dorandoran.doranserver.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class ReportDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreateReportPost {
         private Long postId;
         private String reportContent;
@@ -21,6 +23,7 @@ public class ReportDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreateReportComment{
         Long commentId;
         String reportContent;
@@ -34,6 +37,7 @@ public class ReportDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CreateReportReply{
         Long replyId;
         String reportContent;

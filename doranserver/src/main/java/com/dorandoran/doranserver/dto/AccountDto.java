@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.entity.osType.OsType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -13,6 +14,7 @@ public class AccountDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CheckNickname{
         private String nickname;
 
@@ -24,6 +26,7 @@ public class AccountDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CheckRegisteredMember{
         String email;
         OsType osType;
@@ -37,6 +40,7 @@ public class AccountDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class CheckRegisteredMemberResponse{
         private String email;
         private String nickname;
@@ -52,6 +56,7 @@ public class AccountDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ChangeNickname{
         private String nickname;
 
@@ -63,6 +68,7 @@ public class AccountDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class SignUp{
         @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -84,6 +90,7 @@ public class AccountDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class SignUpResponse{
         private String email;
         private String nickname;

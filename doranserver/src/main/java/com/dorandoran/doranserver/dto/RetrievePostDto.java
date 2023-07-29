@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 public class RetrievePostDto {
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ReadPostResponse{
         private Long postId;
         private String contents;
@@ -22,9 +24,10 @@ public class RetrievePostDto {
         private String fontColor;
         private Integer fontSize;
         private Integer fontBold;
+        private Boolean isWrittenByMember;
 
         @Builder
-        public ReadPostResponse(Long postId, String contents, LocalDateTime postTime, Integer location, Integer likeCnt, Boolean likeResult, Integer replyCnt, String backgroundPicUri, String font, String fontColor, Integer fontSize, Integer fontBold) {
+        public ReadPostResponse(Long postId, String contents, LocalDateTime postTime, Integer location, Integer likeCnt, Boolean likeResult, Integer replyCnt, String backgroundPicUri, String font, String fontColor, Integer fontSize, Integer fontBold, Boolean isWrittenByMember) {
             this.postId = postId;
             this.contents = contents;
             this.postTime = postTime;
@@ -37,6 +40,7 @@ public class RetrievePostDto {
             this.fontColor = fontColor;
             this.fontSize = fontSize;
             this.fontBold = fontBold;
+            this.isWrittenByMember = isWrittenByMember;
         }
     }
 }

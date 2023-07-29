@@ -129,9 +129,9 @@ public class BackgroundPicDBInitializer {
             }
             postService.savePost(post); //글 50개 생성
 
-            //popular에 데이터 추가하고 테스트 진행
+/*            //popular에 데이터 추가하고 테스트 진행
             PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i)).build();
-            postLikeService.savePostLike(buildPostLike);
+            postLikeService.savePostLike(buildPostLike);*/
 
             Comment comment = Comment.builder()
                     .comment("나는" + i + "야 반가워")

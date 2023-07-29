@@ -50,18 +50,16 @@ public class NotificationController {
     }
 
     @DeleteMapping("/notification/{notificationId}")
-    ResponseEntity<String> deleteNotification(@RequestBody NotificationDto.notification notificationRequest){
-        NotificationHistory notification = notificationHistoryService.
-                findNotificationById(notificationRequest.getNotificationId());
-        notificationHistoryService.deleteNotification(notification);
-        return ResponseEntity.ok().body("해당 알람이 삭제되었습니다.");
-    }
-
-    @DeleteMapping("/notification")
-    ResponseEntity<String> deleteNotificationByMember(@AuthenticationPrincipal UserDetails userDetails){
-        String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userEmail);
-        notificationHistoryService.deleteNotificationByMember(member);
-        return ResponseEntity.ok().body("해당 사용자의 모든 알람 삭제가 완료되었습니다.");
+    ResponseEntity<String> deleteNotification(@PathVariable Long notificationId,
+                                              @AuthenticationPrincipal UserDetails userDetails){
+        if (notificationId == 0){
+            Member member = memberService.findByEmail(userDetails.getUsername());
+            notificationHistoryService.deleteNotificationByMember(member);
+            return ResponseEntity.ok().body("해당 사용자의 모든 알람 삭제가 완료되었습니다.");
+        }else {
+            NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
+            notificationHistoryService.deleteNotification(notification);
+            return ResponseEntity.ok().body("해당 알람이 삭제되었습니다.");
+        }
     }
 }

@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentLikeRepository extends JpaRepository<CommentLike,Long> {
-    List<CommentLike> findCommentLikeByCommentId(Comment comment);
+    List<CommentLike> findCommentLikeByCommentId(@Param("comment") Comment comment);
+    @Query("select cl from CommentLike cl where cl.commentId = :comment and cl.checkDelete = false")
+    List<CommentLike> findUnDeletedByCommentId(@Param("comment") Comment comment);
     List<CommentLike> findByCommentId(Comment comment);
-    List<CommentLike> findByMemberId_Email(String userEmail);
     @Query("select cl from CommentLike cl where cl.memberId.email = :userEmail and cl.commentId = :commentId")
     Optional<CommentLike> findCommentLikeResult(@Param("userEmail") String userEmail,@Param("commentId") Comment commentId);
     @Query("select cl from CommentLike cl where cl.memberId = :member")

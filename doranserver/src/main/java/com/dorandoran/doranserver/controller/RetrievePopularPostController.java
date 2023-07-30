@@ -114,10 +114,10 @@ public class RetrievePopularPostController {
 
             if (popularPost.getPostId().getSwitchPic() == ImgType.UserUpload) {
                 String[] split = popularPost.getPostId().getImgName().split("[.]");
-                builder.backgroundPicUri(ipAddress + ":8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
             } else {
                 String[] split = popularPost.getPostId().getImgName().split("[.]");
-                builder.backgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
+                builder.backgroundPicUri(ipAddress + ":8080/api/pic/default/" + split[0]);
             }
 
             builder.likeResult(postLikeService.findLikeResult(userEmail, popularPost.getPostId()));

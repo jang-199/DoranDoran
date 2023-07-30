@@ -105,10 +105,10 @@ public class RetrieveClosePostController {
 
             if (e.getSwitchPic() == ImgType.UserUpload) {
                 String[] split1 = e.getImgName().split("[.]");
-                builder.backgroundPicUri(ipAddress + ":8080/api/userpic/" + split1[0]);
+                builder.backgroundPicUri(ipAddress + ":8080/api/pic/member/" + split1[0]);
             } else {
                 String[] split1 = e.getImgName().split("[.]");
-                builder.backgroundPicUri(ipAddress + ":8080/api/background/" + split1[0]);
+                builder.backgroundPicUri(ipAddress + ":8080/api/pic/default/" + split1[0]);
             }
             postResponseDtoList.add(builder.build());
         });

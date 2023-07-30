@@ -42,7 +42,8 @@ public class CommentController {
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
                                             @RequestParam("commentId") Long commentId,
-                                            @RequestParam("userEmail") String userEmail) {
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        String userEmail = userDetails.getUsername();
         Post post = postService.findSinglePost(postId);
         Member member = memberService.findByEmail(userEmail);
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
@@ -158,7 +159,8 @@ public class CommentController {
     public ResponseEntity<?> inquiryReply(@RequestParam("postId") Long postId,
                                           @RequestParam("commentId") Long commentId,
                                           @RequestParam("replyId") Long replyId,
-                                          @RequestParam("userEmail") String userEmail){
+                                          @AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
         Post post = postService.findSinglePost(postId);
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);

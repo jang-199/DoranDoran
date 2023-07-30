@@ -5,6 +5,7 @@ import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,12 +28,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
 
         httpSecurity.authorizeHttpRequests(request->request
-                .requestMatchers("/api/check-nickname").permitAll()
-                .requestMatchers("/api/check/registered").permitAll()
-                .requestMatchers("/api/signup").permitAll()
+                .requestMatchers(HttpMethod.POST,"/api/nickname").permitAll()
+                .requestMatchers("/api/registered").permitAll()
+                .requestMatchers("/api/member").permitAll()
                 .requestMatchers("/api/token").permitAll()
-                .requestMatchers("/api/background/**").permitAll()
-                .requestMatchers("/api/userpic/**").permitAll()
+                .requestMatchers("/api/pic/default/**").permitAll()
+                .requestMatchers("/api/pic/member/**").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .requestMatchers("/admin/**").permitAll()
                 .anyRequest().permitAll());

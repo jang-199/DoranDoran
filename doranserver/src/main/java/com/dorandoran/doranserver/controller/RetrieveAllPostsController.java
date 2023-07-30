@@ -60,8 +60,8 @@ public class RetrieveAllPostsController {
                     .replyCnt(null)
                     .backgroundPicUri(
                             post.getSwitchPic() == ImgType.DefaultBackground
-                                    ? ipAddress + ":8080/api/userpic/" + split[0]
-                                    : ipAddress + ":8080/api/background/" + split[0])
+                                    ? ipAddress + ":8080/api/pic/member/" + split[0]
+                                    : ipAddress + ":8080/api/pic/default/" + split[0])
                     .font(post.getFont())
                     .fontColor(post.getFontColor())
                     .fontSize(post.getFontSize())

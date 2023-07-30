@@ -117,9 +117,9 @@ public class RetrieveHashTagPostController {
 
             String[] split = post.getImgName().split("[.]");
             if (post.getSwitchPic() == ImgType.UserUpload) {
-                builder.backgroundPicUri(ipAddress + ":8080/api/userpic/" + split[0]);
+                builder.backgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
             } else {
-                builder.backgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
+                builder.backgroundPicUri(ipAddress + ":8080/api/pic/default/" + split[0]);
             }
 
             builder.likeResult(postLikeService.findLikeResult(encodeEmail, post));

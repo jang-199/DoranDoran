@@ -376,9 +376,9 @@ public class PostController {
         //배경사진 builder
         String[] split = post.getImgName().split("[.]");
         if (post.getSwitchPic().equals(ImgType.DefaultBackground)) {
-            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/background/" + split[0]);
+            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/pic/default/" + split[0]);
         } else {
-            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/userpic/" + split[0]);
+            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
         }
 
         return ResponseEntity.ok().body(postDetailDto);

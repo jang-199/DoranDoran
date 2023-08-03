@@ -49,6 +49,7 @@ public class TokenProvider {
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
                 .setSubject(user.getNickname())
+                .claim("ROLE","ROLE_USER")
                 .claim("email",user.getEmail())
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
                 .compact();
@@ -61,6 +62,7 @@ public class TokenProvider {
                     .parseClaimsJws(jwtToken);//복호화
             return true;
         } catch (Exception e) {
+            log.info(e.getMessage());
             return false;
         }
     }
@@ -91,7 +93,29 @@ public class TokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
+        switch (claims.get("ROLE").toString()) {
+            case "ROLE_USER" -> {
+                log.info("user입니다");
+                return getUserAuthentication(token);
+            }
+            case "ROLE_ADMIN" -> {
+                return getAdminAuthentication(token);
+            }
+            default -> {
+                throw new RuntimeException("토큰의 role을 확인할 수 없습니다.");
+            }
+        }
+    }
+
+    public Authentication getUserAuthentication(String token) {
+        Claims claims = getClaims(token);
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return new UsernamePasswordAuthenticationToken(new User(claims.get("email",String.class), "", authorities), token, authorities);
+    }
+
+    public Authentication getAdminAuthentication(String token) {
+        Claims claims = getClaims(token);
+        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return new UsernamePasswordAuthenticationToken(new User(claims.get("email",String.class), "", authorities), token, authorities);
     }
 

@@ -2,6 +2,7 @@
 
 package com.dorandoran.doranserver.config.Initializer;
 
+import com.dorandoran.doranserver.dto.Jackson2JsonRedisDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.entity.osType.OsType;
@@ -9,14 +10,14 @@ import com.dorandoran.doranserver.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -53,9 +54,11 @@ public class BackgroundPicDBInitializer {
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
+    @Autowired
+    private RedisTemplate<String, Jackson2JsonRedisDto> redisTemplate;
 
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
 
         List<String> tagList = List.of("고민", "연애", "10대", "20대", "30대", "40대", "50대", "친구", "남사친", "여사친", "일상", "대화", "짝사랑", "학교", "출근", "ootd");
         tagList.iterator().forEachRemaining(t->hashTagService.saveHashTag(HashTag.builder().hashTagName(t).hashTagCount(0L).build()));
@@ -182,6 +185,11 @@ public class BackgroundPicDBInitializer {
                 postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTag).build());
 
             }
+        }
+
+        for (int i = 1; i < 101; i++) {
+            redisTemplate.opsForValue().set(String.valueOf(i), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:/Users/jw1010110/DoranDoranPic/BackgroundPic/"+i+".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
+            //1.jpg
         }
 
 

@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/pic/default/**").permitAll()
                 .requestMatchers("/api/pic/member/**").permitAll()
                 .requestMatchers("/api/**").hasAnyRole("USER","ADMIN")
-                .requestMatchers("/admin/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll());
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("/api/**"))
         );
 
+
         return httpSecurity.build();
     }
 
@@ -64,7 +65,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
 
 

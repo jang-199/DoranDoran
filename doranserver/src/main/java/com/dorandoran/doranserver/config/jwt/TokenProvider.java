@@ -116,7 +116,7 @@ public class TokenProvider {
     public Authentication getAdminAuthentication(String token) {
         Claims claims = getClaims(token);
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        return new UsernamePasswordAuthenticationToken(new User(claims.get("email",String.class), "", authorities), token, authorities);
+        return new UsernamePasswordAuthenticationToken(new User(claims.getSubject(), "", authorities), token, authorities);
     }
 
     public String getUserEmail(String token) {

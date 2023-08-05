@@ -25,10 +25,13 @@ public class AccountClosureController {
     private final AccountClosureMemberService accountClosureMemberService;
 
     @DeleteMapping("/member")
-    public ResponseEntity.BodyBuilder deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
         Member member = memberService.findByEmail(username);
+        if (!member.isEmptyClosureDate()) {
+            return ResponseEntity.badRequest().body("이미 탈퇴 예정인 회원입니다.");
+        }
 
         member.setAccountClosureRequestTime();
 
@@ -37,6 +40,6 @@ public class AccountClosureController {
         AccountClosureMember build = AccountClosureMember.builder().closureMemberId(member).build();
         accountClosureMemberService.saveClosureMember(build);
 
-        return ResponseEntity.ok();
+        return ResponseEntity.ok().build();
     }
 }

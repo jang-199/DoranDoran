@@ -63,6 +63,9 @@ public class Member implements UserDetails {
         this.closureDate = LocalDate.now();
     }
 
+    public Boolean isEmptyClosureDate() {
+        return closureDate==null ? Boolean.TRUE : Boolean.FALSE;
+    }
     public void addTotalReportTime(){
         this.totalReportTime += 1;
     }

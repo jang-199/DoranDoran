@@ -13,6 +13,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -65,30 +66,30 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                     Member member = ac.getClosureMemberId();
 
                     List<MemberHash> memberHashList = memberHashService.findHashByMember(member);
-                    memberHashRepository.deleteAll(memberHashList);
+                    memberHashRepository.deleteAllInBatch(memberHashList);
 
                     List<PostLike> postLikeList = postLikeService.findByMemberId(member.getEmail());
-                    postLikeRepository.deleteAll(postLikeList);
+                    postLikeRepository.deleteAllInBatch(postLikeList);
 
 
 
                     List<Reply> replyList = replyRepository.findAllByMember(member);
-                    replyRepository.deleteAll(replyList);
+                    replyRepository.deleteAllInBatch(replyList);
 
                     List<Comment> commentList = commentRepository.findAllByMember(member);
-                    commentRepository.deleteAll(commentList);
+                    commentRepository.deleteAllInBatch(commentList);
 
 
 
                     List<CommentLike> commentLikeList = commentLikeRepository.findAllByMember(member);
-                    commentLikeRepository.deleteAll(commentLikeList);
+                    commentLikeRepository.deleteAllInBatch(commentLikeList);
 
                     List<Post> postList = postRepository.findAllByMember(member);
 
                     postList.forEach(post -> {
                         List<PostHash> postHashList = postHashRepository.findPostHashByPostId(post);
 
-                        postHashRepository.deleteAll(postHashList);
+                        postHashRepository.deleteAllInBatch(postHashList);
 
                         postHashList.stream().filter(postHash -> postHash.getHashTagId().getHashTagCount() >= 1)
                                 .forEach(postHash -> {
@@ -96,13 +97,14 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                                     hashTagService.saveHashTag(postHash.getHashTagId());
                                 });
 
-                        postHashList.stream().filter(postHash -> postHash.getHashTagId().getHashTagCount() <= 0)
-                                .forEach(postHash -> hashTagRepository.delete(postHash.getHashTagId()));
-
+                        List<HashTag> hashTagList = postHashList.stream().map(PostHash::getHashTagId)
+                                .filter(hashTagId -> hashTagId.getHashTagCount() <= 0).toList();
+//                                .forEach(postHash -> hashTagRepository.delete(postHash.getHashTagId()));
+                        hashTagRepository.deleteAllInBatch(hashTagList);
 
 
                         List<PopularPost> popularPostList = popularPostRepository.findByPostId(post);
-                        popularPostRepository.deleteAll(popularPostList);
+                        popularPostRepository.deleteAllInBatch(popularPostList);
 
                         File userUploadPIc = new File(userUploadPicServerPath + post.getImgName());
                         if(userUploadPIc.exists()){
@@ -122,24 +124,24 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                         commentListByPost.forEach(comment -> {
                             List<Reply> replyListByComment = replyRepository.findAllByComment(comment);
-                            replyRepository.deleteAll(replyListByComment);
+                            replyRepository.deleteAllInBatch(replyListByComment);
                             List<CommentLike> commentLikeListByComment = commentLikeRepository.findAllByComment(comment);
-                            commentLikeRepository.deleteAll(commentLikeListByComment);
+                            commentLikeRepository.deleteAllInBatch(commentLikeListByComment);
                         });
 
-                        commentRepository.deleteAll(commentListByPost);
+                        commentRepository.deleteAllInBatch(commentListByPost);
 
 
                         List<PostLike> postLIkeListByPost = postLikeRepository.findByPostId(post);
-                        postLikeRepository.deleteAll(postLIkeListByPost);
+                        postLikeRepository.deleteAllInBatch(postLIkeListByPost);
 
                         List<AnonymityMember> anonymityMemberList = anonymityMemberRepository.findAllByPost(post);
-                        anonymityMemberRepository.deleteAll(anonymityMemberList);
+                        anonymityMemberRepository.deleteAllInBatch(anonymityMemberList);
 
                         List<ReportPost> allByPostId = reportPostRepository.findAllByPostId(post);
-                        reportPostRepository.deleteAll(allByPostId);
+                        reportPostRepository.deleteAllInBatch(allByPostId);
                     });
-                    postRepository.deleteAll(postList);
+                    postRepository.deleteAllInBatch(postList);
 
                     accountClosureMemberRepository.delete(ac);
 

@@ -48,7 +48,8 @@ public class CommentLikeServiceImpl implements CommentLikeService{
 
     @Override
     public Boolean findCommentLikeResult(String userEmail, Comment commentId) {
-        if(commentLikeRepository.findCommentLikeResult(userEmail,commentId).isPresent()){
+        Optional<CommentLike> commentLikeResult = commentLikeRepository.findCommentLikeResult(userEmail, commentId);
+        if(commentLikeResult.isPresent() && commentLikeResult.get().getCheckDelete().equals(Boolean.FALSE)){
             return Boolean.TRUE;
         }else {
             return Boolean.FALSE;

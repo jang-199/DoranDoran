@@ -37,10 +37,10 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public Boolean findLikeResult(String email, Post postId) {
         Optional<PostLike> likeResult = postLikeRepository.findLikeResult(email, postId);
-        if (likeResult.isPresent()) {
-            return true;
+        if (likeResult.isPresent() && likeResult.get().getCheckDelete().equals(Boolean.FALSE)) {
+            return Boolean.TRUE;
         }else {
-            return false;
+            return Boolean.FALSE;
         }
     }
 

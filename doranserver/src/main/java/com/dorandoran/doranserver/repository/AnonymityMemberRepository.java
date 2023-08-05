@@ -17,7 +17,7 @@ public interface AnonymityMemberRepository extends JpaRepository<AnonymityMember
     @Query("select a from AnonymityMember a where a.postId = :post")
     List<AnonymityMember> findAllByPost(@Param("post") Post post);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("delete from AnonymityMember a where a.postId = :post")
     void deleteByPostId(@Param("post") Post post);
 }

@@ -20,7 +20,7 @@ public class PostDto {
         private String location;
         private String backgroundImgName;
         private List<String> hashTagName;
-        private MultipartFile file;
+//        private MultipartFile file;
         private Boolean anonymity;
         private String font;
         private String fontColor;
@@ -34,7 +34,7 @@ public class PostDto {
             this.location = location;
             this.backgroundImgName = backgroundImgName;
             this.hashTagName = hashTagName;
-            this.file = file;
+//            this.file = file;
             this.anonymity = anonymity;
             this.font = font;
             this.fontColor = fontColor;

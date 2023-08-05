@@ -62,7 +62,7 @@ public class TokenProvider {
                     .parseClaimsJws(jwtToken);//복호화
             return true;
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.info("validToken : {}",e.getMessage());
             return false;
         }
     }

@@ -34,7 +34,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/token").permitAll()
                 .requestMatchers("/api/pic/default/**").permitAll()
                 .requestMatchers("/api/pic/member/**").permitAll()
-                .requestMatchers("**/actuator/prometheus/**").permitAll()
                 .requestMatchers("/api/**").hasAnyRole("USER","ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll());

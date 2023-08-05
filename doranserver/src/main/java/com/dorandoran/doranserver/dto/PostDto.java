@@ -4,8 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.core.serializer.Serializer;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,13 +16,13 @@ public class PostDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class CreatePost{
+    public static class CreatePost {
         private String content;
         private Boolean forMe;
         private String location;
         private String backgroundImgName;
         private List<String> hashTagName;
-//        private MultipartFile file;
+        private MultipartFile file;
         private Boolean anonymity;
         private String font;
         private String fontColor;
@@ -34,7 +36,7 @@ public class PostDto {
             this.location = location;
             this.backgroundImgName = backgroundImgName;
             this.hashTagName = hashTagName;
-//            this.file = file;
+            this.file = file;
             this.anonymity = anonymity;
             this.font = font;
             this.fontColor = fontColor;

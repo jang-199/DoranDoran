@@ -24,15 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
         String token = getToken(authorization);
-        log.info("doFilterInternal");
-        log.info("getAuthType: {}",request.getAuthType());
-        log.info("getPathInfo: {}",request.getPathInfo());
-        log.info("getMethod: {}",request.getMethod());
-        log.info("getServletPath: {}",request.getServletPath());
-        log.info("getLocalAddr: {}",request.getLocalAddr());
-        log.info("getRemoteAddr: {}",request.getRemoteAddr());
-        log.info("getProtocol: {}",request.getProtocol());
-        log.info("getProtocolRequestId: {}",request.getProtocolRequestId());
 
         if (tokenProvider.validToken(token)) {
             Authentication authentication = tokenProvider.getAuthentication(token);

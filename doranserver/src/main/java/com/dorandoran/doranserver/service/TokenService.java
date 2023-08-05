@@ -3,10 +3,12 @@ package com.dorandoran.doranserver.service;
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.entity.Member;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Period;
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {
@@ -14,6 +16,7 @@ public class TokenService {
     private final MemberServiceImpl memberService;
 
     public String createNewAccessToken(String refreshToken) {
+        log.info("createNewAccessToken");
         if (!tokenProvider.validToken(refreshToken)) {
             throw new IllegalArgumentException("Unexpected RefreshToken");
         }
@@ -23,6 +26,7 @@ public class TokenService {
     }
 
     public String createNewRefreshToken(String refreshToken) {
+        log.info("createNewRefreshToken");
         if (!tokenProvider.validToken(refreshToken)) {
             throw new IllegalArgumentException("Unexpected RefreshToken");
         }

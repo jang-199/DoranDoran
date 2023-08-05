@@ -25,7 +25,7 @@ public class AuthenticationController {
     //Todo 리프레시 토큰과 엑세스 토큰을 받아 엑세스 토큰이 만료되었고 리프레시 토큰이 유효하면 새로운 엑세스 토큰 발급 메서드 (이때 리프레시 토큰이 x기간 이하로 남았으면 리프레시 토큰도 새로 발급)
     @PatchMapping("/token")
     ResponseEntity<?> tokenCheck(@RequestBody AuthenticationDto.TokenResponse tokenDto) {
-
+        log.info("tokenCheck api 호출");
         AuthenticationDto.TokenResponse.TokenResponseBuilder builder = AuthenticationDto.TokenResponse.builder();
 
         if (!tokenProvider.validToken(tokenDto.getAccessToken()) && !tokenProvider.validToken(tokenDto.getRefreshToken())) { //Access & Refresh 유효 x

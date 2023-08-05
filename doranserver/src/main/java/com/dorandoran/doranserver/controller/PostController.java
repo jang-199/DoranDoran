@@ -96,7 +96,7 @@ public class PostController {
         }
 
         //파일 처리
-        if (!postDto.getFile().isEmpty() && postDto.getBackgroundImgName().isBlank()) {
+        if (postDto.getBackgroundImgName().isBlank()) {
             log.info("사진 생성 중");
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);

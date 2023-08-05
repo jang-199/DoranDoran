@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +59,7 @@ public class PostController {
 
     @Transactional
     @PostMapping("/post")
-    ResponseEntity<?> Post(@RequestPart PostDto.CreatePost postDto,
-                           @RequestPart MultipartFile file,
+    ResponseEntity<?> Post(PostDto.CreatePost postDto,
                            @AuthenticationPrincipal UserDetails userDetails) {
         Member member = memberService.findByEmail(userDetails.getUsername());
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
@@ -98,13 +96,13 @@ public class PostController {
         }
 
         //파일 처리
-        if (!file.isEmpty()) {
+        if (postDto.getBackgroundImgName().isBlank()) {
             log.info("사진 생성 중");
-            String fileName = file.getOriginalFilename();
+            String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
             try {
-                file.transferTo(new File(userUploadPicServerPath + userUploadImgName));
+                postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
             }catch (IOException e){
                 log.info("IO Exception 발생",e);
                 return ResponseEntity.badRequest().build();

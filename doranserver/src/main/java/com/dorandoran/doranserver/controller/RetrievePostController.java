@@ -37,7 +37,7 @@ public class RetrievePostController {
     private final DistanceService distanceService;
     private final MemberBlockListService memberBlockListService;
     private final MemberService memberService;
-    private final BlockMemberFilter blockMemberFilter;
+//    private final BlockMemberFilter blockMemberFilter;
 
     @GetMapping("/post")
     ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
@@ -54,13 +54,13 @@ public class RetrievePostController {
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         if (postCnt == 0) { //first find
-            List<Post> firstPost = postService.findFirstPost();
-            List<Post> postFilter = blockMemberFilter.postFilter(postService,firstPost, memberBlockListByBlockingMember);
-            return makePostResponseList(member, userEmail, postResponseDtoList, builder, postFilter, location);
+            List<Post> firstPost = postService.findFirstPost(memberBlockListByBlockingMember);
+//            List<Post> postFilter = blockMemberFilter.postFilter(postService,firstPost, memberBlockListByBlockingMember);
+            return makePostResponseList(member, userEmail, postResponseDtoList, builder, firstPost, location);
         } else {
-            List<Post> postList = postService.findPost(postCnt);
-            List<Post> postFilter = blockMemberFilter.postFilter(postService,postList, memberBlockListByBlockingMember);
-            return makePostResponseList(member, userEmail, postResponseDtoList, builder, postFilter, location);
+            List<Post> postList = postService.findPost(postCnt,memberBlockListByBlockingMember);
+//            List<Post> postFilter = blockMemberFilter.postFilter(postService,postList, memberBlockListByBlockingMember);
+            return makePostResponseList(member, userEmail, postResponseDtoList, builder, postList, location);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +21,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstPost() {
+    public List<Post> findFirstPost(List<MemberBlockList> memberBlockLists) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findFirstPost(of);
+        return postRepository.findFirstPost(of,memberBlockLists);
     }
 
     @Override
-    public List<Post> findPost(Long startPost) {
+    public List<Post> findPost(Long startPost,List<MemberBlockList> memberBlockLists) {
 //        return postRepository.findPost(startPost-19L, startPost);
-        return postRepository.findPost(startPost, PageRequest.of(0, 20));
+        return postRepository.findPost(startPost, PageRequest.of(0, 20),memberBlockLists);
     }
 
     @Override

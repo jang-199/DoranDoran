@@ -46,8 +46,8 @@ public class RetrieveInterestedPostController {
         List<MemberHash> hashByMember = memberHashService.findHashByMember(byEmail); //즐겨찾기한 해시태그 리스트(맴버해시)
         log.info("{}",hashByMember);
         List<HashTag> hashTagList = hashByMember.stream() //맴버해시에서 해시태그 id 추출
-                .map(m -> m.getHashTagId())
-                .collect(Collectors.toList());
+                .map(MemberHash::getHashTagId)
+                .toList();
 
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(byEmail);
 
@@ -61,7 +61,7 @@ public class RetrieveInterestedPostController {
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
             if (optionalPostHash.isPresent()) {
-                if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==true) {
+                if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==Boolean.TRUE) {
                     continue;
                 }
                 RetrieveInterestedDto.ReadInterestedResponse responseDto = RetrieveInterestedDto.ReadInterestedResponse.builder()

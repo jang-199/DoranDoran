@@ -75,7 +75,7 @@ public class RetrieveClosePostController {
 
     private void makeClosePostResponseList(Member member, String userEmail, ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList, String[] split, RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder, List<Post> firstPost) {
         firstPost.iterator().forEachRemaining(e->{
-            if (!e.getMemberId().equals(member) && e.getForMe() == true) {
+            if (!e.getMemberId().equals(member) && e.getForMe() == Boolean.TRUE) {
                 return;
             }
             Integer lIkeCnt = postLikeService.findLIkeCnt(e);

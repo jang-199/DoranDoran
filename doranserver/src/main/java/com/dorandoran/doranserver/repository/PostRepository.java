@@ -17,12 +17,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select m from Post m " +
             "where m.isLocked = false and m.memberId Not in :memberBlockLists " +
             "order by m.postId desc")
-    List<Post> findFirstPost(PageRequest pageRequest, @Param("memberBlockLists") List<MemberBlockList> memberBlockLists);
+    List<Post> findFirstPostWithoutBlockLists(PageRequest pageRequest, @Param("memberBlockLists") List<Member> memberBlockLists);
+    @Query("select m from Post m " +
+            "where m.isLocked = false " +
+            "order by m.postId desc")
+    List<Post> findFirstPost(PageRequest pageRequest);
+
 
     @Query(value = "select m from Post m " +
             "where m.postId <= :pos  and m.isLocked = false and m.memberId Not in :memberBlockLists " +
             "order by m.postId desc ")
-    List<Post> findPost(@Param("pos") Long pos, PageRequest pageRequest, @Param("memberBlockLists") List<MemberBlockList> memberBlockLists);
+    List<Post> findPostWithoutBlockLists(@Param("pos") Long pos, PageRequest pageRequest, @Param("memberBlockLists") List<Member> memberBlockLists);
+    @Query(value = "select m from Post m " +
+                "where m.postId <= :pos  and m.isLocked = false " +
+                "order by m.postId desc ")
+    List<Post> findPost(@Param("pos") Long pos, PageRequest pageRequest);
 
     @Query("select m from Post m " +
             "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false " +

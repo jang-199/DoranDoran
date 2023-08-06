@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
-import org.springframework.data.redis.core.RedisTemplate;
+//import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -54,8 +54,8 @@ public class BackgroundPicDBInitializer {
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
-    @Autowired
-    private RedisTemplate<String, Jackson2JsonRedisDto> redisTemplate;
+//    @Autowired
+//    private RedisTemplate<String, Jackson2JsonRedisDto> redisTemplate;
 
     @PostConstruct
     public void init() throws IOException {
@@ -102,7 +102,7 @@ public class BackgroundPicDBInitializer {
                         .closureDate(LocalDate.of(2000,12,12))
                         .nickname("xcvfdsfs")
                         .signUpDate(LocalDateTime.now())
-                        .refreshToken("yJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjkxMjYwMjkzLCJleHAiOjE3MDY4MTIyOTMsInN1YiI6IuyImOyduCIsIlJPTEUiOiJST0xFX1VTRVIiLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.Jp88iBJy6OEfLyBGu8bQ9q8yAiQXi_M50syJJ5aTR0E")
+                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjkxMjYwMjkzLCJleHAiOjE3MDY4MTIyOTMsInN1YiI6IuyImOyduCIsIlJPTEUiOiJST0xFX1VTRVIiLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.Jp88iBJy6OEfLyBGu8bQ9q8yAiQXi_M50syJJ5aTR0E")
                         .build();
                 build1.setOsType(OsType.Ios);
                 memberService.saveMember(build1);

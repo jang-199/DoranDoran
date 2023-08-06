@@ -5,12 +5,14 @@ import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -23,13 +25,22 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> findFirstPost(List<MemberBlockList> memberBlockLists) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findFirstPost(of,memberBlockLists);
+        if (memberBlockLists.isEmpty()) {
+            return postRepository.findFirstPost(of);
+        }
+        List<Member> list = memberBlockLists.stream().map(MemberBlockList::getBlockedMember).toList();
+        log.info(list.toString());
+        return postRepository.findFirstPostWithoutBlockLists(of,list);
     }
 
     @Override
     public List<Post> findPost(Long startPost,List<MemberBlockList> memberBlockLists) {
-//        return postRepository.findPost(startPost-19L, startPost);
-        return postRepository.findPost(startPost, PageRequest.of(0, 20),memberBlockLists);
+        PageRequest of = PageRequest.of(0, 20);
+        if (memberBlockLists.isEmpty()) {
+            return postRepository.findPost(startPost, of);
+        }
+        List<Member> list = memberBlockLists.stream().map(MemberBlockList::getBlockedMember).toList();
+        return postRepository.findPostWithoutBlockLists(startPost, of,list);
     }
 
     @Override

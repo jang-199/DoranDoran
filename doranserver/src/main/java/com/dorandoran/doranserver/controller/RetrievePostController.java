@@ -55,11 +55,11 @@ public class RetrievePostController {
 
         if (postCnt == 0) { //first find
             List<Post> firstPost = postService.findFirstPost();
-            List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
+            List<Post> postFilter = blockMemberFilter.postFilter(postService,firstPost, memberBlockListByBlockingMember);
             return makePostResponseList(member, userEmail, postResponseDtoList, builder, postFilter, location);
         } else {
             List<Post> postList = postService.findPost(postCnt);
-            List<Post> postFilter = blockMemberFilter.postFilter(postList, memberBlockListByBlockingMember);
+            List<Post> postFilter = blockMemberFilter.postFilter(postService,postList, memberBlockListByBlockingMember);
             return makePostResponseList(member, userEmail, postResponseDtoList, builder, postFilter, location);
         }
     }

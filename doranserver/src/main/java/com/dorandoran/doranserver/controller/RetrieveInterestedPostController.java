@@ -46,22 +46,21 @@ public class RetrieveInterestedPostController {
         List<MemberHash> hashByMember = memberHashService.findHashByMember(byEmail); //즐겨찾기한 해시태그 리스트(맴버해시)
         log.info("{}",hashByMember);
         List<HashTag> hashTagList = hashByMember.stream() //맴버해시에서 해시태그 id 추출
-                .map(m -> m.getHashTagId())
-                .collect(Collectors.toList());
+                .map(MemberHash::getHashTagId)
+                .toList();
 
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(byEmail);
 
         List<Optional<PostHash>> optionalPostHashList = hashTagList.stream()
-                .map(hashTag -> postHashService.findTopOfPostHash(hashTag))
-                .collect(Collectors.toList());
-        List<Optional<PostHash>> optionalPostHashFilter = blockMemberFilter.optionalPostHashFilter(optionalPostHashList, memberBlockListByBlockingMember);
+                .map(hashTag -> postHashService.findTopOfPostHash(hashTag, memberBlockListByBlockingMember))
+                .toList();
 
         HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
         LinkedList<Map> mapLinkedList = new LinkedList<>();
 
-        for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
+        for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
             if (optionalPostHash.isPresent()) {
-                if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==true) {
+                if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==Boolean.TRUE) {
                     continue;
                 }
                 RetrieveInterestedDto.ReadInterestedResponse responseDto = RetrieveInterestedDto.ReadInterestedResponse.builder()

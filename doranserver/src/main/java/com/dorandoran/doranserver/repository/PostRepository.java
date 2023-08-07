@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,13 +15,22 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select m from Post m " +
+            "where m.isLocked = false and m.memberId Not in :memberBlockLists " +
+            "order by m.postId desc")
+    List<Post> findFirstPostWithoutBlockLists(PageRequest pageRequest, @Param("memberBlockLists") List<Member> memberBlockLists);
+    @Query("select m from Post m " +
             "where m.isLocked = false " +
             "order by m.postId desc")
     List<Post> findFirstPost(PageRequest pageRequest);
 
+
     @Query(value = "select m from Post m " +
-            "where m.postId <= :pos  and m.isLocked = false " +
+            "where m.postId <= :pos  and m.isLocked = false and m.memberId Not in :memberBlockLists " +
             "order by m.postId desc ")
+    List<Post> findPostWithoutBlockLists(@Param("pos") Long pos, PageRequest pageRequest, @Param("memberBlockLists") List<Member> memberBlockLists);
+    @Query(value = "select m from Post m " +
+                "where m.postId <= :pos  and m.isLocked = false " +
+                "order by m.postId desc ")
     List<Post> findPost(@Param("pos") Long pos, PageRequest pageRequest);
 
     @Query("select m from Post m " +
@@ -32,6 +42,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                   @Param("Llon") Double Llon,
                                   PageRequest pageRequest);
     @Query("select m from Post m " +
+            "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false and m.memberId not in :members " +
+            "order by m.postId desc")
+    List<Post> findFirstClosePostWithoutBlockLists(@Param("Slat") Double Slat,
+                                  @Param("Llat") Double Llat,
+                                  @Param("Slon") Double Slon,
+                                  @Param("Llon") Double Llon,
+                                  @Param("members") List<Member> members,
+                                  PageRequest pageRequest);
+    @Query("select m from Post m " +
             "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon  and m.isLocked = false " +
             "order by m.postId desc ")
     List<Post> findClosePost(@Param("pos") Long pos,
@@ -39,6 +58,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                              @Param("Llat") Double Llat,
                              @Param("Slon") Double Slon,
                              @Param("Llon") Double Llon,
+                             PageRequest pageRequest);
+    @Query("select m from Post m " +
+            "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon  and m.isLocked = false and m.memberId not in :members " +
+            "order by m.postId desc ")
+    List<Post> findClosePostWithoutBlockLists(@Param("pos") Long pos,
+                             @Param("Slat") Double Slat,
+                             @Param("Llat") Double Llat,
+                             @Param("Slon") Double Slon,
+                             @Param("Llon") Double Llon,
+                             @Param("members") List<Member> members,
                              PageRequest pageRequest);
 
 

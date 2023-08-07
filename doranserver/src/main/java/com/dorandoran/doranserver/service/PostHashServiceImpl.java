@@ -1,8 +1,6 @@
 package com.dorandoran.doranserver.service;
 
-import com.dorandoran.doranserver.entity.HashTag;
-import com.dorandoran.doranserver.entity.Post;
-import com.dorandoran.doranserver.entity.PostHash;
+import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.repository.PostHashRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,20 +32,33 @@ public class PostHashServiceImpl implements PostHashService{
     }
 
     @Override
-    public Optional<PostHash> findTopOfPostHash(HashTag hashTag) {
-        return postHashRepository.findTopByHashTagIdOrderByPoshHashIdDesc(hashTag);
+    public Optional<PostHash> findTopOfPostHash(HashTag hashTag, List<MemberBlockList> members) {
+        List<Member> list = members.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (members.isEmpty()) {
+            return postHashRepository.findTopByHashTag(hashTag);
+        }
+        return postHashRepository.findTopByHashTagWithoutBlockLists(hashTag,list);
     }
 
     @Override
-    public List<PostHash> inquiryFirstPostHash(HashTag hashTag) {
+    public List<PostHash> inquiryFirstPostHash(HashTag hashTag,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postHashRepository.findFirstPostHash(hashTag, of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postHashRepository.findFirstPostHash(hashTag, of);
+        }
+        return postHashRepository.findFirstPostHashWithoutBlockLists(hashTag, of, list);
+
     }
 
     @Override
-    public List<PostHash> inquiryPostHash(HashTag hashTag, Long postCnt) {
+    public List<PostHash> inquiryPostHash(HashTag hashTag, Long postCnt,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postHashRepository.findPostHash(hashTag, postCnt, of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postHashRepository.findPostHash(hashTag, postCnt, of);
+        }
+        return postHashRepository.findPostHashWithoutBlockLists(hashTag, postCnt, of, list);
     }
 
 

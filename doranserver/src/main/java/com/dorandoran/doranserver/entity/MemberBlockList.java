@@ -19,10 +19,10 @@ public class MemberBlockList {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BLOCKING_MEMBER")
-    private Member BlockingMember;
+    private Member BlockingMember; //차단한 사용자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BLOCKED_MEMBER")
-    private Member BlockedMember;
+    private Member BlockedMember; //차단한 사용자에게 차단된 사용자
 
 }

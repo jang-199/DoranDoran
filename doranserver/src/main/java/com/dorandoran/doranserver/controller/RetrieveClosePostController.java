@@ -62,20 +62,18 @@ public class RetrieveClosePostController {
 
         RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder = RetrievePostDto.ReadPostResponse.builder();
         if (postCnt == 0) {
-            List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
-            List<Post> postFilter = blockMemberFilter.postFilter(firstPost, memberBlockListByBlockingMember);
-            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postFilter);
+            List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon,memberBlockListByBlockingMember);
+            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, firstPost);
         }else {
-            List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt);
-            List<Post> postFilter = blockMemberFilter.postFilter(postList, memberBlockListByBlockingMember);
-            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postFilter);
+            List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt,memberBlockListByBlockingMember);
+            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postList);
         }
         return ResponseEntity.ok().body(postResponseDtoList);
     }
 
     private void makeClosePostResponseList(Member member, String userEmail, ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList, String[] split, RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder, List<Post> firstPost) {
         firstPost.iterator().forEachRemaining(e->{
-            if (!e.getMemberId().equals(member) && e.getForMe() == true) {
+            if (!e.getMemberId().equals(member) && e.getForMe() == Boolean.TRUE) {
                 return;
             }
             Integer lIkeCnt = postLikeService.findLIkeCnt(e);

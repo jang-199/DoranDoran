@@ -1,15 +1,18 @@
 package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -20,15 +23,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstPost() {
+    public List<Post> findFirstPost(List<MemberBlockList> memberBlockLists) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findFirstPost(of);
+        if (memberBlockLists.isEmpty()) {
+            return postRepository.findFirstPost(of);
+        }
+        List<Member> list = memberBlockLists.stream().map(MemberBlockList::getBlockedMember).toList();
+        log.info(list.toString());
+        return postRepository.findFirstPostWithoutBlockLists(of,list);
     }
 
     @Override
-    public List<Post> findPost(Long startPost) {
-//        return postRepository.findPost(startPost-19L, startPost);
-        return postRepository.findPost(startPost, PageRequest.of(0, 20));
+    public List<Post> findPost(Long startPost,List<MemberBlockList> memberBlockLists) {
+        PageRequest of = PageRequest.of(0, 20);
+        if (memberBlockLists.isEmpty()) {
+            return postRepository.findPost(startPost, of);
+        }
+        List<Member> list = memberBlockLists.stream().map(MemberBlockList::getBlockedMember).toList();
+        return postRepository.findPostWithoutBlockLists(startPost, of,list);
     }
 
     @Override
@@ -42,15 +54,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude) {
+    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findFirstClosePost(Slatitude,Llatitude, Slongitude, Llongitude,of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postRepository.findFirstClosePost(Slatitude,Llatitude, Slongitude, Llongitude, of);
+        }
+        return postRepository.findFirstClosePostWithoutBlockLists(Slatitude, Llatitude, Slongitude, Llongitude, list, of);
     }
 
     @Override
-    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost) {
+    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
+        }
+        return postRepository.findClosePostWithoutBlockLists(startPost, Slatitude, Llatitude, Slongitude, Llongitude, list, of);
     }
 
     @Override

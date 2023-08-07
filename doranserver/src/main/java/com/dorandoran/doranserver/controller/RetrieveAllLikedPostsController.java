@@ -53,10 +53,10 @@ public class RetrieveAllLikedPostsController {
 
         List<PostLike> myPost;
         if (position == 0) {
-            myPost = postLikeService.findFirstMyLikedPosts(username);
+            myPost = postLikeService.findFirstMyLikedPosts(username,memberBlockListByBlockingMember);
             myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         } else {
-            myPost = postLikeService.findMyLikedPosts(username, position);
+            myPost = postLikeService.findMyLikedPosts(username, position,memberBlockListByBlockingMember);
             myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         }
 

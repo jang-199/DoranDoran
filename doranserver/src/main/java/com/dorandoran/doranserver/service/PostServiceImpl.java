@@ -54,15 +54,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude) {
+    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findFirstClosePost(Slatitude,Llatitude, Slongitude, Llongitude,of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postRepository.findFirstClosePost(Slatitude,Llatitude, Slongitude, Llongitude, of);
+        }
+        return postRepository.findFirstClosePostWithoutBlockLists(Slatitude, Llatitude, Slongitude, Llongitude, list, of);
     }
 
     @Override
-    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost) {
+    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
+        }
+        return postRepository.findClosePostWithoutBlockLists(startPost, Slatitude, Llatitude, Slongitude, Llongitude, list, of);
     }
 
     @Override

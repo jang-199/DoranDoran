@@ -52,14 +52,13 @@ public class RetrieveInterestedPostController {
         List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(byEmail);
 
         List<Optional<PostHash>> optionalPostHashList = hashTagList.stream()
-                .map(hashTag -> postHashService.findTopOfPostHash(hashTag))
-                .collect(Collectors.toList());
-        List<Optional<PostHash>> optionalPostHashFilter = blockMemberFilter.optionalPostHashFilter(optionalPostHashList, memberBlockListByBlockingMember);
+                .map(hashTag -> postHashService.findTopOfPostHash(hashTag, memberBlockListByBlockingMember))
+                .toList();
 
         HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
         LinkedList<Map> mapLinkedList = new LinkedList<>();
 
-        for (Optional<PostHash> optionalPostHash : optionalPostHashFilter) {
+        for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
             if (optionalPostHash.isPresent()) {
                 if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==Boolean.TRUE) {
                     continue;

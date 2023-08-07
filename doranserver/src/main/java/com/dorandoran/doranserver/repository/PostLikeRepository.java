@@ -26,6 +26,12 @@ public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
             "where p.memberId.email = :email and p.checkDelete = false " +
             "order by p.postLikeId desc ")
     List<PostLike> findFirstMyLikedPosts(@Param("email") String email, PageRequest pageRequest);
+    @Query("select p from PostLike p " +
+            "where p.memberId.email = :email and p.checkDelete = false and p.memberId not in :members " +
+            "order by p.postLikeId desc ")
+    List<PostLike> findFirstMyLikedPostsWithoutBlockLists(@Param("email") String email,
+                                                          @Param("members") List<Member> members,
+                                                          PageRequest pageRequest);
 
     @Query("select p from PostLike p " +
             "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false " +
@@ -33,4 +39,11 @@ public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
     List<PostLike> findMyLikedPosts(@Param("email") String email,
                                     @Param("pos") Long position,
                                     PageRequest pageRequest);
+    @Query("select p from PostLike p " +
+            "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false and p.memberId not in :members " +
+            "order by p.postLikeId desc ")
+    List<PostLike> findMyLikedPostsWithoutBlockLists(@Param("email") String email,
+                                                     @Param("pos") Long position,
+                                                     @Param("members") List<Member> members,
+                                                     PageRequest pageRequest);
 }

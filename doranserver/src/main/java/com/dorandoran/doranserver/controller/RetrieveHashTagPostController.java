@@ -63,19 +63,19 @@ public class RetrieveHashTagPostController {
 
 
         if (retrieveHashTagPostDto.getPostCnt() == 0) { //first find
-            List<PostHash> postHashes = postHashService.inquiryFirstPostHash(hashTag);
-            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
-            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
+            List<PostHash> postHashes = postHashService.inquiryFirstPostHash(hashTag,memberBlockListByBlockingMember);
+//            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
+            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
 
         } else {
-            List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, retrieveHashTagPostDto.getPostCnt());
-            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
-            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashFilter);
+            List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, retrieveHashTagPostDto.getPostCnt(),memberBlockListByBlockingMember);
+//            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
+            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
         }
     }
 
     private ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> makeResponseList(Member member, String encodeLocation, String encodeEmail, ArrayList<RetrieveHashtagDto.ReadHashtagResponse> postResponseDtoList, RetrieveHashtagDto.ReadHashtagResponse.ReadHashtagResponseBuilder builder, List<PostHash> postHashes) {
-        List<Post> postList = postHashes.stream().map((postHash -> postHash.getPostId())).collect(Collectors.toList());
+        List<Post> postList = postHashes.stream().map((PostHash::getPostId)).toList();
 
         for (Post post : postList) {
             if (!post.getMemberId().equals(member) && post.getForMe()) {

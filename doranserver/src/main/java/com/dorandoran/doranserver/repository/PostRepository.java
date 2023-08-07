@@ -42,6 +42,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                   @Param("Llon") Double Llon,
                                   PageRequest pageRequest);
     @Query("select m from Post m " +
+            "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false and m.memberId not in :members " +
+            "order by m.postId desc")
+    List<Post> findFirstClosePostWithoutBlockLists(@Param("Slat") Double Slat,
+                                  @Param("Llat") Double Llat,
+                                  @Param("Slon") Double Slon,
+                                  @Param("Llon") Double Llon,
+                                  @Param("members") List<Member> members,
+                                  PageRequest pageRequest);
+    @Query("select m from Post m " +
             "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon  and m.isLocked = false " +
             "order by m.postId desc ")
     List<Post> findClosePost(@Param("pos") Long pos,
@@ -49,6 +58,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                              @Param("Llat") Double Llat,
                              @Param("Slon") Double Slon,
                              @Param("Llon") Double Llon,
+                             PageRequest pageRequest);
+    @Query("select m from Post m " +
+            "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon  and m.isLocked = false and m.memberId not in :members " +
+            "order by m.postId desc ")
+    List<Post> findClosePostWithoutBlockLists(@Param("pos") Long pos,
+                             @Param("Slat") Double Slat,
+                             @Param("Llat") Double Llat,
+                             @Param("Slon") Double Slon,
+                             @Param("Llon") Double Llon,
+                             @Param("members") List<Member> members,
                              PageRequest pageRequest);
 
 

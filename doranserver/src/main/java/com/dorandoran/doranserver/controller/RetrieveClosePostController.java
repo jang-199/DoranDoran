@@ -62,12 +62,10 @@ public class RetrieveClosePostController {
 
         RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder = RetrievePostDto.ReadPostResponse.builder();
         if (postCnt == 0) {
-            List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon);
-//            List<Post> postFilter = blockMemberFilter.postFilter(postService,firstPost, memberBlockListByBlockingMember);
+            List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon,memberBlockListByBlockingMember);
             makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, firstPost);
         }else {
-            List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt);
-//            List<Post> postFilter = blockMemberFilter.postFilter(postService,postList, memberBlockListByBlockingMember);
+            List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt,memberBlockListByBlockingMember);
             makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postList);
         }
         return ResponseEntity.ok().body(postResponseDtoList);

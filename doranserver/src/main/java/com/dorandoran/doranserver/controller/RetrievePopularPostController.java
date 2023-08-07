@@ -57,12 +57,10 @@ public class RetrievePopularPostController {
         if (postCnt == 0) { //first find
             log.info("조건문0");
             List<PopularPost> firstPost = popularPostService.findFirstPopularPost(memberBlockListByBlockingMember);
-//            List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(firstPost, memberBlockListByBlockingMember);
             return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, firstPost, location);
         } else {
             log.info("조건문 else");
             List<PopularPost> postList = popularPostService.findPopularPost(postCnt,memberBlockListByBlockingMember);
-//            List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(postList, memberBlockListByBlockingMember);
             log.info("{}",postList.size());
             return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, postList, location);
         }

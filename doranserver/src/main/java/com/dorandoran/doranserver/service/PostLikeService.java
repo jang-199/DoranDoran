@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.dto.PostDto;
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.PostLike;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,8 +18,8 @@ public interface PostLikeService {
     public List<PostLike> findByMemberId(String email);
     public void deletePostLike(PostLike postLike);
     public List<PostLike> findByPost(Post post);
-    List<PostLike> findFirstMyLikedPosts(String email);
-    List<PostLike> findMyLikedPosts(String email, Long position);
+    List<PostLike> findFirstMyLikedPosts(String email, List<MemberBlockList> memberBlockListByBlockingMember);
+    List<PostLike> findMyLikedPosts(String email, Long position, List<MemberBlockList> memberBlockListByBlockingMember);
     Optional<PostLike> findLikeOne(String email, Post post);
     void checkPostLike(PostDto.LikePost postLikeDto, UserDetails userDetails, Post post, Member member, Optional<PostLike> postLike);
 }

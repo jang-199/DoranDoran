@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.dto.PostDto;
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.PostLike;
 import com.dorandoran.doranserver.repository.PostLikeRepository;
@@ -60,15 +61,23 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public List<PostLike> findFirstMyLikedPosts(String email) {
+    public List<PostLike> findFirstMyLikedPosts(String email,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postLikeRepository.findFirstMyLikedPosts(email, of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postLikeRepository.findFirstMyLikedPosts(email, of);
+        }
+        return postLikeRepository.findFirstMyLikedPostsWithoutBlockLists(email, list, of);
     }
 
     @Override
-    public List<PostLike> findMyLikedPosts(String email, Long position) {
+    public List<PostLike> findMyLikedPosts(String email, Long position,List<MemberBlockList> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        return postLikeRepository.findMyLikedPosts(email,position,of);
+        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (list.isEmpty()) {
+            return postLikeRepository.findMyLikedPosts(email,position, of);
+        }
+        return postLikeRepository.findMyLikedPostsWithoutBlockLists(email, position, list, of);
     }
 
     @Override

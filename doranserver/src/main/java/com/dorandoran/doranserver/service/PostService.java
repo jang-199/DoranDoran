@@ -16,9 +16,9 @@ public interface PostService {
     public Post findSinglePost(Long postId);
     public void deletePost(Post post);
 
-    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude);
+    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<MemberBlockList> memberBlockListByBlockingMember);
 
-    public List<Post> findClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,Long startPost);
+    public List<Post> findClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<MemberBlockList> memberBlockListByBlockingMember);
 
     List<Post> findFirstMyPost(Member member);
     List<Post> findMyPost(Member member, Long startPost);

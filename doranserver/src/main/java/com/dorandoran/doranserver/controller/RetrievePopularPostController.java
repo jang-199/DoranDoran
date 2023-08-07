@@ -56,15 +56,13 @@ public class RetrievePopularPostController {
 
         if (postCnt == 0) { //first find
             log.info("조건문0");
-            List<PopularPost> firstPost = popularPostService.findFirstPopularPost();
-            List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(firstPost, memberBlockListByBlockingMember);
-            return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, popularPostFilter, location);
+            List<PopularPost> firstPost = popularPostService.findFirstPopularPost(memberBlockListByBlockingMember);
+            return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, firstPost, location);
         } else {
             log.info("조건문 else");
-            List<PopularPost> postList = popularPostService.findPopularPost(postCnt);
-            List<PopularPost> popularPostFilter = blockMemberFilter.popularPostFilter(postList, memberBlockListByBlockingMember);
+            List<PopularPost> postList = popularPostService.findPopularPost(postCnt,memberBlockListByBlockingMember);
             log.info("{}",postList.size());
-            return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, popularPostFilter, location);
+            return makePopularPostResponseList(member, userEmail, postResponseDtoList, builder, postList, location);
         }
     }
 

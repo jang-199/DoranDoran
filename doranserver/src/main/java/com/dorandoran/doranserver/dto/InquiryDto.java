@@ -100,6 +100,22 @@ public class InquiryDto {
     @Getter
     @Setter
     @NoArgsConstructor
+    public static class UpdatePageInquiryComment{
+        Long inquiryPostId;
+        Long inquiryCommentId;
+        String comment;
+
+        @Builder
+        public UpdatePageInquiryComment(Long inquiryPostId, Long inquiryCommentId, String comment) {
+            this.inquiryPostId = inquiryPostId;
+            this.inquiryCommentId = inquiryCommentId;
+            this.comment = comment;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
     public static class DeleteInquiryComment{
         Long inquiryCommentId;
 

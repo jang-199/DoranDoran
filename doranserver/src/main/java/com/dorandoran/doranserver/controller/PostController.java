@@ -1,8 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
-import com.dorandoran.doranserver.dto.CommentDto;
-import com.dorandoran.doranserver.dto.PostDto;
-import com.dorandoran.doranserver.dto.ReplyDto;
+import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -10,8 +8,11 @@ import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,8 +61,8 @@ public class PostController {
 
     @Transactional
     @PostMapping("/post")
-    ResponseEntity<?> Post(PostDto.CreatePost postDto,
-                           @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> savePost(PostDto.CreatePost postDto,
+                           @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         Member member = memberService.findByEmail(userDetails.getUsername());
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
@@ -103,6 +105,9 @@ public class PostController {
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
             try {
                 postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
+
+                //todo try catch 삭제 (try catch로 잡으면 예외를 안던져서 rollback이 안됨)
+                  //todo 사진 확장자 체크 로직 추가
             }catch (IOException e){
                 log.info("IO Exception 발생",e);
                 return ResponseEntity.badRequest().build();
@@ -111,6 +116,7 @@ public class PostController {
                 log.info("파일 업로드 크기 제한 exception",e);
                 return ResponseEntity.badRequest().body("파일 업로드 크기 제한");
             }
+
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
             UserUploadPic userUploadPic = UserUploadPic
@@ -151,6 +157,7 @@ public class PostController {
                     }
                 }
             }
+
         return ResponseEntity.ok().build();
     }
 

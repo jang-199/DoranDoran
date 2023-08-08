@@ -11,7 +11,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Getter
@@ -38,20 +37,16 @@ public class RedisConfig {
      * RedisConnection 에서 넘겨준 byte 값 객체 직렬화
      */
     @Bean
-    public RedisTemplate<?,?> redisTemplate(){
-        RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<Integer,Jackson2JsonRedisDto> defaultImgRedisTemplate(){
+        RedisTemplate<Integer, Jackson2JsonRedisDto> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
         // 일반적인 key:value의 경우 시리얼라이저
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-//        redisTemplate.setValueSerializer(new ResourceUrlRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(Jackson2JsonRedisDto.class));
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Jackson2JsonRedisDto.class));
         // Hash를 사용할 경우 시리얼라이저
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-
-        // 모든 경우
-        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }

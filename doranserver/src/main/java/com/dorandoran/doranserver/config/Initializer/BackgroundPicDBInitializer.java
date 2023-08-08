@@ -55,7 +55,7 @@ public class BackgroundPicDBInitializer {
     @Value("${background.Store.path}")
     String serverPath;
     @Autowired
-    private RedisTemplate<String, Jackson2JsonRedisDto> redisTemplate;
+    private RedisTemplate<Integer, Jackson2JsonRedisDto> redisTemplate;
 
     @PostConstruct
     public void init() throws IOException {
@@ -187,10 +187,10 @@ public class BackgroundPicDBInitializer {
             }
         }
 
-//        for (int i = 1; i < 101; i++) {
-//            redisTemplate.opsForValue().set(String.valueOf(i), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
-//            //1.jpg
-//        }
+        for (int i = 1; i < 101; i++) {
+            redisTemplate.opsForValue().set(Integer.parseInt(String.valueOf(i)), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
+            //1.jpg
+        }
 
 
     }

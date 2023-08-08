@@ -22,8 +22,8 @@ public class ReportCommonService {
     public void memberLockLogic(Member member) {
         member.addTotalReportTime();
         log.info("해당 사용자의 신고 횟수가 증가했습니다.");
-        if (checkReached(member.getTotalReportTime())){
-            LockDto lockDto = setLockDto(member.getTotalReportTime());
+        if (checkReached(member.getTotalReportCount())){
+            LockDto lockDto = setLockDto(member.getTotalReportCount());
             LockMember lockMember = new LockMember(member, lockDto.getLockTime(), lockDto.getLockType());
             lockMemberService.saveLockMember(lockMember);
             firebaseService.notifyBlockedMember(lockMember);

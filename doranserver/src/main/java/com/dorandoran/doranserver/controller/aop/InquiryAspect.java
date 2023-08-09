@@ -16,13 +16,13 @@ import java.util.List;
 @Component
 public class InquiryAspect {
 
-//    @Around("execution(* com.dorandoran.doranserver.controller..*Inquiry*(..))")
-//    public Object returnErrorLog(ProceedingJoinPoint joinPoint) {
-//        try {
-//            log.info("[aop] {}", joinPoint.getSignature());
-//            return joinPoint.proceed();
-//        }catch (Throwable e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
+    @Around("execution(* com.dorandoran.doranserver.controller..*Inquiry*(..))")
+    public Object returnErrorLog(ProceedingJoinPoint joinPoint) {
+        try {
+            log.info("[aop] {}", joinPoint.getSignature());
+            return joinPoint.proceed();
+        }catch (Throwable e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

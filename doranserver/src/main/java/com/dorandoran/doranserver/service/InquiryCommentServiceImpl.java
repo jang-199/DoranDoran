@@ -27,8 +27,13 @@ public class InquiryCommentServiceImpl implements InquiryCommentService{
     }
 
     @Override
+    public void deleteInquiryCommentList(List<InquiryComment> inquiryCommentList) {
+        inquiryCommentRepository.deleteAllInBatch(inquiryCommentList);
+    }
+
+    @Override
     public List<InquiryComment> findCommentByPost(InquiryPost inquiryPost) {
-        return inquiryCommentRepository.findByInquiryPostId(inquiryPost);
+        return inquiryCommentRepository.findByInquiryPostIdOrderByInquiryCommentIdDesc(inquiryPost);
     }
 
     @Override

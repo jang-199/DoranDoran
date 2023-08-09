@@ -44,7 +44,7 @@ public class BackGroundPicController {
     Integer backgroundPicCnt;
     private final BackgroundPicService backGroundPicService;
     private final UserUploadPicService userUploadPicService;
-    private final RedisTemplate<String, Jackson2JsonRedisDto> redisTemplate;
+    private final RedisTemplate<Integer, Jackson2JsonRedisDto> redisTemplate;
 
 
     @GetMapping("/pic/default/count")

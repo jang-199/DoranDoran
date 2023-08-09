@@ -188,10 +188,10 @@ public class BackgroundPicDBInitializer {
             }
         }
 
-//        for (int i = 1; i < 101; i++) {
-//            redisTemplate.opsForValue().set(Integer.parseInt(String.valueOf(i)), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
-//            //1.jpg
-//        }
+        for (int i = 1; i < 101; i++) {
+            redisTemplate.opsForValue().set(Integer.parseInt(String.valueOf(i)), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
+            //1.jpg
+        }
 
 
     }

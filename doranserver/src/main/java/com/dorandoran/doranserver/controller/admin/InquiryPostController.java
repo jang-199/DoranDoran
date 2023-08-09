@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.controller;
+package com.dorandoran.doranserver.controller.admin;
 
 import com.dorandoran.doranserver.dto.InquiryDto;
 import com.dorandoran.doranserver.entity.InquiryComment;
@@ -67,6 +67,10 @@ public class InquiryPostController {
     @DeleteMapping("/admin/inquiryPost/{inquiryPostId}")
     public ResponseEntity<?> deleteInquiryPost(@PathVariable Long inquiryPostId){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryPostId);
+
+        List<InquiryComment> inquiryCommentList = inquiryCommentService.findCommentByPost(inquiryPost);
+        inquiryCommentService.deleteInquiryCommentList(inquiryCommentList);
+
         inquiryPostService.deleteInquiryPost(inquiryPost);
         return ResponseEntity.ok().build();
     }
@@ -91,10 +95,6 @@ public class InquiryPostController {
                         .inquiryPost(inquiryPost)
                         .build())
                 .toList();
-
-        if (inquiryPostBoardList.isEmpty()){
-            throw new NoSuchElementException("해당 페이지에 글이 없습니다.");
-        }
 
         return inquiryPostBoardList;
     }

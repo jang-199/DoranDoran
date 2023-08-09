@@ -56,8 +56,8 @@ public class Member implements UserDetails {
     @Column(name = "CLOSURE_DATE")
     private LocalDate closureDate;
 
-    @Column(name = "TOTAL_REPORT_TIME")
-    private int totalReportTime;
+    @Column(name = "TOTAL_REPORT_COUNT")
+    private int totalReportCount;
 
     public void setAccountClosureRequestTime() {
         this.closureDate = LocalDate.now();
@@ -67,7 +67,7 @@ public class Member implements UserDetails {
         return closureDate==null ? Boolean.TRUE : Boolean.FALSE;
     }
     public void addTotalReportTime(){
-        this.totalReportTime += 1;
+        this.totalReportCount += 1;
     }
     @Enumerated(EnumType.STRING)
     private OsType osType;

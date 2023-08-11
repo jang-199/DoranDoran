@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -86,4 +87,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("select p from Post p where p.memberId = :member")
     List<Post> findAllByMember(@Param("member") Member member);
+
+    @Query("select p from Post p join fetch p.memberId where p.isLocked = true order by p.postId desc")
+    List<Post> findBlockedPost(Pageable pageable);
+
+    @Query("select p from Post p join fetch p.memberId where p.postId = :postId")
+    Optional<Post> findFetchMember(@Param("postId") Long postId);
 }

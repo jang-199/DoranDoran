@@ -88,5 +88,21 @@ public class CommentDto {
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ReadAdminCommentResponse{
+        Long commentId;
+        String userEmail;
+        String content;
+        List<ReplyDto.ReadAdminReplyResponse> replyList;
 
+        @Builder
+        public ReadAdminCommentResponse(Comment comment, List<ReplyDto.ReadAdminReplyResponse> replyList) {
+            this.commentId = comment.getCommentId();
+            this.userEmail = comment.getMemberId().getEmail();
+            this.content = comment.getComment();
+            this.replyList = replyList;
+        }
+    }
 }

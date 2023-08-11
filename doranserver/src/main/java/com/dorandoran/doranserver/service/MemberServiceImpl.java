@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -30,5 +31,11 @@ public class MemberServiceImpl implements MemberService{
     @Override
     public void saveMember(Member member) {
         memberRepository.save(member);
+    }
+
+    @Override
+    @Transactional
+    public void subtractReportCount(Member member) {
+        member.subtractReportTime();
     }
 }

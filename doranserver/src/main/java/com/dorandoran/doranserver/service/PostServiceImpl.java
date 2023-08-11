@@ -8,9 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -85,5 +86,21 @@ public class PostServiceImpl implements PostService {
         return postRepository.findMyPost(member, startPost, of);
     }
 
+    @Override
+    public List<Post> findBlockedPost(Integer page) {
+        PageRequest of = PageRequest.of(page, 20);
+        return postRepository.findBlockedPost(of);
+    }
 
+    @Override
+    public Post findFetchMember(Long postId){
+        return postRepository.findFetchMember(postId)
+                .orElseThrow(() -> new NoSuchElementException("해당 글이 없습니다."));
+    }
+
+    @Override
+    @Transactional
+    public void setUnLocked(Post post) {
+        post.setUnLocked();
+    }
 }

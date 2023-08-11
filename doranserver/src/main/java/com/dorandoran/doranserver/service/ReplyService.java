@@ -21,5 +21,8 @@ public interface ReplyService {
     void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, String userEmail);
     void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDto.ReadReplyResponse replyDetailDto);
     List<Member> findReplyMemberByComment(Comment comment);
-
+    List<Reply> findBlockedReply(Integer page);
+    List<Reply> findBlockedReplyDetail(Comment comment);
+    void setUnLocked(Reply reply);
+    Reply findFetchMember(Long replyId);
 }

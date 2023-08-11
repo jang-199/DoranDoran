@@ -58,8 +58,10 @@ public class Comment {
     private Member memberId;
 
     public void setLocked(){this.isLocked = Boolean.TRUE;}
+    public void setUnLocked(){this.isLocked = Boolean.FALSE;}
     public void addReportCount(){this.reportCount += 1;}
     public Boolean checkSecretMode(){
         return this.getSecretMode() == Boolean.TRUE ? Boolean.TRUE : Boolean.FALSE;
     }
+
 }

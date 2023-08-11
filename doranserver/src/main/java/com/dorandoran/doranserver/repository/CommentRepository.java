@@ -31,4 +31,15 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByMember(@Param("member") Member member);
     @Query("select c from Comment c where c.postId = :post")
     List<Comment> findAllByPost(@Param("post") Post post);
+
+    @Query("select c from Comment c join fetch c.memberId where c.isLocked = true order by c.commentId desc")
+    List<Comment> findCommentInAdmin(Pageable pageable);
+
+    @Query("select c from Comment c join fetch c.memberId " +
+            "where c.postId = :postId " +
+            "order by c.commentId desc")
+    List<Comment> findCommentInAdminDetail(@Param("postId") Post post);
+
+    @Query("select c from Comment c join fetch c.memberId where c.commentId = :commentId")
+    Optional<Comment> findFetchMember(@Param("commentId") Long commentId);
 }

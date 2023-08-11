@@ -61,4 +61,20 @@ public class ReplyDto {
             this.replyId = replyId;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ReadAdminReplyResponse{
+        Long replyId;
+        String userEmail;
+        String content;
+
+        @Builder
+        public ReadAdminReplyResponse(Reply reply) {
+            this.replyId = reply.getReplyId();
+            this.userEmail = reply.getMemberId().getEmail();
+            this.content = reply.getReply();
+        }
+    }
 }

@@ -92,4 +92,9 @@ logging:
 #    org.springframework.transaction: DEBUG
     com:
       dorandoran: debug
+  slack:
+    webhook-uri: https://hooks.slack.com/services/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
+    config: classpath:logback-spring.xml
+
+
 

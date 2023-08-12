@@ -84,18 +84,17 @@ public class InquiryPostController {
                     case "title" -> inquiryPostService.findByPostTitle(page, content);
                     case "content" -> inquiryPostService.findByPostContent(page, content);
                     case "postTime" -> inquiryPostService.findByPostTime(page, content);
+                    case "answerType" -> inquiryPostService.findByAnswerType(page, content);
                     default -> throw new IllegalArgumentException("해당 검색 조건은 없습니다.");
                 };
         return ResponseEntity.ok().body(makeInquiryPostBoardList(inquiryPostList));
     }
 
     private static List<InquiryDto.ReadInquiryPostBoard> makeInquiryPostBoardList(List<InquiryPost> inquiryPostPage) {
-        List<InquiryDto.ReadInquiryPostBoard> inquiryPostBoardList = inquiryPostPage.stream()
+        return inquiryPostPage.stream()
                 .map(inquiryPost -> InquiryDto.ReadInquiryPostBoard.builder()
                         .inquiryPost(inquiryPost)
                         .build())
                 .toList();
-
-        return inquiryPostBoardList;
     }
 }

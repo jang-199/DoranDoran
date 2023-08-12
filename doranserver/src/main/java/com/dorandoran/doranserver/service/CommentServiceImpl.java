@@ -11,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -111,5 +113,28 @@ public class CommentServiceImpl implements CommentService {
             log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
             commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
         }
+    }
+
+    @Override
+    public List<Comment> findBlockedComment(Integer page) {
+        PageRequest of = PageRequest.of(page, 20);
+        return commentRepository.findCommentInAdmin(of);
+    }
+
+    @Override
+    public List<Comment> findBlockedCommentDetail(Post post) {
+        return commentRepository.findCommentInAdminDetail(post);
+    }
+
+    @Override
+    @Transactional
+    public void setUnLocked(Comment comment) {
+        comment.setUnLocked();
+    }
+
+    @Override
+    public Comment findFetchMember(Long commentId) {
+        return commentRepository.findFetchMember(commentId)
+                .orElseThrow(() -> new NoSuchElementException("해당 댓글이 없습니다."));
     }
 }

@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.dto;
 
+import com.dorandoran.doranserver.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import org.springframework.core.serializer.Serializer;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.plaf.PanelUI;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -124,6 +126,22 @@ public class PostDto {
             this.isWrittenByMember = isWrittenByMember;
             this.commentDetailDto = commentDetailDto;
             this.postHashes = postHashes;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ReadAdminPostResponse{
+        String content;
+        String userEmail;
+        List<CommentDto.ReadAdminCommentResponse> commentList;
+
+        @Builder
+        public ReadAdminPostResponse(Post post, List<CommentDto.ReadAdminCommentResponse> commentList) {
+            this.content = post.getContent();
+            this.userEmail = post.getMemberId().getEmail();
+            this.commentList = commentList;
         }
     }
 }

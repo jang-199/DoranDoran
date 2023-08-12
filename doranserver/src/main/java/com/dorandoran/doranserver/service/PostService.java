@@ -8,18 +8,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostService {
-    public void savePost(Post post);
+    void savePost(Post post);
 
-    public List<Post> findFirstPost(List<MemberBlockList> memberBlockLists);
+    List<Post> findFirstPost(List<MemberBlockList> memberBlockLists);
 
-    public List<Post> findPost(Long startPost,List<MemberBlockList> memberBlockLists);
-    public Post findSinglePost(Long postId);
-    public void deletePost(Post post);
-
-    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<MemberBlockList> memberBlockListByBlockingMember);
-
-    public List<Post> findClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<MemberBlockList> memberBlockListByBlockingMember);
-
+    List<Post> findPost(Long startPost,List<MemberBlockList> memberBlockLists);
+    Post findSinglePost(Long postId);
+    void deletePost(Post post);
+    List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<MemberBlockList> memberBlockListByBlockingMember);
+    List<Post> findClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<MemberBlockList> memberBlockListByBlockingMember);
     List<Post> findFirstMyPost(Member member);
     List<Post> findMyPost(Member member, Long startPost);
+
+    List<Post> findBlockedPost(Integer page);
+
+    Post findFetchMember(Long postId);
+    void setUnLocked(Post post);
 }

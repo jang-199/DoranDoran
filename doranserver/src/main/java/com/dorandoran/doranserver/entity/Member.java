@@ -69,6 +69,7 @@ public class Member implements UserDetails {
     public void addTotalReportTime(){
         this.totalReportCount += 1;
     }
+    public void subtractReportTime(){this.totalReportCount -= 1;}
     @Enumerated(EnumType.STRING)
     private OsType osType;
     @Builder

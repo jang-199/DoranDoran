@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -90,5 +92,26 @@ public class ReplyServiceImpl implements ReplyService{
         return replyRepository.findReplyMemberByCommentId(comment);
     }
 
+    @Override
+    public List<Reply> findBlockedReply(Integer page) {
+        PageRequest of = PageRequest.of(page, 20);
+        return replyRepository.findReplyInAdmin(of);
+    }
 
+    @Override
+    public List<Reply> findBlockedReplyDetail(Comment comment) {
+        return replyRepository.findReplyInAdminDetail(comment);
+    }
+
+    @Override
+    @Transactional
+    public void setUnLocked(Reply reply) {
+        reply.setUnLocked();
+    }
+
+    @Override
+    public Reply findFetchMember(Long replyId) {
+        return replyRepository.findFetchMember(replyId)
+                .orElseThrow(() -> new NoSuchElementException("해당 대댓글이 없습니다."));
+    }
 }

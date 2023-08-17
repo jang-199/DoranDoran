@@ -37,7 +37,8 @@ public class RetrieveInterestedPostController {
     String ipAddress;
 
     @GetMapping("/post/interested")
-    ResponseEntity<LinkedList<Map>> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
+    ResponseEntity<LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>>>
+    retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
         log.info(userDetails.getUsername());
         log.info(userDetails.getAuthorities().toString());
 
@@ -56,7 +57,7 @@ public class RetrieveInterestedPostController {
                 .toList();
 
         HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
-        LinkedList<Map> mapLinkedList = new LinkedList<>();
+        LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> mapLinkedList = new LinkedList<>();
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
             if (optionalPostHash.isPresent()) {
@@ -65,8 +66,8 @@ public class RetrieveInterestedPostController {
                 }
                 RetrieveInterestedDto.ReadInterestedResponse responseDto = RetrieveInterestedDto.ReadInterestedResponse.builder()
                         .backgroundPicUri(
-                                optionalPostHash.get().getPostId().getSwitchPic() == ImgType.DefaultBackground ? ipAddress + ":8080/api/pic/default/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
-                                        : ipAddress + ":8080/api/pic/member/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
+                                optionalPostHash.get().getPostId().getSwitchPic() == ImgType.DefaultBackground ? ipAddress + ":8080/api/pic/default/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).toList().get(0)
+                                        : ipAddress + ":8080/api/pic/member/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).toList().get(0)
                         )
                         .location(null)
                         .isWrittenByMember(optionalPostHash.get().getPostId().getMemberId().getEmail().equals(userDetails.getUsername()) ? Boolean.TRUE : Boolean.FALSE)

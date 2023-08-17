@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Integer findCommentAndReplyCntByPostId(Post post) {
-        Integer cnt = 0;
+        int cnt = 0;
         List<Comment> commentCntByPostId = commentRepository.findCommentCntByPostId(post);
         cnt += commentCntByPostId.size();
         for (Comment comment : commentCntByPostId) {

@@ -69,7 +69,7 @@ public class BackgroundPicDBInitializer {
             backGroundPicService.saveBackgroundPic(build);
         }
 
-        for (Long i = 1L; i <= 50L; i++) {
+        for (long i = 1L; i <= 50L; i++) {
             PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
             policyTermsCheck.policyTermsSave(build); //권한 동의 저장
 

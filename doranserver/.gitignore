@@ -38,6 +38,8 @@ resources/dorandoran-374312-firebase-adminsdk-1efcc-31bcc99fe9.json
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+qodana.yaml
+
 
 ### NetBeans ###
 /nbproject/private/

@@ -39,6 +39,7 @@ server:
   servlet:
     encoding:
       force: true
+
 #linux server path
 background:
   Store:

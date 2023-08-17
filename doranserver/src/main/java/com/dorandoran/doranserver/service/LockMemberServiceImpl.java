@@ -48,5 +48,4 @@ public class LockMemberServiceImpl implements LockMemberService{
                 ? Boolean.TRUE
                 : Boolean.FALSE;
     }
-
 }

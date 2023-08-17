@@ -6,8 +6,9 @@ import com.dorandoran.doranserver.entity.Member;
 import java.util.Optional;
 
 public interface LockMemberService {
-    public void saveLockMember(LockMember lockMember);
-    public Optional<LockMember> findLockMember(Member member);
-    public void deleteLockMember(LockMember lockMember);
-    public Boolean checkCurrentLocked(LockMember lockMember);
+    void saveLockMember(LockMember lockMember);
+    void deleteLockMember(LockMember lockMember);
+    Optional<LockMember> findLockMember(Member member);
+
+    Boolean checkCurrentLocked(LockMember lockMember);
 }

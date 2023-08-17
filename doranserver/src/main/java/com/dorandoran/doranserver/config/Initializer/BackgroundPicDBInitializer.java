@@ -5,7 +5,9 @@ package com.dorandoran.doranserver.config.Initializer;
 import com.dorandoran.doranserver.dto.Jackson2JsonRedisDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
+import com.dorandoran.doranserver.entity.lockType.LockType;
 import com.dorandoran.doranserver.entity.osType.OsType;
+import com.dorandoran.doranserver.repository.LockMemberRepository;
 import com.dorandoran.doranserver.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.security.cert.TrustAnchor;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,6 +54,9 @@ public class BackgroundPicDBInitializer {
 
     @Autowired
     AccountClosureMemberService accountClosureMemberService;
+
+    @Autowired
+    LockMemberRepository lockMemberRepository;
     @Value("${background.cnt}")
     Integer max;
     @Value("${background.Store.path}")
@@ -88,6 +95,11 @@ public class BackgroundPicDBInitializer {
                 buildMember.setOsType(OsType.Aos);
             }
             memberService.saveMember(buildMember);//회원 50명 생성
+            Member member = memberService.findByEmail(i + "@gmail.com");
+            if (i % 2 == 0) {
+                LockMember lockMember = new LockMember(member, Duration.ofDays(1), LockType.Day1);
+                lockMemberRepository.save(lockMember);
+            }
 //            AccountClosureMember build2 = AccountClosureMember.builder().closureMemberId(buildMember).build();
 //            accountClosureMemberService.saveClosureMember(build2);
 
@@ -128,6 +140,7 @@ public class BackgroundPicDBInitializer {
                     .build();
             if (i % 2 == 0) {
                 post.setAnonymity(Boolean.TRUE);
+                post.setIsLocked(Boolean.TRUE);
             } else {
                 post.setAnonymity(Boolean.FALSE);
             }
@@ -149,6 +162,7 @@ public class BackgroundPicDBInitializer {
             if (i % 2 == 0) {
                 comment.setAnonymity(Boolean.TRUE);
                 comment.setCheckDelete(Boolean.TRUE);
+                comment.setIsLocked(Boolean.TRUE);
             } else {
                 comment.setAnonymity(Boolean.FALSE);
                 comment.setCheckDelete(Boolean.FALSE);
@@ -168,6 +182,7 @@ public class BackgroundPicDBInitializer {
                 reply.setAnonymity(Boolean.TRUE);
                 reply.setCheckDelete(Boolean.TRUE);
                 reply.setSecretMode(Boolean.TRUE);
+                reply.setIsLocked(Boolean.TRUE);
             } else {
                 reply.setAnonymity(Boolean.FALSE);
                 reply.setCheckDelete(Boolean.FALSE);
@@ -188,9 +203,9 @@ public class BackgroundPicDBInitializer {
             }
         }
 
-        for (int i = 1; i < 101; i++) {
-            redisTemplate.opsForValue().set(Integer.parseInt(String.valueOf(i)), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
-        }
+//        for (int i = 1; i < 101; i++) {
+//            redisTemplate.opsForValue().set(Integer.parseInt(String.valueOf(i)), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
+//        }
 
 
     }

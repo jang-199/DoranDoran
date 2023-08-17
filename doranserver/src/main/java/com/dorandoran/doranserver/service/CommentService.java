@@ -22,4 +22,8 @@ public interface CommentService {
     public List<Comment> findNextComments(Long postId, Long commentId);
     void checkSecretComment(CommentDto.ReadCommentResponse commentDetailDto, Post post, Comment comment, String userEmail);
     void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDto.ReadCommentResponse commentDetailDto);
+    List<Comment> findBlockedComment(Integer page);
+    List<Comment> findBlockedCommentDetail(Post post);
+    void setUnLocked(Comment comment);
+    Comment findFetchMember(Long commentId);
 }

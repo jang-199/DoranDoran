@@ -11,4 +11,5 @@ public interface MemberService {
 
     Member findByRefreshToken(String refreshToken);
     void saveMember(Member member);
+    void subtractReportCount(Member member);
 }

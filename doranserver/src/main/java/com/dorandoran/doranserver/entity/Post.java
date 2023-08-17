@@ -82,4 +82,5 @@ public class Post {
     }
 
     public void setLocked(){this.isLocked = Boolean.TRUE;}
+    public void setUnLocked(){this.isLocked = Boolean.FALSE;}
 }

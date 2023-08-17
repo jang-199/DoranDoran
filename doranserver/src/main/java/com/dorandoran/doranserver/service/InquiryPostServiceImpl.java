@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.InquiryPost;
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.inquirystatus.InquiryStatus;
 import com.dorandoran.doranserver.repository.InquiryPostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -50,13 +51,13 @@ public class InquiryPostServiceImpl implements InquiryPostService{
     @Override
     public List<InquiryPost> findByPostTitle(Integer page, String title) {
         PageRequest of = PageRequest.of(page, 20);
-        return inquiryPostRepository.findByTitleContaining(title, of);
+        return inquiryPostRepository.findByTitleContainingOrderByInquiryPostId(title, of);
     }
 
     @Override
     public List<InquiryPost> findByPostContent(Integer page, String content) {
         PageRequest of = PageRequest.of(page, 20);
-        return inquiryPostRepository.findByContentContains(content, of);
+        return inquiryPostRepository.findByContentContainsOrderByInquiryPostId(content, of);
     }
 
     @Override
@@ -71,5 +72,12 @@ public class InquiryPostServiceImpl implements InquiryPostService{
                 0);
 
         return inquiryPostRepository.findByCreatedTimeContains(searchDate, of);
+    }
+
+    @Override
+    public List<InquiryPost> findByAnswerType(Integer page, String answerType) {
+        PageRequest of = PageRequest.of(page, 20);
+        InquiryStatus findAnswerType = answerType.equals("NotAnswered") ? InquiryStatus.NotAnswered : InquiryStatus.Answered;
+        return inquiryPostRepository.findByInquiryStatusContains(findAnswerType, of);
     }
 }

@@ -14,4 +14,6 @@ public interface InquiryPostService {
     List<InquiryPost> findByPostTitle(Integer page, String title);
     List<InquiryPost> findByPostContent(Integer page, String content);
     List<InquiryPost> findByPostTime(Integer page, String postTime);
+
+    List<InquiryPost> findByAnswerType(Integer page, String answerType);
 }

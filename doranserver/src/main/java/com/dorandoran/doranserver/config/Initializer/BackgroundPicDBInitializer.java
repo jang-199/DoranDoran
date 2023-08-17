@@ -91,8 +91,10 @@ public class BackgroundPicDBInitializer {
                     .refreshToken("refresh").build();
             if (i % 2 == 0) {
                 buildMember.setOsType(OsType.Ios);
+                buildMember.setCheckNotification(Boolean.FALSE);
             } else {
                 buildMember.setOsType(OsType.Aos);
+                buildMember.setCheckNotification(Boolean.TRUE);
             }
             memberService.saveMember(buildMember);//회원 50명 생성
             Member member = memberService.findByEmail(i + "@gmail.com");

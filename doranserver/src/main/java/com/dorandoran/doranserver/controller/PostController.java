@@ -268,7 +268,7 @@ public class PostController {
 
         postLikeService.checkPostLike(postLikeDto, userDetails, post, member, postLike);
 
-        if (postLike.isEmpty()) {
+        if (postLike.isEmpty() && post.getMemberId().checkNotification()) {
             firebaseService.notifyPostLike(post.getMemberId(), post);
         }
 

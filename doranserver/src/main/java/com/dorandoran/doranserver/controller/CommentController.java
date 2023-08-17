@@ -86,7 +86,7 @@ public class CommentController {
                 .build();
         commentService.saveComment(comment);
 
-        if (!post.getMemberId().equals(member)) {
+        if (!post.getMemberId().equals(member) && post.getMemberId().checkNotification()){
             firebaseService.notifyComment(post.getMemberId(), comment);
         }
 
@@ -148,7 +148,7 @@ public class CommentController {
 
         commentLikeService.checkCommentLike(commentLikeDto, userDetails, comment, member, commentLike);
 
-        if (commentLike.isEmpty()) {
+        if (commentLike.isEmpty() && comment.getMemberId().checkNotification()) {
             firebaseService.notifyCommentLike(comment.getMemberId(), comment);
         }
 
@@ -210,7 +210,7 @@ public class CommentController {
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
         replyMemberList.add(comment.getMemberId());
         List<Member> fcmMemberList = checkMyComment(replyMemberList, member);
-        if (fcmMemberList.size() != 0) {
+        if (!fcmMemberList.isEmpty()) {
             firebaseService.notifyReply(fcmMemberList, buildReply);
         }
 
@@ -314,7 +314,9 @@ public class CommentController {
     private static List<Member> checkMyComment(List<Member> memberList, Member writeMember) {
         return memberList.stream()
                 .distinct()
-                .filter((member) -> !member.equals(writeMember))
+                .filter((member) ->
+                        !member.equals(writeMember)
+                        && member.checkNotification())
                 .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
@@ -43,6 +44,7 @@ public class RetrieveAllLikedPostsController {
     private final BlockMemberFilter blockMemberFilter;
     private final MemberBlockListService memberBlockListService;
 
+    @Trace
     @GetMapping("/post/member/like/{position}")
     public ResponseEntity<LinkedList<RetrievePostDto.ReadPostResponse>> getAllLikedPosts(@PathVariable("position") Long position,
                                                                 @AuthenticationPrincipal UserDetails userDetails) {

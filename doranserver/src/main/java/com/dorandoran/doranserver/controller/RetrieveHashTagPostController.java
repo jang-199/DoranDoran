@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrieveHashtagDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -39,6 +40,7 @@ public class RetrieveHashTagPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/hashtag")
     ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> retrievePostByHashTag(@RequestBody RetrieveHashtagDto.ReadHashtag retrieveHashTagPostDto,
                                                                      @AuthenticationPrincipal UserDetails userDetails) {

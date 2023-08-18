@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.HashTagDto;
 import com.dorandoran.doranserver.entity.HashTag;
 import com.dorandoran.doranserver.entity.Member;
@@ -29,6 +30,7 @@ public class HashTagController {
     private final MemberService memberService;
     private final MemberHashService memberHashService;
 
+    @Trace
     @GetMapping("/hashTag")
     public ResponseEntity<?> searchHashTag(@RequestParam("hashTag") String reqHashTag,
                                            @AuthenticationPrincipal UserDetails userDetails){
@@ -49,6 +51,7 @@ public class HashTagController {
         return ResponseEntity.ok().body(hashTagResponseDtos);
     }
 
+    @Trace
     @GetMapping("/hashTag/popular")
     public ResponseEntity<?> popularHashTag(){
         List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
@@ -63,6 +66,7 @@ public class HashTagController {
         }
     }
 
+    @Trace
     @GetMapping("/hashTag/member")
     public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
@@ -76,6 +80,7 @@ public class HashTagController {
         }
     }
 
+    @Trace
     @PostMapping("/hashTag/member")
     public ResponseEntity<?> saveHashTag(@RequestBody HashTagDto.CreateHashTag hashTagRequestDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
@@ -97,6 +102,7 @@ public class HashTagController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Trace
     @DeleteMapping("/hashTag/member")
     public ResponseEntity<?> deleteHashTag(@RequestBody HashTagDto.DeleteHashTag hashTagRequestDto,
                                            @AuthenticationPrincipal UserDetails userDetails){

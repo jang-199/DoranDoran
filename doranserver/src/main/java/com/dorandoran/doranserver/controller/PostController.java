@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -59,6 +60,7 @@ public class PostController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
 
+    @Trace
     @Transactional
     @PostMapping("/post")
     public ResponseEntity<?> savePost(PostDto.CreatePost postDto,
@@ -176,6 +178,7 @@ public class PostController {
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
      */
+    @Trace
     @Transactional
     @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
@@ -255,6 +258,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    @Trace
     @PostMapping("/post/like")
     ResponseEntity<?> postLike(@RequestBody PostDto.LikePost postLikeDto,
                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -276,6 +280,7 @@ public class PostController {
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
+    @Trace
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {

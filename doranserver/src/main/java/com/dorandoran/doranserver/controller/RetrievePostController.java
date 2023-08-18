@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
@@ -39,6 +40,7 @@ public class RetrievePostController {
     private final MemberService memberService;
 //    private final BlockMemberFilter blockMemberFilter;
 
+    @Trace
     @GetMapping("/post")
     ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
                                                             @RequestParam(required = false, defaultValue = "") String location,

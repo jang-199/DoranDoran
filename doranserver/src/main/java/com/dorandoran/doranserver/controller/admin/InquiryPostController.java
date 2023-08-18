@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller.admin;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.InquiryDto;
 import com.dorandoran.doranserver.entity.InquiryComment;
 import com.dorandoran.doranserver.entity.InquiryPost;
@@ -51,6 +52,7 @@ public class InquiryPostController {
         return ResponseEntity.ok().body(readInquiryPost);
     }
 
+    @Trace
     @PostMapping("/api/inquiryPost")
     public ResponseEntity<?> saveInquiryPost(@RequestBody InquiryDto.CreateInquiryPost createInquiryPost,
                                 @AuthenticationPrincipal UserDetails userDetails){

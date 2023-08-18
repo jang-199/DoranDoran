@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.CommentDto;
 import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.*;
@@ -39,6 +40,7 @@ public class CommentController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
 
+    @Trace
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
                                             @RequestParam("commentId") Long commentId,
@@ -55,7 +57,7 @@ public class CommentController {
     }
 
 
-
+    @Trace
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto.CreateComment createCommentDto,
                               @AuthenticationPrincipal UserDetails userDetails) {
@@ -116,6 +118,7 @@ public class CommentController {
     }
 
 
+    @Trace
     @DeleteMapping("/comment")
     @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDto.DeleteComment commentDeleteDto,
@@ -134,6 +137,7 @@ public class CommentController {
     }
 
 
+    @Trace
     @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentDto.LikeComment commentLikeDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
@@ -155,6 +159,7 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Trace
     @GetMapping("/reply")
     public ResponseEntity<?> inquiryReply(@RequestParam("postId") Long postId,
                                           @RequestParam("commentId") Long commentId,
@@ -173,6 +178,7 @@ public class CommentController {
         return ResponseEntity.ok().body(replyDetailDtoList);
     }
 
+    @Trace
     @Transactional
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto.CreateReply replyDto,
@@ -232,6 +238,7 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Trace
     @DeleteMapping("/reply")
     @Transactional
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDto.DeleteReply replyDeleteDto,

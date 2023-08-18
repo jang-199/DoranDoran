@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
@@ -35,6 +36,7 @@ public class RetrieveAllPostsController {
     private final PostService postService;
     private final PostLikeService postLikeService;
 
+    @Trace
     @GetMapping("/post/member/{position}")
     ResponseEntity<LinkedList<RetrievePostDto.ReadPostResponse>> getAllPosts(@PathVariable("position") Long position,
                                                             @AuthenticationPrincipal UserDetails userDetails) {

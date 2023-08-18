@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrievePopularDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
@@ -40,6 +41,7 @@ public class RetrievePopularPostController {
     private final MemberService memberService;
     private final MemberBlockListService memberBlockListService;
 
+    @Trace
     @GetMapping("/post/popular")
     ResponseEntity<ArrayList<RetrievePopularDto.ReadPopularResponse>> retrievePopularPost(@RequestParam Long postCnt,
                                                                                           @RequestParam(required = false, defaultValue = "") String location,

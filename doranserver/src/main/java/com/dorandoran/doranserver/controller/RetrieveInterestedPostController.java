@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrieveInterestedDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -36,6 +37,7 @@ public class RetrieveInterestedPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/interested")
     ResponseEntity<LinkedList<Map>> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
         log.info(userDetails.getUsername());

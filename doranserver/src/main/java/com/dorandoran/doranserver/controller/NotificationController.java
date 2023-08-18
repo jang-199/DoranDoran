@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.NotificationDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.NotificationHistory;
@@ -22,6 +23,8 @@ import java.util.List;
 public class NotificationController {
     private final MemberService memberService;
     private final NotificationHistoryService notificationHistoryService;
+
+    @Trace
     @GetMapping("/notification/{notCnt}")
     ResponseEntity<List<NotificationDto.notificationResponse>> retrieveNotification(@PathVariable Long notCnt,
                                                                                     @AuthenticationPrincipal UserDetails userDetails){
@@ -42,6 +45,7 @@ public class NotificationController {
         return ResponseEntity.ok().body(notificationResponse);
     }
 
+    @Trace
     @GetMapping("/notification/{notificationId}/detail")
     ResponseEntity<NotificationDto.notificationReadResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
         NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
@@ -49,6 +53,7 @@ public class NotificationController {
         return ResponseEntity.ok().body(notificationReadResponse);
     }
 
+    @Trace
     @DeleteMapping("/notification/{notificationId}")
     ResponseEntity<String> deleteNotification(@PathVariable Long notificationId,
                                               @AuthenticationPrincipal UserDetails userDetails){

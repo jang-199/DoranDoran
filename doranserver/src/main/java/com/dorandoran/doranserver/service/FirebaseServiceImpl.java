@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -173,7 +174,7 @@ public class FirebaseServiceImpl implements FirebaseService {
         try{
             FirebaseMessaging.getInstance(firebaseConfig.aosFirebaseApp()).sendMulticastAsync(message);
         }catch (IOException e){
-            e.printStackTrace();
+            log.error(Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -181,7 +182,7 @@ public class FirebaseServiceImpl implements FirebaseService {
         try{
             FirebaseMessaging.getInstance(firebaseConfig.iosFirebaseApp()).sendMulticastAsync(message);
         }catch (IOException e){
-            e.printStackTrace();
+            log.error(Arrays.toString(e.getStackTrace()));
         }
     }
 }

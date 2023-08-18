@@ -5,21 +5,17 @@ package com.dorandoran.doranserver.config.Initializer;
 import com.dorandoran.doranserver.dto.Jackson2JsonRedisDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
-import com.dorandoran.doranserver.entity.lockType.LockType;
 import com.dorandoran.doranserver.entity.osType.OsType;
 import com.dorandoran.doranserver.repository.LockMemberRepository;
 import com.dorandoran.doranserver.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.security.cert.TrustAnchor;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,43 +62,12 @@ public class BackgroundPicDBInitializer {
 
 
     @PostConstruct
-    public void init() throws IOException {
+    public void init() {
 
-        List<String> tagList = List.of("고민", "연애", "10대", "20대", "30대", "40대", "50대", "친구", "남사친", "여사친", "일상", "대화", "짝사랑", "학교", "출근", "ootd");
-        tagList.iterator().forEachRemaining(t->hashTagService.saveHashTag(HashTag.builder().hashTagName(t).hashTagCount(0L).build()));
-
-        for (int i = 0; i < 100; i++) { //사진 경로 저장
-            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".jpg").imgName((i + 1) + ".jpg").build();
-            backGroundPicService.saveBackgroundPic(build);
-        }
+        List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
+        setBackgroundPic();//사진 경로 저장
 
         for (long i = 1L; i <= 50L; i++) {
-            PolicyTerms build = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
-            policyTermsCheck.policyTermsSave(build); //권한 동의 저장
-
-            Member buildMember = Member.builder()
-                    .policyTermsId(build)
-                    .email(i + "@gmail.com")
-                    .dateOfBirth(LocalDate.now())
-                    .firebaseToken("cekww1BXT4GCJM8cvkw45v:APA91bEJ0Z_iZXwKoIjIxLvb9X4g9AOCBpsLtjujy5jlmRZsboFVx6TM0Av9ChDNivcuY_zhREf_ClAN4BIr2qPXMNQctwqtVmRzpadv6fwbdoHwoNZf7numWEFYzYrltOVHnNmJBUZc")
-                    .nickname("nickname" + i)
-                    .closureDate(LocalDate.of(2000,12,12))
-                    .signUpDate(LocalDateTime.now())
-                    .refreshToken("refresh").build();
-            if (i % 2 == 0) {
-                buildMember.setOsType(OsType.Ios);
-            } else {
-                buildMember.setOsType(OsType.Aos);
-            }
-            memberService.saveMember(buildMember);//회원 50명 생성
-            Member member = memberService.findByEmail(i + "@gmail.com");
-            if (i % 2 == 0) {
-                LockMember lockMember = new LockMember(member, Duration.ofDays(1), LockType.Day1);
-                lockMemberRepository.save(lockMember);
-            }
-//            AccountClosureMember build2 = AccountClosureMember.builder().closureMemberId(buildMember).build();
-//            accountClosureMemberService.saveClosureMember(build2);
-
 
             if(i == 1L){ //1번은 테스트용 계정 생성
                 PolicyTerms build3 = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
@@ -113,100 +78,136 @@ public class BackgroundPicDBInitializer {
                         .dateOfBirth(LocalDate.now())
                         .firebaseToken("firebasetoken")
                         .closureDate(LocalDate.of(2000,12,12))
-                        .nickname("xcvfdsfs")
+                        .nickname("Admin")
                         .signUpDate(LocalDateTime.now())
                         .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjkxMjYwMjkzLCJleHAiOjE3MDY4MTIyOTMsInN1YiI6IuyImOyduCIsIlJPTEUiOiJST0xFX1VTRVIiLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.Jp88iBJy6OEfLyBGu8bQ9q8yAiQXi_M50syJJ5aTR0E")
                         .build();
                 build1.setOsType(OsType.Ios);
                 memberService.saveMember(build1);
-//                AccountClosureMember build4 = AccountClosureMember.builder().closureMemberId(build1).build();
-//                accountClosureMemberService.saveClosureMember(build4);
             }
 
-            Post post = Post.builder().content("회원" + i + "의 글입니다.")
-                    .forMe(false)
-                    .latitude(127.1877412)
-                    .longitude(127.1877412)
-                    .postTime(LocalDateTime.now())
-                    .memberId(buildMember)
-                    .switchPic(ImgType.DefaultBackground)
-                    .ImgName((i % 100 + 1) + ".jpg")
-                    .font("Jua")
-                    .fontColor("black")
-                    .fontSize(20)
-                    .fontBold(400)
-                    .reportCount(0)
-                    .isLocked(Boolean.FALSE)
-                    .build();
-            if (i % 2 == 0) {
-                post.setAnonymity(Boolean.TRUE);
-                post.setIsLocked(Boolean.TRUE);
-            } else {
-                post.setAnonymity(Boolean.FALSE);
-            }
-            postService.savePost(post); //글 50개 생성
-
-/*            //popular에 데이터 추가하고 테스트 진행
-            PostLike buildPostLike = PostLike.builder().memberId(buildMember).postId(postService.findSinglePost(i)).build();
-            postLikeService.savePostLike(buildPostLike);*/
-
-            Comment comment = Comment.builder()
-                    .comment("나는" + i + "야 반가워")
-                    .commentTime(LocalDateTime.now())
-                    .postId(postService.findSinglePost(i))
-                    .memberId(buildMember)
-                    .countReply(1)
-                    .reportCount(0)
-                    .isLocked(Boolean.FALSE)
-                    .build();
-            if (i % 2 == 0) {
-                comment.setAnonymity(Boolean.TRUE);
-                comment.setCheckDelete(Boolean.TRUE);
-                comment.setIsLocked(Boolean.TRUE);
-            } else {
-                comment.setAnonymity(Boolean.FALSE);
-                comment.setCheckDelete(Boolean.FALSE);
-            }
-            commentService.saveComment(comment);
-
-            Reply reply = Reply.builder()
-                    .commentId(comment)
-                    .memberId(buildMember)
-                    .reply("대댓글" + i + "입니다")
-                    .ReplyTime(LocalDateTime.now())
-                    .reportCount(0)
-                    .isLocked(Boolean.FALSE)
-                    .build();
-
-            if (i % 2 == 0) {
-                reply.setAnonymity(Boolean.TRUE);
-                reply.setCheckDelete(Boolean.TRUE);
-                reply.setSecretMode(Boolean.TRUE);
-                reply.setIsLocked(Boolean.TRUE);
-            } else {
-                reply.setAnonymity(Boolean.FALSE);
-                reply.setCheckDelete(Boolean.FALSE);
-                reply.setSecretMode(Boolean.FALSE);
-            }
-            replyService.saveReply(reply);
+            PolicyTerms policyTerms = setPolicyTerms();//권한 동의 저장
+            Member member = setMember(policyTerms, i + "@gmail.com", "nickname" + i, OsType.Ios);//맴버 생성 후 저장
+            Post post = setPost(i + "번 글입니다.", Boolean.FALSE, member, Boolean.FALSE);//글 생성 후 저장
+            Comment comment = setComment(post, member, "contents", Boolean.FALSE, Boolean.FALSE);//댓글 생성 후 저장
+            Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, Boolean.FALSE);//대댓글 생성 후 저장
 
             Random random = new Random();
-            for (int a = 0; a <= random.nextInt(2); a++) {
+            for (int j = 0; j <= random.nextInt(2); j++) {
 
-                int a1 = random.nextInt(15);
-                log.info("postId: {} , hashTag: {}",post.getContent(),hashTagService.findByHashTagName(tagList.get(a+a1)));
-                HashTag hashTag = hashTagService.findByHashTagName(tagList.get(a + a1));
-                hashTag.setHashTagCount(hashTag.getHashTagCount()+1L);
-                hashTagService.saveHashTag(hashTag);
-                postHashService.savePostHash(PostHash.builder().postId(post).hashTagId(hashTag).build());
+                int randomNum = random.nextInt(15);
+
+                HashTag hashtag = increaseHashtagCount(hashtagList.get(j + randomNum));
+                PostHash postHash = setPostHash(post, hashtag);
 
             }
         }
+    }
 
-//        for (int i = 1; i < 101; i++) {
-//            redisTemplate.opsForValue().set(Integer.parseInt(String.valueOf(i)), Jackson2JsonRedisDto.builder().pic(new UrlResource("file:" + serverPath + i  + ".jpg").getContentAsByteArray()).FileName(i+".jpg").build());
-//        }
+    private HashTag increaseHashtagCount(String hashtagName) {
+        HashTag hashtag = hashTagService.findByHashTagName(hashtagName);
+        hashtag.setHashTagCount(hashtag.getHashTagCount() + 1);
+        hashTagService.saveHashTag(hashtag);
+        return hashtag;
+    }
 
+    private void setBackgroundPic() {
+        for (int i = 0; i < 100; i++) { //사진 경로 저장
+            BackgroundPic build = BackgroundPic.builder().serverPath(serverPath + (i + 1) + ".jpg").imgName((i + 1) + ".jpg").build();
+            backGroundPicService.saveBackgroundPic(build);
+        }
+    }
 
+    private List<String> setHashtag() {
+        List<String> hashtagList = List.of("고민", "연애", "10대", "20대", "30대", "40대", "50대", "친구", "남사친", "여사친", "일상", "대화", "짝사랑", "학교", "출근", "ootd");
+        hashtagList.iterator().forEachRemaining(t->hashTagService.saveHashTag(HashTag.builder().hashTagName(t).hashTagCount(0L).build()));
+        return hashtagList;
+    }
+
+    private PolicyTerms setPolicyTerms() {
+        PolicyTerms policyTerms = PolicyTerms.builder().policy1(Boolean.TRUE)
+                .policy2(Boolean.TRUE)
+                .policy3(Boolean.TRUE)
+                .build();
+        policyTermsCheck.policyTermsSave(policyTerms);
+        return policyTerms;
+    }
+
+    private Member setMember(PolicyTerms policyTerms,String email,String nickname, OsType osType) {
+        Member member = Member.builder()
+                .policyTermsId(policyTerms)
+                .email(email)
+                .dateOfBirth(LocalDate.now())
+                .firebaseToken("cekww1BXT4GCJM8cvkw45v:APA91bEJ0Z_iZXwKoIjIxLvb9X4g9AOCBpsLtjujy5jlmRZsboFVx6TM0Av9ChDNivcuY_zhREf_ClAN4BIr2qPXMNQctwqtVmRzpadv6fwbdoHwoNZf7numWEFYzYrltOVHnNmJBUZc")
+                .nickname("nickname")
+                .closureDate(LocalDate.of(2000,12,12))
+                .signUpDate(LocalDateTime.now())
+                .refreshToken("refreshTokenByInitializer")
+                .osType(osType)
+                .build();
+        memberService.saveMember(member);
+        return member;
+    }
+
+    private Post setPost(String contents, Boolean anonymity, Member member, Boolean locked) {
+        long round = Math.round(Math.random() * 100 + 1);
+        int i = (int) round;
+
+        Post post = Post.builder().content(contents)
+                .forMe(false)
+                .latitude(127.1877412)
+                .longitude(127.1877412)
+                .postTime(LocalDateTime.now())
+                .memberId(member)
+                .switchPic(ImgType.DefaultBackground)
+                .ImgName(i + ".jpg")
+                .font("Jua")
+                .fontColor("black")
+                .fontSize(20)
+                .fontBold(400)
+                .reportCount(0)
+                .anonymity(anonymity)
+                .isLocked(locked)
+                .build();
+        postService.savePost(post);
+        return post;
+    }
+
+    private Comment setComment(Post post, Member member, String contents, Boolean anonymity, Boolean locked) {
+        Comment comment = Comment.builder()
+                .comment(contents)
+                .commentTime(LocalDateTime.now())
+                .postId(post)
+                .memberId(member)
+                .countReply(1)
+                .reportCount(0)
+                .isLocked(locked)
+                .anonymity(anonymity)
+                .build();
+        commentService.saveComment(comment);
+        return comment;
+    }
+
+    private Reply setReply(Comment comment, Member buildMember, String contents, Boolean anonymity, Boolean locked) {
+        Reply reply = Reply.builder()
+                .commentId(comment)
+                .memberId(buildMember)
+                .reply(contents)
+                .ReplyTime(LocalDateTime.now())
+                .reportCount(0)
+                .isLocked(locked)
+                .anonymity(anonymity)
+                .build();
+        replyService.saveReply(reply);
+        return reply;
+    }
+
+    private PostHash setPostHash(Post post, HashTag hashtag) {
+        PostHash postHash = PostHash.builder()
+                .postId(post)
+                .hashTagId(hashtag)
+                .build();
+        postHashService.savePostHash(postHash);
+        return postHash;
     }
 }

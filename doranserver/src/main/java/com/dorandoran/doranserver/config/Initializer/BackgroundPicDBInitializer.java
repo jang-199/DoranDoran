@@ -62,8 +62,7 @@ public class BackgroundPicDBInitializer {
 
 
     @PostConstruct
-    public void init() {
-
+    public void init() {//todo 회원, 글, 댓글, 대댓글, 좋아요, 사진 기본이랑 유저사진 둘다 잘 나오나, -> 문의글, 신고(글은 하나당 7번(신고 횟수 7로 변경하고 락 트루로, 멤버 테이블에서 토탈 신고횟수 1증가)->(reportPost에 추가), 댓글->reportcomment, 대댓글reportreply은 5번) ->,
         List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
         setBackgroundPic();//사진 경로 저장
 

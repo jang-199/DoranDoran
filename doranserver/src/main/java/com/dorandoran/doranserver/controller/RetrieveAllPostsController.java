@@ -55,7 +55,7 @@ public class RetrieveAllPostsController {
 
             RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder().postId(post.getPostId())
                     .contents(post.getContent())
-                    .postTime(post.getPostTime())
+                    .postTime(post.getCreatedTime())
                     .location(null)
                     .likeCnt(postLikeService.findLIkeCnt(post))
                     .likeResult(null)

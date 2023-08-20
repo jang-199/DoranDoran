@@ -55,7 +55,6 @@ public class CommentDto {
             this.commentNickname = comment.getMemberId().getNickname();
             this.CommentAnonymityNickname = null;
             this.commentCheckDelete = comment.getCheckDelete();
-            this.commentTime = comment.getCommentTime();
             this.countReply = comment.getCountReply();
             this.isWrittenByMember = isWrittenByMember;
             this.replies = replies;

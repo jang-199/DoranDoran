@@ -79,7 +79,6 @@ public class PostController {
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
-                .postTime(LocalDateTime.now())
                 .memberId(member)
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
@@ -294,7 +293,6 @@ public class PostController {
         //리턴할 postDetail builder
         PostDto.ReadPostResponse postDetailDto = PostDto.ReadPostResponse.builder()
                 .content(post.getContent())
-                .postTime(post.getPostTime())
                 .postLikeCnt(postLikeService.findLIkeCnt(post))
                 .postLikeResult(postLikeService.findLikeResult(userEmail, post))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post))

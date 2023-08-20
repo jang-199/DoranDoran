@@ -79,7 +79,7 @@ public class RetrieveInterestedPostController {
                         .fontBold(optionalPostHash.get().getPostId().getFontBold())
                         .postId(optionalPostHash.get().getPostId().getPostId())
                         .contents(optionalPostHash.get().getPostId().getContent())
-                        .postTime(optionalPostHash.get().getPostId().getPostTime())
+                        .postTime(optionalPostHash.get().getPostId().getCreatedTime())
                         .replyCnt(commentService.findCommentAndReplyCntByPostId(optionalPostHash.get().getPostId()))
                         .likeCnt(postLikeService.findLIkeCnt(optionalPostHash.get().getPostId())).build();
 

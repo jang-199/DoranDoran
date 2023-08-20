@@ -3,11 +3,9 @@ package com.dorandoran.doranserver.entity;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 
 
@@ -17,8 +15,10 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@AttributeOverride(name = "createdTime", column = @Column(name = "POST_TIME"))
 @Builder
-public class Post {
+public class Post extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "POST_ID")
@@ -39,10 +39,6 @@ public class Post {
     @Nullable
     @Column(name = "LONGITUDE")
     private Double longitude;
-
-    @NotNull
-    @Column(name = "POST_TIME")
-    private LocalDateTime postTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")

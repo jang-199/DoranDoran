@@ -12,13 +12,11 @@ import com.dorandoran.doranserver.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.security.cert.TrustAnchor;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -129,7 +127,6 @@ public class BackgroundPicDBInitializer {
                     .forMe(false)
                     .latitude(127.1877412)
                     .longitude(127.1877412)
-                    .postTime(LocalDateTime.now())
                     .memberId(buildMember)
                     .switchPic(ImgType.DefaultBackground)
                     .ImgName((i % 100 + 1) + ".jpg")
@@ -154,7 +151,6 @@ public class BackgroundPicDBInitializer {
 
             Comment comment = Comment.builder()
                     .comment("나는" + i + "야 반가워")
-                    .commentTime(LocalDateTime.now())
                     .postId(postService.findSinglePost(i))
                     .memberId(buildMember)
                     .countReply(1)
@@ -175,7 +171,6 @@ public class BackgroundPicDBInitializer {
                     .commentId(comment)
                     .memberId(buildMember)
                     .reply("대댓글" + i + "입니다")
-                    .ReplyTime(LocalDateTime.now())
                     .reportCount(0)
                     .isLocked(Boolean.FALSE)
                     .build();

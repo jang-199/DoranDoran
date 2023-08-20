@@ -94,7 +94,7 @@ public class RetrieveHashTagPostController {
                         .fontBold(post.getFontBold())
                         .postId(post.getPostId())
                         .contents(post.getContent())
-                        .postTime(post.getPostTime())
+                        .postTime(post.getCreatedTime())
                         .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt);
             } else {
@@ -107,7 +107,7 @@ public class RetrieveHashTagPostController {
 
                 builder.postId(post.getPostId())
                         .contents(post.getContent())
-                        .postTime(post.getPostTime())
+                        .postTime(post.getCreatedTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
                         .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt)

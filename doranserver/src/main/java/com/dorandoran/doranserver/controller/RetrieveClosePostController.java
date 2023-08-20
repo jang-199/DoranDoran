@@ -92,7 +92,7 @@ public class RetrieveClosePostController {
             builder.postId(e.getPostId())
                     .isWrittenByMember(e.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                     .contents(e.getContent())
-                    .postTime(e.getPostTime())
+                    .postTime(e.getCreatedTime())
                     .location(distance.intValue())
                     .likeCnt(lIkeCnt)
                     .likeResult(likeResult)

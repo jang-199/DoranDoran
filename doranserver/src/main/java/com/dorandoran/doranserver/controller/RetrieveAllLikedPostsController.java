@@ -69,7 +69,7 @@ public class RetrieveAllLikedPostsController {
             RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder()
                     .postId(post.getPostId().getPostId())
                     .contents(post.getPostId().getContent())
-                    .postTime(post.getPostId().getPostTime())
+                    .postTime(post.getPostId().getCreatedTime())
                     .location(null)
                     .likeCnt(postLikeService.findLIkeCnt(post.getPostId()))
                     .likeResult(null)

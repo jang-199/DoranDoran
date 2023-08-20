@@ -47,7 +47,6 @@ public class ReplyDto {
             this.replyAnonymityNickname = null;
             this.replyCheckDelete = reply.getCheckDelete();
             this.isWrittenByMember = isWrittenByMember;
-            this.replyTime = reply.getReplyTime();
         }
     }
     @Getter

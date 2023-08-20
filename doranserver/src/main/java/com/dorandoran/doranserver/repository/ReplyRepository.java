@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Comment;
 import com.dorandoran.doranserver.entity.Member;
+import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.Reply;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

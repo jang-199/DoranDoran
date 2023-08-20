@@ -78,7 +78,6 @@ public class CommentController {
         log.info("사용자 {}의 댓글 작성", userDetails.getUsername());
         Comment comment = Comment.builder()
                 .comment(createCommentDto.getComment())
-                .commentTime(LocalDateTime.now())
                 .postId(post)
                 .memberId(member)
                 .anonymity(createCommentDto.getAnonymity())
@@ -201,7 +200,6 @@ public class CommentController {
 
         Reply buildReply = Reply.builder()
                 .reply(replyDto.getReply())
-                .ReplyTime(LocalDateTime.now())
                 .anonymity(replyDto.getAnonymity())
                 .commentId(comment)
                 .memberId(member)

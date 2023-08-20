@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class InquiryComment {
+public class InquiryComment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "INQUIRY_COMMENT_ID")
@@ -29,9 +28,6 @@ public class InquiryComment {
     @ManyToOne
     @JoinColumn(name = "INQUIRY_HISTORY")
     private InquiryPost inquiryPostId;
-
-    @CreatedDate
-    private LocalDateTime createdTime;
 
     @Builder
     public InquiryComment(String comment, InquiryPost inquiryPostId) {

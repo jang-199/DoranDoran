@@ -2,10 +2,7 @@ package com.dorandoran.doranserver.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 
@@ -15,8 +12,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Builder
-public class Comment {
+@AttributeOverride(name = "createdTime", column = @Column(name = "COMMENT_TIME"))
+public class Comment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "COMMENT_ID")
@@ -32,10 +31,6 @@ public class Comment {
 
     @Column(name = "CHECK_DELETE")
     private Boolean checkDelete;
-
-    @NotNull
-    @Column(name = "COMMENT_TIME")
-    private LocalDateTime commentTime;
 
     @Column(name = "SECRET_MODE")
     private Boolean secretMode;

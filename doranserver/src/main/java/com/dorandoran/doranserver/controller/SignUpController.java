@@ -131,7 +131,6 @@ public class SignUpController {
 
 
                 Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
-                        .signUpDate(LocalDateTime.now())
                         .firebaseToken(signUp.getFirebaseToken())
                         .nickname(signUp.getNickname())
                         .policyTermsId(policyTerms)

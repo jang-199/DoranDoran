@@ -73,7 +73,6 @@ public class PostController {
             }
         }
 
-        log.info("{}",userDetails.getUsername());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())

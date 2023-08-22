@@ -59,6 +59,9 @@ public class Member implements UserDetails {
     @Column(name = "TOTAL_REPORT_COUNT")
     private int totalReportCount;
 
+    @Column(name = "CHECK_NOTIFICATION")
+    private Boolean checkNotification;
+
     public void setAccountClosureRequestTime() {
         this.closureDate = LocalDate.now();
     }
@@ -70,10 +73,13 @@ public class Member implements UserDetails {
         this.totalReportCount += 1;
     }
     public void subtractReportTime(){this.totalReportCount -= 1;}
+    public Boolean checkNotification(){
+        return this.checkNotification.equals(Boolean.TRUE) ? Boolean.TRUE : Boolean.FALSE;
+    }
     @Enumerated(EnumType.STRING)
     private OsType osType;
     @Builder
-    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken, LocalDate closureDate, OsType osType) {
+    public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken, LocalDate closureDate, OsType osType, Boolean checkNotification) {
         this.memberId = memberId;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
@@ -84,6 +90,7 @@ public class Member implements UserDetails {
         this.refreshToken = refreshToken;
         this.closureDate = closureDate;
         this.osType = osType;
+        this.checkNotification = checkNotification;
     }
 
     @Override

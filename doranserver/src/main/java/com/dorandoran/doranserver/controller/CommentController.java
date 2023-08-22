@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.CommentDto;
 import com.dorandoran.doranserver.dto.ReplyDto;
 import com.dorandoran.doranserver.entity.*;
@@ -39,6 +40,7 @@ public class CommentController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
 
+    @Trace
     @GetMapping("/comment")
     public ResponseEntity<?> inquiryComment(@RequestParam("postId") Long postId,
                                             @RequestParam("commentId") Long commentId,
@@ -55,7 +57,7 @@ public class CommentController {
     }
 
 
-
+    @Trace
     @PostMapping("/comment")
     ResponseEntity<?> comment(@RequestBody CommentDto.CreateComment createCommentDto,
                               @AuthenticationPrincipal UserDetails userDetails) {
@@ -76,7 +78,6 @@ public class CommentController {
         log.info("사용자 {}의 댓글 작성", userDetails.getUsername());
         Comment comment = Comment.builder()
                 .comment(createCommentDto.getComment())
-                .commentTime(LocalDateTime.now())
                 .postId(post)
                 .memberId(member)
                 .anonymity(createCommentDto.getAnonymity())
@@ -86,7 +87,7 @@ public class CommentController {
                 .build();
         commentService.saveComment(comment);
 
-        if (!post.getMemberId().equals(member)) {
+        if (!post.getMemberId().equals(member) && post.getMemberId().checkNotification()){
             firebaseService.notifyComment(post.getMemberId(), comment);
         }
 
@@ -116,6 +117,7 @@ public class CommentController {
     }
 
 
+    @Trace
     @DeleteMapping("/comment")
     @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDto.DeleteComment commentDeleteDto,
@@ -134,6 +136,7 @@ public class CommentController {
     }
 
 
+    @Trace
     @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentDto.LikeComment commentLikeDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
@@ -148,13 +151,14 @@ public class CommentController {
 
         commentLikeService.checkCommentLike(commentLikeDto, userDetails, comment, member, commentLike);
 
-        if (commentLike.isEmpty()) {
+        if (commentLike.isEmpty() && comment.getMemberId().checkNotification()) {
             firebaseService.notifyCommentLike(comment.getMemberId(), comment);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Trace
     @GetMapping("/reply")
     public ResponseEntity<?> inquiryReply(@RequestParam("postId") Long postId,
                                           @RequestParam("commentId") Long commentId,
@@ -173,6 +177,7 @@ public class CommentController {
         return ResponseEntity.ok().body(replyDetailDtoList);
     }
 
+    @Trace
     @Transactional
     @PostMapping("/reply")
     public ResponseEntity<?> reply(@RequestBody ReplyDto.CreateReply replyDto,
@@ -195,7 +200,6 @@ public class CommentController {
 
         Reply buildReply = Reply.builder()
                 .reply(replyDto.getReply())
-                .ReplyTime(LocalDateTime.now())
                 .anonymity(replyDto.getAnonymity())
                 .commentId(comment)
                 .memberId(member)
@@ -210,7 +214,7 @@ public class CommentController {
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
         replyMemberList.add(comment.getMemberId());
         List<Member> fcmMemberList = checkMyComment(replyMemberList, member);
-        if (fcmMemberList.size() != 0) {
+        if (!fcmMemberList.isEmpty()) {
             firebaseService.notifyReply(fcmMemberList, buildReply);
         }
 
@@ -232,6 +236,7 @@ public class CommentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Trace
     @DeleteMapping("/reply")
     @Transactional
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDto.DeleteReply replyDeleteDto,
@@ -314,7 +319,9 @@ public class CommentController {
     private static List<Member> checkMyComment(List<Member> memberList, Member writeMember) {
         return memberList.stream()
                 .distinct()
-                .filter((member) -> !member.equals(writeMember))
+                .filter((member) ->
+                        !member.equals(writeMember)
+                        && member.checkNotification())
                 .collect(Collectors.toList());
     }
 }

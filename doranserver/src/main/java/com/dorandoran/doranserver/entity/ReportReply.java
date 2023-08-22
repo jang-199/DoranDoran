@@ -1,17 +1,16 @@
 package com.dorandoran.doranserver.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ReportReply {
+@EqualsAndHashCode(callSuper = false)
+@AttributeOverride(name = "createdTime", column = @Column(name = "REPLY_REPORT_TIME"))
+public class ReportReply extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "REPORT_REPLY_ID")
@@ -28,14 +27,10 @@ public class ReportReply {
     @Column(name = "REPORT_CONTENT")
     private String reportContent;
 
-    @Column(name = "REPORT_TIME")
-    private LocalDateTime reportTime;
-
     @Builder
     public ReportReply(Reply replyId, Member memberId, String reportContent) {
         this.replyId = replyId;
         this.memberId = memberId;
         this.reportContent = reportContent;
-        this.reportTime = LocalDateTime.now();
     }
 }

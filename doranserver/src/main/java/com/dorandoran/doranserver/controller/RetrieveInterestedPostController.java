@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrieveInterestedDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -36,6 +37,7 @@ public class RetrieveInterestedPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/interested")
     ResponseEntity<LinkedList<Map>> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
         log.info(userDetails.getUsername());
@@ -77,7 +79,7 @@ public class RetrieveInterestedPostController {
                         .fontBold(optionalPostHash.get().getPostId().getFontBold())
                         .postId(optionalPostHash.get().getPostId().getPostId())
                         .contents(optionalPostHash.get().getPostId().getContent())
-                        .postTime(optionalPostHash.get().getPostId().getPostTime())
+                        .postTime(optionalPostHash.get().getPostId().getCreatedTime())
                         .replyCnt(commentService.findCommentAndReplyCntByPostId(optionalPostHash.get().getPostId()))
                         .likeCnt(postLikeService.findLIkeCnt(optionalPostHash.get().getPostId())).build();
 

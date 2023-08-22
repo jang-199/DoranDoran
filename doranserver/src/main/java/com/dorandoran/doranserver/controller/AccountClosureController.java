@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.entity.AccountClosureMember;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.service.AccountClosureMemberService;
@@ -24,6 +25,7 @@ public class AccountClosureController {
     private final MemberService memberService;
     private final AccountClosureMemberService accountClosureMemberService;
 
+    @Trace
     @DeleteMapping("/member")
     public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
 

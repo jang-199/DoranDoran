@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrieveHashtagDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -39,6 +40,7 @@ public class RetrieveHashTagPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/hashtag")
     ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> retrievePostByHashTag(@RequestBody RetrieveHashtagDto.ReadHashtag retrieveHashTagPostDto,
                                                                      @AuthenticationPrincipal UserDetails userDetails) {
@@ -92,7 +94,7 @@ public class RetrieveHashTagPostController {
                         .fontBold(post.getFontBold())
                         .postId(post.getPostId())
                         .contents(post.getContent())
-                        .postTime(post.getPostTime())
+                        .postTime(post.getCreatedTime())
                         .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt);
             } else {
@@ -105,7 +107,7 @@ public class RetrieveHashTagPostController {
 
                 builder.postId(post.getPostId())
                         .contents(post.getContent())
-                        .postTime(post.getPostTime())
+                        .postTime(post.getCreatedTime())
                         .location(Long.valueOf(Math.round(distance)).intValue())
                         .replyCnt(commentCntByPostId)
                         .likeCnt(lIkeCnt)

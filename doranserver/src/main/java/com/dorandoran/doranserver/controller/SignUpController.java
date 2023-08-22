@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.config.jwt.TokenProvider;
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.AccountDto;
 import com.dorandoran.doranserver.dto.AuthenticationDto;
 import com.dorandoran.doranserver.entity.Member;
@@ -38,7 +39,7 @@ public class SignUpController {
     private final TokenProvider tokenProvider;
 
 
-
+    @Trace
     @PostMapping("/nickname")
     ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
@@ -51,6 +52,7 @@ public class SignUpController {
         }
     }
 
+    @Trace
     @PostMapping("registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody AccountDto.CheckRegisteredMember memberDto) {
         Member member = null;
@@ -76,6 +78,7 @@ public class SignUpController {
                 .tokenDto(new AuthenticationDto.TokenResponse(refreshToken,accessToken)).build());
     }
 
+    @Trace
     @Transactional
     @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto,
@@ -94,6 +97,7 @@ public class SignUpController {
     }
 
 
+    @Trace
     @PostMapping("/member")
     ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
@@ -127,7 +131,6 @@ public class SignUpController {
 
 
                 Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
-                        .signUpDate(LocalDateTime.now())
                         .firebaseToken(signUp.getFirebaseToken())
                         .nickname(signUp.getNickname())
                         .policyTermsId(policyTerms)

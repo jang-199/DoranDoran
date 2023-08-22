@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class InquiryPost {
+public class InquiryPost extends BaseEntity{
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "INQUIRY_POST_ID")
     private Long inquiryPostId;
@@ -37,9 +36,6 @@ public class InquiryPost {
     @NotNull
     @Enumerated(EnumType.STRING)
     private InquiryStatus inquiryStatus;
-
-    @CreatedDate
-    private LocalDateTime createdTime;
 
     @Builder
     public InquiryPost(String title, String content, Member memberId) {

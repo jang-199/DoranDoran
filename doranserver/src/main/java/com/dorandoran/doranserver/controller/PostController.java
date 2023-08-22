@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.*;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
@@ -59,6 +60,7 @@ public class PostController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
 
+    @Trace
     @Transactional
     @PostMapping("/post")
     public ResponseEntity<?> savePost(PostDto.CreatePost postDto,
@@ -76,7 +78,6 @@ public class PostController {
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
-                .postTime(LocalDateTime.now())
                 .memberId(member)
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
@@ -175,6 +176,7 @@ public class PostController {
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
      */
+    @Trace
     @Transactional
     @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
@@ -254,6 +256,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    @Trace
     @PostMapping("/post/like")
     ResponseEntity<?> postLike(@RequestBody PostDto.LikePost postLikeDto,
                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -267,7 +270,7 @@ public class PostController {
 
         postLikeService.checkPostLike(postLikeDto, userDetails, post, member, postLike);
 
-        if (postLike.isEmpty()) {
+        if (postLike.isEmpty() && post.getMemberId().checkNotification()) {
             firebaseService.notifyPostLike(post.getMemberId(), post);
         }
 
@@ -275,6 +278,7 @@ public class PostController {
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
+    @Trace
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
@@ -288,7 +292,6 @@ public class PostController {
         //리턴할 postDetail builder
         PostDto.ReadPostResponse postDetailDto = PostDto.ReadPostResponse.builder()
                 .content(post.getContent())
-                .postTime(post.getPostTime())
                 .postLikeCnt(postLikeService.findLIkeCnt(post))
                 .postLikeResult(postLikeService.findLikeResult(userEmail, post))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post))

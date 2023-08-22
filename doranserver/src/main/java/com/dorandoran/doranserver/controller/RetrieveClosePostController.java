@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.controller;
 
+import com.dorandoran.doranserver.controller.annotation.Trace;
 import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
@@ -39,6 +40,7 @@ public class RetrieveClosePostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/close")
     ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
                                                                              @RequestParam(required = false, defaultValue = "") String location,
@@ -90,7 +92,7 @@ public class RetrieveClosePostController {
             builder.postId(e.getPostId())
                     .isWrittenByMember(e.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                     .contents(e.getContent())
-                    .postTime(e.getPostTime())
+                    .postTime(e.getCreatedTime())
                     .location(distance.intValue())
                     .likeCnt(lIkeCnt)
                     .likeResult(likeResult)

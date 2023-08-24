@@ -20,6 +20,10 @@ public class PostHashServiceImpl implements PostHashService{
     public void savePostHash(PostHash postHash) {
         postHashRepository.save(postHash);
     }
+    @Override
+    public void saveAllPostHash(List<PostHash> postHash) {
+        postHashRepository.saveAll(postHash);
+    }
 
     @Override
     public List<PostHash> findPostHash(Post post) {

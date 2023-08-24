@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostHashService {
-    public void savePostHash(PostHash postHash);
+    void savePostHash(PostHash postHash);
+    void saveAllPostHash(List<PostHash> postHash);
     List<PostHash> findPostHash(Post post);
-    public void deletePostHash(PostHash postHash);
+    void deletePostHash(PostHash postHash);
 
     Optional<PostHash> findTopOfPostHash(HashTag hashTag, List<MemberBlockList> members);
 

@@ -9,24 +9,19 @@ import com.dorandoran.doranserver.service.distance.DistanceService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Timed
@@ -61,7 +56,6 @@ public class PostController {
     private final FirebaseService firebaseService;
 
     @Trace
-    @Transactional
     @PostMapping("/post")
     public ResponseEntity<?> savePost(PostDto.CreatePost postDto,
                            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
@@ -87,87 +81,29 @@ public class PostController {
                 .isLocked(Boolean.FALSE)
                 .build();
 
-        //location null 처리
-        if (postDto.getLocation().isBlank()) {
-            post.setLatitude(null);
-            post.setLongitude(null);
-        } else {
-            String[] userLocation = postDto.getLocation().split(",");
-            post.setLatitude(Double.valueOf(userLocation[0]));
-            post.setLongitude(Double.valueOf(userLocation[1]));
-        }
+        postService.saveMemberPost(post, postDto);
 
-        //파일 처리
-        if (postDto.getBackgroundImgName().isBlank()) {
-            log.info("사진 생성 중");
-            String fileName = postDto.getFile().getOriginalFilename();
-            String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
-            String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
-            try {
-                postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
-
-                //todo try catch 삭제 (try catch로 잡으면 예외를 안던져서 rollback이 안됨)
-                  //todo 사진 확장자 체크 로직 추가
-            }catch (IOException e){
-                log.info("IO Exception 발생",e);
-                return ResponseEntity.badRequest().build();
-            }
-            catch (MaxUploadSizeExceededException e){
-                log.info("파일 업로드 크기 제한 exception",e);
-                return ResponseEntity.badRequest().body("파일 업로드 크기 제한");
-            }
-
-            post.setSwitchPic(ImgType.UserUpload);
-            post.setImgName(userUploadImgName);
-            UserUploadPic userUploadPic = UserUploadPic
-                    .builder()
-                    .imgName(userUploadImgName)
-                    .serverPath(userUploadPicServerPath + userUploadImgName)
-                    .build();
-            userUploadPicService.saveUserUploadPic(userUploadPic);
-            log.info("사용자 지정 이미지 이름 : {}",fileNameSubstring);
-        } else {
-            post.setSwitchPic(ImgType.DefaultBackground);
-            post.setImgName(postDto.getBackgroundImgName() + ".jpg");
-        }
-
-        log.info("{}의 글 생성", member.getNickname());
-        postService.savePost(post);
-
-        //HashTag 테이블 생성
         if (postDto.getHashTagName() != null) {
-            Post hashTagPost = postService.findSinglePost(post.getPostId());
-            for (String hashTag : postDto.getHashTagName()) {
-                log.info("해시태그 존재");
-                HashTag buildHashTag = HashTag.builder()
-                        .hashTagName(hashTag)
-                        .hashTagCount(1L)
-                        .build();
-                if (hashTagService.duplicateCheckHashTag(hashTag)) {
-                    hashTagService.saveHashTag(buildHashTag);
-                    savePostHash(hashTagPost, hashTag);
-                    log.info("해시태그 {}", hashTag + " 생성");
-                } else {
-                    HashTag byHashTagName = hashTagService.findByHashTagName(hashTag);
-                        Long hashTagCount = byHashTagName.getHashTagCount();
-                        byHashTagName.setHashTagCount(hashTagCount + 1);
-                        hashTagService.saveHashTag(byHashTagName);
-                        savePostHash(hashTagPost, hashTag);
-                        log.info("해시태그 {}", hashTag + "의 카운트 1증가");
-                    }
-                }
-            }
+            hashTagService.saveHashtagList(postDto.getHashTagName());
+        }
 
-        return ResponseEntity.ok().build();
+        Post hashTagPost = postService.findSinglePost(post.getPostId());
+        List<HashTag> byHashTagName = hashTagService.findHashtagList(postDto.getHashTagName());
+        savePostHash(hashTagPost, byHashTagName);
+
+        return ResponseEntity.created(URI.create("")).build();
     }
 
-    private void savePostHash(Post hashTagPost, String hashTag) {
-        HashTag byHashTagName = hashTagService.findByHashTagName(hashTag);
+    private void savePostHash(Post hashTagPost, List<HashTag> hashTagList) {
+        ArrayList<PostHash> postHashList = new ArrayList<>();
+        for (HashTag hashTag : hashTagList) {
             PostHash postHash = PostHash.builder()
                     .postId(hashTagPost)
-                    .hashTagId(byHashTagName)
+                    .hashTagId(hashTag)
                     .build();
-            postHashService.savePostHash(postHash);
+            postHashList.add(postHash);
+        }
+            postHashService.saveAllPostHash(postHashList);
         }
 
     /**

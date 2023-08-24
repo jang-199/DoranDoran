@@ -1,14 +1,18 @@
 package com.dorandoran.doranserver.service;
 
+import com.dorandoran.doranserver.dto.PostDto;
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public interface PostService {
     void savePost(Post post);
+
+    void saveMemberPost(Post post, PostDto.CreatePost postDto) throws IOException;
 
     List<Post> findFirstPost(List<MemberBlockList> memberBlockLists);
 
@@ -24,4 +28,6 @@ public interface PostService {
 
     Post findFetchMember(Long postId);
     void setUnLocked(Post post);
+
+    void setPostPic(PostDto.CreatePost postDto, Post post) throws IOException;
 }

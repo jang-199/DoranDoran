@@ -65,7 +65,7 @@ public class RetrievePopularPostController {
         List<RetrievePopularDto.ReadPopularResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
             Integer distance;
-            if (isLocationPresent) {
+            if (isLocationPresent && post.getLocation()!=null) {
                 String latitude = splitLocation[0];
                 String longitude = splitLocation[1];
                 distance = distanceService.getDistance(Double.parseDouble(latitude),

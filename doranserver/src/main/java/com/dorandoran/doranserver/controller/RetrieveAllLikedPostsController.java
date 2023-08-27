@@ -49,7 +49,7 @@ public class RetrieveAllLikedPostsController {
 
         String username = userDetails.getUsername();
         Member member = memberService.findByEmail(username);
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         List<PostLike> myPost;
         if (position == 0) {

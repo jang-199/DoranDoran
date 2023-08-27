@@ -34,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Integer findCommentAndReplyCntByPostId(Post post) {
-        Integer cnt = 0;
+        int cnt = 0;
         List<Comment> commentCntByPostId = commentRepository.findCommentCntByPostId(post);
         cnt += commentCntByPostId.size();
         for (Comment comment : commentCntByPostId) {
@@ -42,6 +42,27 @@ public class CommentServiceImpl implements CommentService {
             cnt += replyCntByComment.size();
         }
         return cnt;
+    }
+
+    @Override
+    public List<Integer> findCommentAndReplyCntByPostIdByList(List<Post> postList) {
+        List<Integer> commentCntByPostList = commentRepository.findCommentCntByPostList(postList);//댓글 개수 리스트
+
+        List<Comment> commentByPostList = commentRepository.findCommentByPostList(postList);//글에 해당하는 댓글 리스트
+
+        List<Integer> replyCntByCommentList = replyRepository.findReplyCntByCommentList(commentByPostList);//댓글에 달린 대댓글 개수 리스트
+
+        int index = 0;
+        for (int i = 0; i < commentCntByPostList.size(); i++) {
+            Integer cnt = commentCntByPostList.get(i);
+            for (int j = index; j < commentCntByPostList.get(i) + index; j++) {
+                cnt += replyCntByCommentList.get(j);
+            }
+            index += commentCntByPostList.get(i);
+            commentCntByPostList.set(i, cnt);
+            cnt = 0;
+        }
+        return commentCntByPostList;
     }
 
     @Override

@@ -32,33 +32,31 @@ public class PostHashServiceImpl implements PostHashService{
     }
 
     @Override
-    public Optional<PostHash> findTopOfPostHash(HashTag hashTag, List<MemberBlockList> members) {
-        List<Member> list = members.stream().map(MemberBlockList::getBlockedMember).toList();
+    public Optional<PostHash> findTopOfPostHash(HashTag hashTag, List<Member> members) {
+//        List<Member> list = members.stream().map(MemberBlockList::getBlockedMember).toList();
         if (members.isEmpty()) {
             return postHashRepository.findTopByHashTag(hashTag);
         }
-        return postHashRepository.findTopByHashTagWithoutBlockLists(hashTag,list);
+        return postHashRepository.findTopByHashTagWithoutBlockLists(hashTag,members);
     }
 
     @Override
-    public List<PostHash> inquiryFirstPostHash(HashTag hashTag,List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<Post> inquiryFirstPostHash(HashTag hashTag, Member member, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        if (list.isEmpty()) {
-            return postHashRepository.findFirstPostHash(hashTag, of);
+        if (memberBlockListByBlockingMember.isEmpty()) {
+            return postHashRepository.findFirstPostHash(hashTag,member, of);
         }
-        return postHashRepository.findFirstPostHashWithoutBlockLists(hashTag, of, list);
+        return postHashRepository.findFirstPostHashWithoutBlockLists(hashTag,member,memberBlockListByBlockingMember, of);
 
     }
 
     @Override
-    public List<PostHash> inquiryPostHash(HashTag hashTag, Long postCnt,List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<Post> inquiryPostHash(HashTag hashTag, Long postCnt, Member member, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        if (list.isEmpty()) {
-            return postHashRepository.findPostHash(hashTag, postCnt, of);
+        if (memberBlockListByBlockingMember.isEmpty()) {
+            return postHashRepository.findPostHash(hashTag,member, postCnt, of);
         }
-        return postHashRepository.findPostHashWithoutBlockLists(hashTag, postCnt, of, list);
+        return postHashRepository.findPostHashWithoutBlockLists(hashTag, member, postCnt, memberBlockListByBlockingMember, of);
     }
 
 

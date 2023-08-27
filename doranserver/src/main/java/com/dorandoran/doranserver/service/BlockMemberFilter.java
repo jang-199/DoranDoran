@@ -46,11 +46,11 @@ public class BlockMemberFilter {
 //        return postList;
 //    }
 
-    public List<PostLike> postLikeFilter(List<PostLike> postLikeList, List<MemberBlockList> memberBlockLists) {
+    public List<PostLike> postLikeFilter(List<PostLike> postLikeList, List<Member> memberBlockLists) {
         return postLikeList.stream()
                 .peek(postLike -> {
                     boolean isBlocked = memberBlockLists.stream()
-                            .anyMatch(blockList -> blockList.getBlockedMember().equals(postLike.getPostId().getMemberId()));
+                            .anyMatch(blockList -> blockList.equals(postLike.getPostId().getMemberId()));
 
                     if (isBlocked) {
                         postLike.getPostId().setContent("차단된 사용자가 작성한 내용입니다.");
@@ -98,11 +98,11 @@ public class BlockMemberFilter {
                 .collect(Collectors.toList());
     }
 
-    public List<Comment> commentFilter(List<Comment> commentList, List<MemberBlockList> memberBlockLists){
+    public List<Comment> commentFilter(List<Comment> commentList, List<Member> memberBlockLists){
         return commentList.stream()
                 .peek(comment -> {
                     boolean isBlocked = memberBlockLists.stream()
-                            .anyMatch(blockList -> blockList.getBlockedMember().equals(comment.getMemberId()));
+                            .anyMatch(blockList -> blockList.equals(comment.getMemberId()));
 
                     if (isBlocked){
                         comment.setComment("차단된 사용자가 작성한 내용입니다.");
@@ -111,11 +111,11 @@ public class BlockMemberFilter {
                 .collect(Collectors.toList());
     }
 
-    public List<Reply> replyFilter(List<Reply> replyList, List<MemberBlockList> memberBlockLists){
+    public List<Reply> replyFilter(List<Reply> replyList, List<Member> memberBlockLists){
         return replyList.stream()
                 .peek(reply -> {
                     boolean isBlocked = memberBlockLists.stream()
-                            .anyMatch(blockList -> blockList.getBlockedMember().equals(reply.getMemberId()));
+                            .anyMatch(blockList -> blockList.equals(reply.getMemberId()));
 
                     if (isBlocked){
                         reply.setReply("차단된 사용자가 작성한 내용입니다.");

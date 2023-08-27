@@ -2,7 +2,6 @@ package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -28,7 +27,6 @@ import java.util.List;
 @RequestMapping("/api")
 @RestController
 public class RetrievePostController {
-
     @Value("${doran.ip.address}")
     String ipAddress;
     private final PostService postService;
@@ -37,85 +35,62 @@ public class RetrievePostController {
     private final DistanceService distanceService;
     private final MemberBlockListService memberBlockListService;
     private final MemberService memberService;
-//    private final BlockMemberFilter blockMemberFilter;
 
     @GetMapping("/post")
-    ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
-                                                            @RequestParam(required = false, defaultValue = "") String location,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+    ResponseEntity<List<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
+                                                                             @RequestParam(required = false, defaultValue = "") String location,
+                                                                             @AuthenticationPrincipal UserDetails userDetails) {
+        boolean isLocationPresent = !location.isBlank();
+        String[] splitLocation = location.split(",");
         String userEmail = userDetails.getUsername();
-        log.info("getAuthorities : {}",userDetails.getAuthorities());
-        log.info("getUsername : {}",userDetails.getUsername());
 
-        ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList = new ArrayList<>();
-        RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder = RetrievePostDto.ReadPostResponse.builder();
-
-        Member member = memberService.findByEmail(userDetails.getUsername());
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
-
-        if (postCnt == 0) { //first find
-            List<Post> firstPost = postService.findFirstPost(memberBlockListByBlockingMember);
-            return makePostResponseList(member, userEmail, postResponseDtoList, builder, firstPost, location);
-        } else {
-            List<Post> postList = postService.findPost(postCnt,memberBlockListByBlockingMember);
-            return makePostResponseList(member, userEmail, postResponseDtoList, builder, postList, location);
+        Member member = memberService.findByEmail(userEmail);
+        List<Member> memberBlockList = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        List<Post> postList;
+        if (postCnt.equals(0L)) {
+            postList= postService.findFirstPost(member,memberBlockList);
+        }else {
+            postList = postService.findPost(postCnt, member, memberBlockList);
         }
-    }
 
-    private ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> makePostResponseList(Member member,
-                                                                                             String userEmail,
-                                                                                             ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList,
-                                                                                             RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder,
-                                                                                             List<Post> postList,
-                                                                                             String location) {
+        List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
+        List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
+        List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
+
+        List<RetrievePostDto.ReadPostResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
-            if (!post.getMemberId().equals(member) && post.getForMe()) {
-                continue;
-            }
-            Integer lIkeCnt = postLikeService.findLIkeCnt(post);
-            Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
-            if (location.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
-                builder.location(null)
-                        .font(post.getFont())
-                        .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
-                        .fontColor(post.getFontColor())
-                        .fontSize(post.getFontSize())
-                        .fontBold(post.getFontBold())
-                        .postId(post.getPostId())
-                        .contents(post.getContent())
-                        .postTime(post.getPostTime())
-                        .replyCnt(commentCntByPostId)
-                        .likeCnt(lIkeCnt);
-            } else {
-                String[] userLocation = location.split(",");
-
-                Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-                        Double.parseDouble(userLocation[1]),
+            Integer distance;
+            if (isLocationPresent) {
+                String latitude = splitLocation[0];
+                String longitude = splitLocation[1];
+                distance = distanceService.getDistance(Double.parseDouble(latitude),
+                        Double.parseDouble(longitude),
                         post.getLatitude(),
                         post.getLongitude());
-
-                builder.postId(post.getPostId())
-                        .contents(post.getContent())
-                        .postTime(post.getPostTime())
-                        .location(Long.valueOf(Math.round(distance)).intValue())
-                        .replyCnt(commentCntByPostId)
-                        .likeCnt(lIkeCnt)
-                        .font(post.getFont())
-                        .fontColor(post.getFontColor())
-                        .fontSize(post.getFontSize())
-                        .fontBold(post.getFontBold());
-            }
-
-            String[] split = post.getImgName().split("[.]");
-            if (post.getSwitchPic() == ImgType.UserUpload) {
-                builder.backgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
             } else {
-                builder.backgroundPicUri(ipAddress + ":8080/api/pic/default/" + split[0]);
+                distance = null;
             }
 
-            builder.likeResult(postLikeService.findLikeResult(userEmail, post));
-            postResponseDtoList.add(builder.build());
+            String[] splitImgName = post.getImgName().split("[.]");
+            String imgName = splitImgName[0];
+            RetrievePostDto.ReadPostResponse postResponse = RetrievePostDto.ReadPostResponse.builder()
+                    .postId(post.getPostId())
+                    .contents(post.getContent())
+                    .postTime(post.getPostTime())
+                    .location(distance)
+                    .likeCnt(lIkeCntList.iterator().next())
+                    .likeResult(likeResultByPostList.iterator().next())
+                    .replyCnt(commentAndReplyCntList.iterator().next())
+                    .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                    .font(post.getFont())
+                    .fontColor(post.getFontColor())
+                    .fontSize(post.getFontSize())
+                    .fontBold(post.getFontBold())
+                    .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
+                    .build();
+            postResponseList.add(postResponse);
         }
-        return ResponseEntity.ok().body(postResponseDtoList);
+
+        return ResponseEntity.ok().body(postResponseList);
     }
 }

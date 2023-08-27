@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.controller;
 
 import com.dorandoran.doranserver.dto.RetrieveHashtagDto;
+import com.dorandoran.doranserver.dto.RetrievePostDto;
 import com.dorandoran.doranserver.entity.*;
 import com.dorandoran.doranserver.entity.imgtype.ImgType;
 import com.dorandoran.doranserver.service.*;
@@ -40,91 +41,66 @@ public class RetrieveHashTagPostController {
     String ipAddress;
 
     @GetMapping("/post/hashtag")
-    ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> retrievePostByHashTag(@RequestBody RetrieveHashtagDto.ReadHashtag retrieveHashTagPostDto,
+    ResponseEntity<List<RetrieveHashtagDto.ReadHashtagResponse>> retrievePostByHashTag(@RequestBody RetrieveHashtagDto.ReadHashtag retrieveHashTagPostDto,
                                                                      @AuthenticationPrincipal UserDetails userDetails) {
 
-        String encodeTagName = retrieveHashTagPostDto.getHashtagName();
-        String encodeLocation;
-        if (retrieveHashTagPostDto.getLocation() != null) {
-            encodeLocation = URLDecoder.decode(retrieveHashTagPostDto.getLocation(), StandardCharsets.UTF_8);
-        }else {
-            encodeLocation = "";
-        }
-        String encodeEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(encodeEmail);
+        String hashtagName = retrieveHashTagPostDto.getHashtagName();
+        boolean isLocationPresent;
 
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        isLocationPresent = retrieveHashTagPostDto.getLocation() != null;
 
-        ArrayList<RetrieveHashtagDto.ReadHashtagResponse> postResponseDtoList = new ArrayList<>();
-        RetrieveHashtagDto.ReadHashtagResponse.ReadHashtagResponseBuilder builder = RetrieveHashtagDto.ReadHashtagResponse.builder();
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail);
 
-        HashTag hashTag = hashTagService.findByHashTagName(encodeTagName);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+
+        HashTag hashTag = hashTagService.findByHashTagName(hashtagName);
 
 
-
+        List<Post> postList;
         if (retrieveHashTagPostDto.getPostCnt() == 0) { //first find
-            List<PostHash> postHashes = postHashService.inquiryFirstPostHash(hashTag,memberBlockListByBlockingMember);
-//            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
-            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
+            postList = postHashService.inquiryFirstPostHash(hashTag,member, memberBlockListByBlockingMember);
 
         } else {
-            List<PostHash> postHashes = postHashService.inquiryPostHash(hashTag, retrieveHashTagPostDto.getPostCnt(),memberBlockListByBlockingMember);
-//            List<PostHash> postHashFilter = blockMemberFilter.postHashFilter(postHashes, memberBlockListByBlockingMember);
-            return makeResponseList(member, encodeLocation, encodeEmail, postResponseDtoList, builder, postHashes);
+            postList = postHashService.inquiryPostHash(hashTag, retrieveHashTagPostDto.getPostCnt(), member, memberBlockListByBlockingMember);
         }
-    }
-
-    private ResponseEntity<ArrayList<RetrieveHashtagDto.ReadHashtagResponse>> makeResponseList(Member member, String encodeLocation, String encodeEmail, ArrayList<RetrieveHashtagDto.ReadHashtagResponse> postResponseDtoList, RetrieveHashtagDto.ReadHashtagResponse.ReadHashtagResponseBuilder builder, List<PostHash> postHashes) {
-        List<Post> postList = postHashes.stream().map((PostHash::getPostId)).toList();
-
+        List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
+        List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
+        List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
+        List<RetrieveHashtagDto.ReadHashtagResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
-            if (!post.getMemberId().equals(member) && post.getForMe()) {
-                continue;
-            }
-            Integer lIkeCnt = postLikeService.findLIkeCnt(post);
-            Integer commentCntByPostId = commentService.findCommentAndReplyCntByPostId(post);
-            if (encodeLocation.isBlank() || post.getLongitude() == null || post.getLatitude() == null) { //사용자 위치가 "" 거리 계산 안해서 리턴
-                builder.location(null)
-                        .isWrittenByMember(post.getMemberId().getEmail().equals(encodeEmail) ? Boolean.TRUE : Boolean.FALSE)
-                        .font(post.getFont())
-                        .fontColor(post.getFontColor())
-                        .fontSize(post.getFontSize())
-                        .fontBold(post.getFontBold())
-                        .postId(post.getPostId())
-                        .contents(post.getContent())
-                        .postTime(post.getPostTime())
-                        .replyCnt(commentCntByPostId)
-                        .likeCnt(lIkeCnt);
-            } else {
-                String[] userLocation = encodeLocation.split(",");
-
-                Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-                        Double.parseDouble(userLocation[1]),
+            Integer distance;
+            if (isLocationPresent) {
+                String latitude = retrieveHashTagPostDto.getLocation().split(",")[0];
+                String longitude = retrieveHashTagPostDto.getLocation().split(",")[1];
+                distance = distanceService.getDistance(Double.parseDouble(latitude),
+                        Double.parseDouble(longitude),
                         post.getLatitude(),
                         post.getLongitude());
-
-                builder.postId(post.getPostId())
-                        .contents(post.getContent())
-                        .postTime(post.getPostTime())
-                        .location(Long.valueOf(Math.round(distance)).intValue())
-                        .replyCnt(commentCntByPostId)
-                        .likeCnt(lIkeCnt)
-                        .font(post.getFont())
-                        .fontColor(post.getFontColor())
-                        .fontSize(post.getFontSize())
-                        .fontBold(post.getFontBold());
-            }
-
-            String[] split = post.getImgName().split("[.]");
-            if (post.getSwitchPic() == ImgType.UserUpload) {
-                builder.backgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
             } else {
-                builder.backgroundPicUri(ipAddress + ":8080/api/pic/default/" + split[0]);
+                distance = null;
             }
 
-            builder.likeResult(postLikeService.findLikeResult(encodeEmail, post));
-            postResponseDtoList.add(builder.build());
+            String[] splitImgName = post.getImgName().split("[.]");
+            String imgName = splitImgName[0];
+            RetrieveHashtagDto.ReadHashtagResponse postResponse = RetrieveHashtagDto.ReadHashtagResponse.builder()
+                    .postId(post.getPostId())
+                    .contents(post.getContent())
+                    .postTime(post.getPostTime())
+                    .location(distance)
+                    .likeCnt(lIkeCntList.iterator().next())
+                    .likeResult(likeResultByPostList.iterator().next())
+                    .replyCnt(commentAndReplyCntList.iterator().next())
+                    .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                    .font(post.getFont())
+                    .fontColor(post.getFontColor())
+                    .fontSize(post.getFontSize())
+                    .fontBold(post.getFontBold())
+                    .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
+                    .build();
+            postResponseList.add(postResponse);
         }
-        return ResponseEntity.ok().body(postResponseDtoList);
+
+        return ResponseEntity.ok().body(postResponseList);
     }
 }

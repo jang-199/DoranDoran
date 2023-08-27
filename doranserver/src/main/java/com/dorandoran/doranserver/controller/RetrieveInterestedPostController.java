@@ -37,36 +37,34 @@ public class RetrieveInterestedPostController {
     String ipAddress;
 
     @GetMapping("/post/interested")
-    ResponseEntity<LinkedList<Map>> retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
-        log.info(userDetails.getUsername());
-        log.info(userDetails.getAuthorities().toString());
+    ResponseEntity<LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>>>
+    retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
-        Member byEmail = memberService.findByEmail(username);
-        List<MemberHash> hashByMember = memberHashService.findHashByMember(byEmail); //즐겨찾기한 해시태그 리스트(맴버해시)
-        log.info("{}",hashByMember);
+        Member member = memberService.findByEmail(username);
+        List<MemberHash> hashByMember = memberHashService.findHashByMember(member); //즐겨찾기한 해시태그 리스트(맴버해시)
         List<HashTag> hashTagList = hashByMember.stream() //맴버해시에서 해시태그 id 추출
                 .map(MemberHash::getHashTagId)
                 .toList();
 
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(byEmail);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         List<Optional<PostHash>> optionalPostHashList = hashTagList.stream()
                 .map(hashTag -> postHashService.findTopOfPostHash(hashTag, memberBlockListByBlockingMember))
                 .toList();
 
         HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
-        LinkedList<Map> mapLinkedList = new LinkedList<>();
+        LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> mapLinkedList = new LinkedList<>();
 
         for (Optional<PostHash> optionalPostHash : optionalPostHashList) {
             if (optionalPostHash.isPresent()) {
-                if (!optionalPostHash.get().getPostId().getMemberId().equals(byEmail) && optionalPostHash.get().getPostId().getForMe()==Boolean.TRUE) {
+                if (!optionalPostHash.get().getPostId().getMemberId().equals(member) && optionalPostHash.get().getPostId().getForMe()==Boolean.TRUE) {
                     continue;
                 }
                 RetrieveInterestedDto.ReadInterestedResponse responseDto = RetrieveInterestedDto.ReadInterestedResponse.builder()
                         .backgroundPicUri(
-                                optionalPostHash.get().getPostId().getSwitchPic() == ImgType.DefaultBackground ? ipAddress + ":8080/api/pic/default/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
-                                        : ipAddress + ":8080/api/pic/member/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).collect(Collectors.toList()).get(0)
+                                optionalPostHash.get().getPostId().getSwitchPic() == ImgType.DefaultBackground ? ipAddress + ":8080/api/pic/default/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).toList().get(0)
+                                        : ipAddress + ":8080/api/pic/member/" + Arrays.stream(optionalPostHash.get().getPostId().getImgName().split("[.]")).toList().get(0)
                         )
                         .location(null)
                         .isWrittenByMember(optionalPostHash.get().getPostId().getMemberId().getEmail().equals(userDetails.getUsername()) ? Boolean.TRUE : Boolean.FALSE)

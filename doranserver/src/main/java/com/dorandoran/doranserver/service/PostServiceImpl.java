@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,24 +23,21 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstPost(List<MemberBlockList> memberBlockLists) {
+    public List<Post> findFirstPost(Member member, List<Member> memberBlockLists) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockLists.isEmpty()) {
-            return postRepository.findFirstPost(of);
+            return postRepository.findFirstPost(member, of);
         }
-        List<Member> list = memberBlockLists.stream().map(MemberBlockList::getBlockedMember).toList();
-        log.info(list.toString());
-        return postRepository.findFirstPostWithoutBlockLists(of,list);
+        return postRepository.findFirstPostWithoutBlockLists(member, memberBlockLists,of);
     }
 
     @Override
-    public List<Post> findPost(Long startPost,List<MemberBlockList> memberBlockLists) {
+    public List<Post> findPost(Long startPost, Member member, List<Member> memberBlockLists) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockLists.isEmpty()) {
-            return postRepository.findPost(startPost, of);
+            return postRepository.findPost(startPost,member, of);
         }
-        List<Member> list = memberBlockLists.stream().map(MemberBlockList::getBlockedMember).toList();
-        return postRepository.findPostWithoutBlockLists(startPost, of,list);
+        return postRepository.findPostWithoutBlockLists(startPost,  member , memberBlockLists, of);
     }
 
     @Override
@@ -55,23 +51,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        if (list.isEmpty()) {
+//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (memberBlockListByBlockingMember.isEmpty()) {
             return postRepository.findFirstClosePost(Slatitude,Llatitude, Slongitude, Llongitude, of);
         }
-        return postRepository.findFirstClosePostWithoutBlockLists(Slatitude, Llatitude, Slongitude, Llongitude, list, of);
+        return postRepository.findFirstClosePostWithoutBlockLists(Slatitude, Llatitude, Slongitude, Llongitude, memberBlockListByBlockingMember, of);
     }
 
     @Override
-    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        if (list.isEmpty()) {
+//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        if (memberBlockListByBlockingMember.isEmpty()) {
             return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
         }
-        return postRepository.findClosePostWithoutBlockLists(startPost, Slatitude, Llatitude, Slongitude, Llongitude, list, of);
+        return postRepository.findClosePostWithoutBlockLists(startPost, Slatitude, Llatitude, Slongitude, Llongitude, memberBlockListByBlockingMember, of);
     }
 
     @Override

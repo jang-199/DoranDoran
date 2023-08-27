@@ -8,5 +8,5 @@ import java.util.List;
 public interface MemberBlockListService {
     void addBlockList(Member blockingMember, Member blockedMember);
 
-    List<MemberBlockList> findMemberBlockListByBlockingMember(Member blockingMember);
+    List<Member> findMemberBlockListByBlockingMember(Member blockingMember);
 }

@@ -46,7 +46,7 @@ public class CommentController {
         String userEmail = userDetails.getUsername();
         Post post = postService.findSinglePost(postId);
         Member member = memberService.findByEmail(userEmail);
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
         log.info("글쓴이 email : {}", post.getMemberId().getEmail());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         List<Comment> comments = commentService.findNextComments(postId, commentId);
@@ -164,7 +164,7 @@ public class CommentController {
         Post post = postService.findSinglePost(postId);
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
         List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
@@ -249,7 +249,7 @@ public class CommentController {
         }
     }
 
-    private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<MemberBlockList> memberBlockListByBlockingMember) {
+    private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember) {
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
 
         if (comments.size() != 0) {

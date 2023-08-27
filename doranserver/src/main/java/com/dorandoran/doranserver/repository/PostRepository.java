@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.Post;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,27 +11,28 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-import java.util.Optional;
-
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select m from Post m " +
-            "where m.isLocked = false and m.memberId Not in :memberBlockLists " +
+            "join fetch m.memberId " +
+            "where m.isLocked = false and m.memberId Not in :memberBlockLists and (m.memberId = :member and m.forMe = true) or (m.forMe = false) " +
             "order by m.postId desc")
-    List<Post> findFirstPostWithoutBlockLists(PageRequest pageRequest, @Param("memberBlockLists") List<Member> memberBlockLists);
+    List<Post> findFirstPostWithoutBlockLists(@Param("member") Member member, @Param("memberBlockLists") List<Member> memberBlockLists, PageRequest pageRequest);
     @Query("select m from Post m " +
-            "where m.isLocked = false " +
+            "join fetch m.memberId " +
+            "where m.isLocked = false and (m.memberId = :member and m.forMe = true) or (m.forMe = false) " +
             "order by m.postId desc")
-    List<Post> findFirstPost(PageRequest pageRequest);
+    List<Post> findFirstPost(@Param("member") Member member, PageRequest pageRequest);
 
 
     @Query(value = "select m from Post m " +
-            "where m.postId <= :pos  and m.isLocked = false and m.memberId Not in :memberBlockLists " +
+            "where m.postId <= :pos  and m.isLocked = false and m.memberId Not in :memberBlockLists and (m.memberId = :member and m.forMe = true) or (m.forMe = false) " +
             "order by m.postId desc ")
-    List<Post> findPostWithoutBlockLists(@Param("pos") Long pos, PageRequest pageRequest, @Param("memberBlockLists") List<Member> memberBlockLists);
+    List<Post> findPostWithoutBlockLists(@Param("pos") Long pos, @Param("member") Member member, @Param("memberBlockLists") List<Member> memberBlockLists, PageRequest pageRequest);
     @Query(value = "select m from Post m " +
-                "where m.postId <= :pos  and m.isLocked = false " +
+                "join fetch m.memberId " +
+                "where m.postId <= :pos  and m.isLocked = false and ((m.memberId = :member and m.forMe = true) or (m.forMe = false)) " +
                 "order by m.postId desc ")
-    List<Post> findPost(@Param("pos") Long pos, PageRequest pageRequest);
+    List<Post> findPost(@Param("pos") Long pos,@Param("member") Member member, PageRequest pageRequest);
 
     @Query("select m from Post m " +
             "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false " +

@@ -13,6 +13,7 @@ public interface CommentService {
     void saveComment(Comment comment);
 
     public Integer findCommentAndReplyCntByPostId(Post post);
+    List<Integer> findCommentAndReplyCntByPostIdByList(List<Post> post);
     public List<Comment> findCommentByPost(Post post);
     public Optional<Comment> findCommentByCommentId(Long commentId);
     public void deleteComment(Comment comment);

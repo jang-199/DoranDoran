@@ -53,7 +53,7 @@ public class SignUpController {
 
     @PostMapping("registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody AccountDto.CheckRegisteredMember memberDto) {
-        Member member = null;
+        Member member;
         try {
             member = memberService.findByEmail(memberDto.getEmail());
         } catch (RuntimeException e) {

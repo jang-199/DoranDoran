@@ -23,7 +23,7 @@ public class MemberBlockListServiceImpl implements MemberBlockListService{
     }
 
     @Override
-    public List<MemberBlockList> findMemberBlockListByBlockingMember(Member blockingMember) {
+    public List<Member> findMemberBlockListByBlockingMember(Member blockingMember) {
         return memberBlockListRepository.findByBlockingMember(blockingMember);
     }
 }

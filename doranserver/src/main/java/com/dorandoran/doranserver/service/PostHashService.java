@@ -10,9 +10,9 @@ public interface PostHashService {
     List<PostHash> findPostHash(Post post);
     public void deletePostHash(PostHash postHash);
 
-    Optional<PostHash> findTopOfPostHash(HashTag hashTag, List<MemberBlockList> members);
+    Optional<PostHash> findTopOfPostHash(HashTag hashTag, List<Member> members);
 
-    List<PostHash> inquiryFirstPostHash(HashTag hashTag,List<MemberBlockList> memberBlockListByBlockingMember);
-    List<PostHash> inquiryPostHash(HashTag hashTag, Long postCnt,List<MemberBlockList> memberBlockListByBlockingMember);
+    List<Post> inquiryFirstPostHash(HashTag hashTag, Member member, List<Member> memberBlockListByBlockingMember);
+    List<Post> inquiryPostHash(HashTag hashTag, Long postCnt,Member member, List<Member> memberBlockListByBlockingMember);
 
 }

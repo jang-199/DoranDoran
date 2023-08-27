@@ -15,8 +15,11 @@ import java.util.Optional;
 public interface ReplyRepository extends JpaRepository<Reply,Long> {
     @Query("select r from Reply r where r.commentId = :commentId")
     List<Reply> findReplyCntByComment(@Param("commentId") Comment comment);
-    @Query("select count(r) from Reply r where r.commentId in :commentList group by r.commentId")
-    List<Integer> findReplyCntByCommentList(@Param("commentList") List<Comment> commentList);
+    @Query("select r from Reply r " +
+            "join fetch r.commentId " +
+            "where r.commentId in :commentList and r.checkDelete = false " +
+            "order by r.commentId.commentId desc ")
+    List<Reply> findReplyCntByCommentList(@Param("commentList") List<Comment> commentList);
 
     @Query("select r from Reply r " +
             "where r.commentId = :commentId " +

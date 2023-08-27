@@ -40,7 +40,14 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Transactional(readOnly = true)
     @Override
     public List<Integer> findLIkeCntByPostList(List<Post> postList) {
-        return postLikeRepository.findPostLikeByPostList(postList);
+        List<PostLike> postLikeByPostList = postLikeRepository.findPostLikeByPostList(postList);
+        ArrayList<Integer> likeCntList = new ArrayList<>();
+        for (Post post :
+                postList) {
+            long count = postLikeByPostList.stream().filter(postLike -> postLike.getPostId().equals(post)).count();
+            likeCntList.add((int) count);
+        }
+        return likeCntList;
     }
 
     @Transactional(readOnly = true)

@@ -17,8 +17,11 @@ public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
     @Query("select pl from PostLike pl where pl.postId = :post and pl.checkDelete = false")
     List<PostLike> findUnDeletedByPost(@Param("post") Post post);
 
-    @Query("select count(pl) from PostLike pl where pl.checkDelete = false and pl.postId in :postList group by pl.postId")
-    List<Integer> findPostLikeByPostList(@Param("postList") List<Post> postList);
+    @Query("select pl from PostLike pl " +
+            "join fetch pl.postId " +
+            "where pl.checkDelete = false and pl.postId in :postList " +
+            "order by pl.postId.postId desc ")
+    List<PostLike> findPostLikeByPostList(@Param("postList") List<Post> postList);
     List<PostLike> findByMemberId_Email(String email);
     @Query("select p from PostLike p " +
             "inner join Member m on m.memberId=p.memberId.memberId " +

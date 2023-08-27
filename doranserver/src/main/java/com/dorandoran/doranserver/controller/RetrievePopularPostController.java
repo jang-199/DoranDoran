@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Timed
@@ -59,8 +60,14 @@ public class RetrievePopularPostController {
         }
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
+        Iterator<Integer> likeCntListIter = lIkeCntList.iterator();
+
         List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
+        Iterator<Boolean> likeResultByPostListIter = likeResultByPostList.iterator();
+
         List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
+        Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCntList.iterator();
+
 
         List<RetrievePopularDto.ReadPopularResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
@@ -83,9 +90,9 @@ public class RetrievePopularPostController {
                     .contents(post.getContent())
                     .postTime(post.getPostTime())
                     .location(distance)
-                    .likeCnt(lIkeCntList.iterator().hasNext()?lIkeCntList.iterator().next():0)
-                    .likeResult(likeResultByPostList.iterator().hasNext()?likeResultByPostList.iterator().next():false)
-                    .replyCnt(commentAndReplyCntList.iterator().hasNext()?commentAndReplyCntList.iterator().next():0)
+                    .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
+                    .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
+                    .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
                     .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                     .font(post.getFont())
                     .fontColor(post.getFontColor())

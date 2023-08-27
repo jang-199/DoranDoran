@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Timed
@@ -41,6 +42,7 @@ public class RetrievePostController {
                                                                              @RequestParam(required = false, defaultValue = "") String location,
                                                                              @AuthenticationPrincipal UserDetails userDetails) {
         boolean isLocationPresent = !location.isBlank();
+        log.info("{}",isLocationPresent);
         String[] splitLocation = location.split(",");
         String userEmail = userDetails.getUsername();
 
@@ -54,13 +56,19 @@ public class RetrievePostController {
         }
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
+        Iterator<Integer> likeCntListIter = lIkeCntList.iterator();
+
         List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
+        Iterator<Boolean> likeResultByPostListIter = likeResultByPostList.iterator();
+
         List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
+        Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCntList.iterator();
 
         List<RetrievePostDto.ReadPostResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
             Integer distance;
-            if (isLocationPresent && post.getLocation()!=null) {
+            if (isLocationPresent && post.getLocation() != null) {
+                log.info("distance");
                 String latitude = splitLocation[0];
                 String longitude = splitLocation[1];
                 distance = distanceService.getDistance(Double.parseDouble(latitude),
@@ -68,6 +76,7 @@ public class RetrievePostController {
                         post.getLatitude(),
                         post.getLongitude());
             } else {
+                log.info("else");
                 distance = null;
             }
 
@@ -78,9 +87,9 @@ public class RetrievePostController {
                     .contents(post.getContent())
                     .postTime(post.getPostTime())
                     .location(distance)
-                    .likeCnt(lIkeCntList.iterator().hasNext()?lIkeCntList.iterator().next():0)
-                    .likeResult(likeResultByPostList.iterator().hasNext()?likeResultByPostList.iterator().next():false)
-                    .replyCnt(commentAndReplyCntList.iterator().hasNext()?commentAndReplyCntList.iterator().next():0)
+                    .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
+                    .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
+                    .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
                     .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                     .font(post.getFont())
                     .fontColor(post.getFontColor())

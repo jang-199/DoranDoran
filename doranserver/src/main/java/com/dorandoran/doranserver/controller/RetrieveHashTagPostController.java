@@ -70,7 +70,7 @@ public class RetrieveHashTagPostController {
         List<RetrieveHashtagDto.ReadHashtagResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
             Integer distance;
-            if (isLocationPresent) {
+            if (isLocationPresent&& post.getLocation()!=null) {
                 String latitude = retrieveHashTagPostDto.getLocation().split(",")[0];
                 String longitude = retrieveHashTagPostDto.getLocation().split(",")[1];
                 distance = distanceService.getDistance(Double.parseDouble(latitude),

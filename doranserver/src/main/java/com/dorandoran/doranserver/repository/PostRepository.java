@@ -2,6 +2,8 @@ package com.dorandoran.doranserver.repository;
 
 import com.dorandoran.doranserver.entity.Member;
 import com.dorandoran.doranserver.entity.Post;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -42,6 +44,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                   @Param("Slon") Double Slon,
                                   @Param("Llon") Double Llon,
                                   PageRequest pageRequest);
+
+    @Query(value = "select m from Post m " +
+            "where ST_Distance(:location,m.location) <= 1000 and m.isLocked = false " +
+            "order by m.postId desc")
+    List<Post> findFirstClosePostV2(@Param("location") Point point,
+                                    PageRequest pageRequest);
+
     @Query("select m from Post m " +
             "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false and m.memberId not in :members " +
             "order by m.postId desc")

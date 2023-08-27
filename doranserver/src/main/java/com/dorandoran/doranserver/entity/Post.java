@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.locationtech.jts.geom.Point;
 import org.springframework.lang.Nullable;
 
 
@@ -39,6 +40,10 @@ public class Post {
     @Nullable
     @Column(name = "LONGITUDE")
     private Double longitude;
+
+    @Nullable
+    @Column(name = "LOCATION", columnDefinition = "GEOMETRY")
+    private Point location;
 
     @NotNull
     @Column(name = "POST_TIME")

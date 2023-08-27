@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.service;
 
 import com.dorandoran.doranserver.entity.Member;
-import com.dorandoran.doranserver.entity.MemberBlockList;
 import com.dorandoran.doranserver.entity.PopularPost;
 import com.dorandoran.doranserver.entity.Post;
 import com.dorandoran.doranserver.repository.PopularPostRepository;
@@ -17,25 +16,24 @@ public class PopularPostServiceImpl implements PopularPostService{
     private final PopularPostRepository popularPostRepository;
 
     @Override
-    public List<PopularPost> findFirstPopularPost(List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<Post> findFirstPopularPost(Member member, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return popularPostRepository.findFirstPopularPost(of);
+            return popularPostRepository.findFirstPopularPost(member, of);
         }
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        return popularPostRepository.findFirstPopularPostWithoutBockLists(of, list);
+        return popularPostRepository.findFirstPopularPostWithoutBockLists(member, memberBlockListByBlockingMember, of);
 
 
     }
 
     @Override
-    public List<PopularPost> findPopularPost(Long startPost, List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<Post> findPopularPost(Long startPost,Member member, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return popularPostRepository.findPopularPost(startPost, of);
+            return popularPostRepository.findPopularPost(startPost, member, of);
         }
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        return popularPostRepository.findPopularPostWithoutBlockLists(startPost, of, list);
+//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
+        return popularPostRepository.findPopularPostWithoutBlockLists(startPost, memberBlockListByBlockingMember, of);
 
     }
 

@@ -283,7 +283,7 @@ public class PostController {
         Post post = postService.findSinglePost(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         Boolean isWrittenByUser = post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE;
         //리턴할 postDetail builder
@@ -307,11 +307,11 @@ public class PostController {
             postDetailDto.setLocation(null);
         } else {
             String[] userLocation = postRequestDetailDto.getLocation().split(",");
-            Double distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
+            Integer distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
                     Double.parseDouble(userLocation[1]),
                     post.getLatitude(),
                     post.getLongitude());
-            postDetailDto.setLocation((Long.valueOf(Math.round(distance)).intValue()));
+            postDetailDto.setLocation(distance);
         }
 
         boolean checkWrite = Boolean.FALSE;

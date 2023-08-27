@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ public class PostLikeServiceImpl implements PostLikeService {
         postLikeRepository.save(postLike);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Integer findLIkeCnt(Post post) {
         List<PostLike> byPostId = postLikeRepository.findUnDeletedByPost(post);
@@ -35,6 +37,13 @@ public class PostLikeServiceImpl implements PostLikeService {
         return byPostId.size();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Integer> findLIkeCntByPostList(List<Post> postList) {
+        return postLikeRepository.findPostLikeByPostList(postList);
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Boolean findLikeResult(String email, Post postId) {
         Optional<PostLike> likeResult = postLikeRepository.findLikeResult(email, postId);
@@ -45,6 +54,34 @@ public class PostLikeServiceImpl implements PostLikeService {
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Boolean> findLikeResultByPostList(String email, List<Post> postList) {
+        List<PostLike> likeResultByPostList = postLikeRepository.findLikeResultByPostList(email, postList);
+
+        List<Boolean> likeResultList = new ArrayList<>();
+
+        int position=0;
+        for (Post post : postList) {
+
+            if (likeResultByPostList.isEmpty()) {
+                likeResultList.add(Boolean.FALSE);
+                continue;
+            }
+
+            if (post.equals(likeResultByPostList.get(position).getPostId())) {
+                likeResultList.add(likeResultByPostList.get(position).getCheckDelete().equals(Boolean.TRUE) ? Boolean.FALSE : Boolean.TRUE);
+                if (likeResultByPostList.size()-1 != position) {
+                    position++;
+                }
+            } else {
+                likeResultList.add(Boolean.FALSE);
+            }
+        }
+        return likeResultList;
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public List<PostLike> findByMemberId(String email) {
         return postLikeRepository.findByMemberId_Email(email);
@@ -55,29 +92,30 @@ public class PostLikeServiceImpl implements PostLikeService {
         postLikeRepository.delete(postLike);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<PostLike> findByPost(Post post) {
         return postLikeRepository.findByPostId(post);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<PostLike> findFirstMyLikedPosts(String email,List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<PostLike> findFirstMyLikedPosts(String email,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        if (list.isEmpty()) {
+        if (memberBlockListByBlockingMember.isEmpty()) {
             return postLikeRepository.findFirstMyLikedPosts(email, of);
         }
-        return postLikeRepository.findFirstMyLikedPostsWithoutBlockLists(email, list, of);
+        return postLikeRepository.findFirstMyLikedPostsWithoutBlockLists(email, memberBlockListByBlockingMember, of);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<PostLike> findMyLikedPosts(String email, Long position,List<MemberBlockList> memberBlockListByBlockingMember) {
+    public List<PostLike> findMyLikedPosts(String email, Long position,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
-        if (list.isEmpty()) {
+        if (memberBlockListByBlockingMember.isEmpty()) {
             return postLikeRepository.findMyLikedPosts(email,position, of);
         }
-        return postLikeRepository.findMyLikedPostsWithoutBlockLists(email, position, list, of);
+        return postLikeRepository.findMyLikedPostsWithoutBlockLists(email, position, memberBlockListByBlockingMember, of);
     }
 
     @Override

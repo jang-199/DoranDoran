@@ -88,8 +88,27 @@ public class BackgroundPicDBInitializer {
             PolicyTerms policyTerms = setPolicyTerms();//권한 동의 저장
             Member member = setMember(policyTerms, i + "@gmail.com", "nickname" + i, OsType.Ios);//맴버 생성 후 저장
             Post post = setPost(i + "번 글입니다.", Boolean.FALSE, member, Boolean.FALSE);//글 생성 후 저장
-            Comment comment = setComment(post, member, "contents", Boolean.FALSE, Boolean.FALSE);//댓글 생성 후 저장
-            Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, Boolean.FALSE);//대댓글 생성 후 저장
+
+            if (i % 2 == 1) {
+                PostLike postLike = PostLike.builder().postId(post)
+                        .memberId(memberService.findByEmail("9643us@naver.com"))
+                        .checkDelete(false)
+                        .build();
+                postLikeService.savePostLike(postLike);
+            }
+
+            for (long j = 1L; j < i; j++) {
+                setPostLike(post,memberService.findByEmail(j+"@gmail.com"));
+                Comment comment = setComment(post, member, "contents", Boolean.FALSE, Boolean.FALSE);//댓글 생성 후 저장
+                for (long k = 1L; k < i; k++) {
+                    Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, Boolean.FALSE);//대댓글 생성 후 저장
+                }
+            }
+
+
+
+
+
 
             Random random = new Random();
             for (int j = 0; j <= random.nextInt(2); j++) {
@@ -101,6 +120,16 @@ public class BackgroundPicDBInitializer {
 
             }
         }
+    }
+
+    private PostLike setPostLike(Post post, Member member) {
+        PostLike postLike = PostLike.builder()
+                .postId(post)
+                .memberId(member)
+                .checkDelete(Boolean.FALSE)
+                .build();
+        postLikeService.savePostLike(postLike);
+        return postLike;
     }
 
     private HashTag increaseHashtagCount(String hashtagName) {

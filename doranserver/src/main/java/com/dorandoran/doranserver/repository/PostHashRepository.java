@@ -28,25 +28,29 @@ public interface PostHashRepository extends JpaRepository<PostHash,Long> {
             "limit 1")
     Optional<PostHash> findTopByHashTag(@Param("hashTag") HashTag hashTag);
 
-    @Query("select p " +
+    @Query("select p.postId " +
             "from PostHash p " +
-            "where p.hashTagId = :hashTag " +
+            "join fetch p.postId.memberId " +
+            "where p.hashTagId = :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false)) " +
             "order by p.poshHashId desc")
-    List<PostHash> findFirstPostHash(@Param("hashTag") HashTag hashTag, PageRequest pageRequest);
-    @Query("select p " +
+    List<Post> findFirstPostHash(@Param("hashTag") HashTag hashTag, @Param("member") Member member, PageRequest pageRequest);
+    @Query("select p.postId " +
             "from PostHash p " +
-            "where p.hashTagId = :hashTag and p.postId.memberId not in :members " +
+            "join fetch p.postId.memberId " +
+            "where p.hashTagId = :hashTag and p.postId.memberId not in :members and p.postId.isLocked = false and (p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false) " +
             "order by p.poshHashId desc")
-    List<PostHash> findFirstPostHashWithoutBlockLists(@Param("hashTag") HashTag hashTag, PageRequest pageRequest,@Param("members") List<Member> members);
+    List<Post> findFirstPostHashWithoutBlockLists(@Param("hashTag") HashTag hashTag, @Param("member") Member member, @Param("members") List<Member> members, PageRequest pageRequest);
 
-    @Query("select p " +
+    @Query("select p.postId " +
             "from PostHash p " +
-            "where p.hashTagId = :hashTag and p.poshHashId <= :pos " +
+            "join fetch p.postId.memberId " +
+            "where p.hashTagId = :hashTag and p.poshHashId <= :pos and p.postId.isLocked = false and (p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false) " +
             "order by p.poshHashId desc ")
-    List<PostHash> findPostHash(@Param("hashTag") HashTag hashTag, @Param("pos") Long pos, PageRequest pageRequest);
-    @Query("select p " +
+    List<Post> findPostHash(@Param("hashTag") HashTag hashTag , @Param("member") Member member, @Param("pos") Long pos, PageRequest pageRequest);
+    @Query("select p.postId " +
             "from PostHash p " +
-            "where p.hashTagId = :hashTag and p.poshHashId <= :pos and p.postId.memberId not in :members " +
+            "join fetch p.postId.memberId " +
+            "where p.hashTagId = :hashTag and p.poshHashId <= :pos and p.postId.memberId not in :members and p.postId.isLocked = false and (p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false) " +
             "order by p.poshHashId desc ")
-    List<PostHash> findPostHashWithoutBlockLists(@Param("hashTag") HashTag hashTag, @Param("pos") Long pos, PageRequest pageRequest,@Param("members") List<Member> members);
+    List<Post> findPostHashWithoutBlockLists(@Param("hashTag") HashTag hashTag , @Param("member") Member member, @Param("pos") Long pos, @Param("members") List<Member> members, PageRequest pageRequest);
 }

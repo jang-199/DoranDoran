@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface MemberBlockListRepository extends JpaRepository<MemberBlockList, Long> {
-    @Query("select m from MemberBlockList m where m.BlockingMember = :blockingMember")
-    List<MemberBlockList> findByBlockingMember(@Param("blockingMember") Member blockingMember);
+    @Query("select m.BlockedMember from MemberBlockList m where m.BlockingMember = :blockingMember")
+    List<Member> findByBlockingMember(@Param("blockingMember") Member blockingMember);
 }

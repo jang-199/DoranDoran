@@ -46,7 +46,7 @@ public class RetrieveClosePostController {
 
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userDetails.getUsername());
-        List<MemberBlockList> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
+        List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
         log.info(location);
         ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList = new ArrayList<>();
@@ -82,7 +82,7 @@ public class RetrieveClosePostController {
 
             Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
 
-            Double distance = distanceService.getDistance(Double.parseDouble(split[0]),
+            Integer distance = distanceService.getDistance(Double.parseDouble(split[0]),
                     Double.parseDouble(split[1]),
                     e.getLatitude(),
                     e.getLongitude());
@@ -91,7 +91,7 @@ public class RetrieveClosePostController {
                     .isWrittenByMember(e.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                     .contents(e.getContent())
                     .postTime(e.getPostTime())
-                    .location(distance.intValue())
+                    .location(distance)
                     .likeCnt(lIkeCnt)
                     .likeResult(likeResult)
                     .replyCnt(commentAndReplyCntByPostId)

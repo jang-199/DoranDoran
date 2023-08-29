@@ -207,8 +207,6 @@ public class BackgroundPicDBInitializer {
 
         Post post = Post.builder().content(contents)
                 .forMe(false)
-                .latitude(37.5006366)
-                .longitude(127.0214080)
                 .location(point)
                 .postTime(LocalDateTime.now())
                 .memberId(member)

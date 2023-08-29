@@ -5,6 +5,7 @@ import com.dorandoran.doranserver.domain.api.post.domain.Post;
 import com.dorandoran.doranserver.domain.api.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,23 +52,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findFirstClosePost(Double Slatitude,Double Llatitude, Double Slongitude, Double Llongitude,List<Member> memberBlockListByBlockingMember) {
+    public List<Post> findFirstClosePost(Point point,double distance,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postRepository.findFirstClosePost(Slatitude,Llatitude, Slongitude, Llongitude, of);
+            return postRepository.findFirstClosePostV2(point, distance, of);
         }
-        return postRepository.findFirstClosePostWithoutBlockLists(Slatitude, Llatitude, Slongitude, Llongitude, memberBlockListByBlockingMember, of);
+        return postRepository.findFirstClosePostWithoutBlockListsV2(point, distance, memberBlockListByBlockingMember, of);
     }
 
     @Override
-    public List<Post> findClosePost(Double Slatitude, Double Llatitude, Double Slongitude, Double Llongitude,Long startPost,List<Member> memberBlockListByBlockingMember) {
+    public List<Post> findClosePost(Point point,double distance, Long startPost, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
 //        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postRepository.findClosePost(startPost, Slatitude, Llatitude, Slongitude, Llongitude, of);
+            return postRepository.findClosePostV2(startPost, point, distance, of);
         }
-        return postRepository.findClosePostWithoutBlockLists(startPost, Slatitude, Llatitude, Slongitude, Llongitude, memberBlockListByBlockingMember, of);
+        return postRepository.findClosePostWithoutBlockListsV2(startPost, point, distance,memberBlockListByBlockingMember, of);
     }
 
     @Override

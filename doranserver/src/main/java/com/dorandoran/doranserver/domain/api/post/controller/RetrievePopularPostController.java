@@ -13,6 +13,9 @@ import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -76,13 +79,14 @@ public class RetrievePopularPostController {
         List<RetrievePopularDto.ReadPopularResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
             Integer distance;
-            if (isLocationPresent && post.getLocation()!=null) {
+            if (isLocationPresent && post.getLocation() != null) {
+                GeometryFactory geometryFactory = new GeometryFactory();
                 String latitude = splitLocation[0];
                 String longitude = splitLocation[1];
-                distance = distanceService.getDistance(Double.parseDouble(latitude),
-                        Double.parseDouble(longitude),
-                        post.getLatitude(),
-                        post.getLongitude());
+                Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
+                Point point = geometryFactory.createPoint(coordinate);
+
+                distance = (int) Math.round(point.distance(post.getLocation()) * 100);
             } else {
                 distance = null;
             }

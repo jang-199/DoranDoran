@@ -14,6 +14,9 @@ import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Timed
@@ -44,75 +48,74 @@ public class RetrieveClosePostController {
     String ipAddress;
 
     @GetMapping("/post/close")
-    ResponseEntity<ArrayList<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
-                                                                             @RequestParam(required = false, defaultValue = "") String location,
-                                                                             @AuthenticationPrincipal UserDetails userDetails) {
+    ResponseEntity<?> retrievePost(@RequestParam Long postCnt,
+                                   @RequestParam String location,
+                                   @RequestParam double range,
+                                   @AuthenticationPrincipal UserDetails userDetails) {
 
+        boolean isLocationPresent = !location.isBlank();
+
+        if (!isLocationPresent) {
+            return ResponseEntity.badRequest().body("location does not exist");
+        }
         String userEmail = userDetails.getUsername();
-        Member member = memberService.findByEmail(userDetails.getUsername());
+
+        String[] splitLocation = location.split(",");
+
+        Member member = memberService.findByEmail(userEmail);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
-        log.info(location);
-        ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList = new ArrayList<>();
-        String[] split = location.split(",");
-        double Slat = Double.parseDouble(split[0])-0.1;
-        log.info("{}",Slat);
-        double Llat = Double.parseDouble(split[0])+0.1;
-        log.info("{}",Llat);
-        double Slon = Double.parseDouble(split[1])-0.1;
-        log.info("{}",Slon);
-        double Llon = Double.parseDouble(split[1])+0.1;
-        log.info("{}",Llon);
 
-        RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder = RetrievePostDto.ReadPostResponse.builder();
+        GeometryFactory geometryFactory = new GeometryFactory();
+        String latitude = splitLocation[0];
+        String longitude = splitLocation[1];
+        Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
+        Point clientPoint = geometryFactory.createPoint(coordinate);
+
+
+
+
+        List<Post> postList;
         if (postCnt == 0) {
-            List<Post> firstPost = postService.findFirstClosePost(Slat,Llat,Slon,Llon,memberBlockListByBlockingMember);
-            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, firstPost);
+            postList = postService.findFirstClosePost(clientPoint, range,memberBlockListByBlockingMember);
         }else {
-            List<Post> postList = postService.findClosePost(Slat, Llat, Slon, Llon, postCnt,memberBlockListByBlockingMember);
-            makeClosePostResponseList(member, userEmail, postResponseDtoList, split, builder, postList);
+            postList = postService.findClosePost(clientPoint, range,postCnt,memberBlockListByBlockingMember);
         }
-        return ResponseEntity.ok().body(postResponseDtoList);
-    }
 
-    private void makeClosePostResponseList(Member member, String userEmail, ArrayList<RetrievePostDto.ReadPostResponse> postResponseDtoList, String[] split, RetrievePostDto.ReadPostResponse.ReadPostResponseBuilder builder, List<Post> firstPost) {
-        firstPost.iterator().forEachRemaining(e->{
-            if (!e.getMemberId().equals(member) && e.getForMe() == Boolean.TRUE) {
-                return;
-            }
-            Integer lIkeCnt = postLikeService.findLIkeCnt(e);
+        List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
+        Iterator<Integer> likeCntListIter = lIkeCntList.iterator();
 
-            Boolean likeResult = postLikeService.findLikeResult(userEmail, e);
+        List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
+        Iterator<Boolean> likeResultByPostListIter = likeResultByPostList.iterator();
 
-            Integer commentAndReplyCntByPostId = commentService.findCommentAndReplyCntByPostId(e);
+        List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
+        Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCntList.iterator();
 
-            Integer distance = distanceService.getDistance(Double.parseDouble(split[0]),
-                    Double.parseDouble(split[1]),
-                    e.getLatitude(),
-                    e.getLongitude());
+        List<RetrievePostDto.ReadPostResponse> postResponseList = new ArrayList<>();
+        for (Post post : postList) {
 
-            builder.postId(e.getPostId())
-                    .isWrittenByMember(e.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
-                    .contents(e.getContent())
-                    .postTime(e.getPostTime())
+            Integer distance = (int) Math.round(clientPoint.distance(post.getLocation()) * 100);
+
+            String[] splitImgName = post.getImgName().split("[.]");
+            String imgName = splitImgName[0];
+            RetrievePostDto.ReadPostResponse postResponse = RetrievePostDto.ReadPostResponse.builder()
+                    .postId(post.getPostId())
+                    .contents(post.getContent())
+                    .postTime(post.getPostTime())
                     .location(distance)
-                    .likeCnt(lIkeCnt)
-                    .likeResult(likeResult)
-                    .replyCnt(commentAndReplyCntByPostId)
-                    .font(e.getFont())
-                    .fontColor(e.getFontColor())
-                    .fontSize(e.getFontSize())
-                    .fontBold(e.getFontBold());
+                    .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
+                    .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
+                    .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
+                    .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                    .font(post.getFont())
+                    .fontColor(post.getFontColor())
+                    .fontSize(post.getFontSize())
+                    .fontBold(post.getFontBold())
+                    .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
+                    .build();
+            postResponseList.add(postResponse);
+        }
 
-
-            if (e.getSwitchPic() == ImgType.UserUpload) {
-                String[] split1 = e.getImgName().split("[.]");
-                builder.backgroundPicUri(ipAddress + ":8080/api/pic/member/" + split1[0]);
-            } else {
-                String[] split1 = e.getImgName().split("[.]");
-                builder.backgroundPicUri(ipAddress + ":8080/api/pic/default/" + split1[0]);
-            }
-            postResponseDtoList.add(builder.build());
-        });
+        return ResponseEntity.ok().body(postResponseList);
     }
 }

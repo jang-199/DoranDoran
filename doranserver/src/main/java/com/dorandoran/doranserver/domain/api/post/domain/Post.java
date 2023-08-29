@@ -35,14 +35,6 @@ public class Post {
     private Boolean forMe;
 
     @Nullable
-    @Column(name = "LATITUDE")
-    private Double latitude;
-
-    @Nullable
-    @Column(name = "LONGITUDE")
-    private Double longitude;
-
-    @Nullable
     @Column(name = "LOCATION", columnDefinition = "GEOMETRY")
     private Point location;
 

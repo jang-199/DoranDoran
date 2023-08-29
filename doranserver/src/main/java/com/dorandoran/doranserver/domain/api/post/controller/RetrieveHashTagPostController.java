@@ -16,6 +16,9 @@ import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,7 +55,12 @@ public class RetrieveHashTagPostController {
         String hashtagName = retrieveHashTagPostDto.getHashtagName();
         boolean isLocationPresent;
 
+
         isLocationPresent = retrieveHashTagPostDto.getLocation() != null;
+        String[] splitLocation = null;
+        if (isLocationPresent) {
+            splitLocation = retrieveHashTagPostDto.getLocation().split(",");
+        }
 
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -80,13 +88,14 @@ public class RetrieveHashTagPostController {
         List<RetrieveHashtagDto.ReadHashtagResponse> postResponseList = new ArrayList<>();
         for (Post post : postList) {
             Integer distance;
-            if (isLocationPresent&& post.getLocation()!=null) {
-                String latitude = retrieveHashTagPostDto.getLocation().split(",")[0];
-                String longitude = retrieveHashTagPostDto.getLocation().split(",")[1];
-                distance = distanceService.getDistance(Double.parseDouble(latitude),
-                        Double.parseDouble(longitude),
-                        post.getLatitude(),
-                        post.getLongitude());
+            if (isLocationPresent && post.getLocation() != null) {
+                GeometryFactory geometryFactory = new GeometryFactory();
+                String latitude = splitLocation[0];
+                String longitude = splitLocation[1];
+                Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
+                Point point = geometryFactory.createPoint(coordinate);
+
+                distance = (int) Math.round(point.distance(post.getLocation()) * 100);
             } else {
                 distance = null;
             }

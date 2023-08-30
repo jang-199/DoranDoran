@@ -154,7 +154,7 @@ public class PostServiceImpl implements PostService {
             String latitude = splitLocation[0];
             String longitude = splitLocation[1];
             GeometryFactory geometryFactory = new GeometryFactory();
-            Coordinate coordinate = new Coordinate(Integer.parseInt(longitude), Integer.parseInt(latitude));
+            Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
             distance = geometryFactory.createPoint(coordinate);
 
         } else {

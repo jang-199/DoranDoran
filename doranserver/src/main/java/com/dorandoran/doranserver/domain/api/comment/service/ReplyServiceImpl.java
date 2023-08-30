@@ -6,7 +6,7 @@ import com.dorandoran.doranserver.domain.api.member.domain.Member;
 import com.dorandoran.doranserver.domain.api.post.domain.Post;
 import com.dorandoran.doranserver.domain.api.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.api.comment.repository.ReplyRepository;
-import com.dorandoran.doranserver.global.util.CommonService;
+import com.dorandoran.doranserver.domain.api.common.service.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

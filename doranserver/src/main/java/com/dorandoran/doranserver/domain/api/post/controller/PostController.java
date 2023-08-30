@@ -28,7 +28,7 @@ import com.dorandoran.doranserver.domain.api.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.api.post.service.*;
 import com.dorandoran.doranserver.domain.api.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
-import com.dorandoran.doranserver.global.util.CommonService;
+import com.dorandoran.doranserver.domain.api.common.service.CommonService;
 import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -139,83 +138,19 @@ public class PostController {
      * @return Ok
      */
     @Trace
-    @Transactional
     @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
                                         @AuthenticationPrincipal UserDetails userDetails) throws IOException {
-        Post post = postService.findSinglePost(postDeleteDto.getPostId());
-        List<Comment> commentList = commentService.findCommentByPost(post);
+        Post post = postService.findFetchMember(postDeleteDto.getPostId());
 
-        if (post.getMemberId().getEmail().equals(userDetails.getUsername())) {
-            //댓글 삭제
-            if (commentList.size() != 0) {
-                log.info("글 삭제 전 댓글 삭제");
-                for (Comment comments : commentList) {
-                    Optional<Comment> comment = commentService.findCommentByCommentId(comments.getCommentId());
-                    List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
-                    List<Reply> replyList = replyService.findReplyList(comment.get());
-                    commentService.deleteAllCommentByPost(comment, commentLikeList, replyList);
-                    //댓글 삭제
-                    commentService.deleteComment(comment.get());
-                }
-            }
-
-            //글 공감 삭제
-            List<PostLike> postLikeList = postLikeService.findByPost(post);
-            if (postLikeList.size() != 0) {
-                log.info("글 삭제 전 글 공감 삭제 로직 실행");
-                for (PostLike postLike : postLikeList) {
-                    postLikeService.deletePostLike(postLike);
-                }
-            }
-
-            //해시태그 삭제
-            List<PostHash> postHashList = postHashService.findPostHash(post);
-            if (postHashList.size() != 0) {
-                log.info("글 삭제 전 해시태그 삭제 로직 실행");
-                for (PostHash postHash : postHashList) {
-                    postHashService.deletePostHash(postHash);
-                }
-            }
-
-            //인기있는 글 삭제
-            List<PopularPost> popularPostList = popularPostService.findPopularPostByPost(post);
-            if (popularPostList.size() != 0){
-                log.info("글 삭제 전 인기있는 글 삭제 로직 실행");
-                for (PopularPost popularPost : popularPostList) {
-                    popularPostService.deletePopularPost(popularPost);
-                }
-            }
-
-            //익명 테이블 삭제
-            List<String> anonymityMemberByPost = anonymityMemberService.findAllUserEmail(post);
-            if (anonymityMemberByPost.size() != 0) {
-                anonymityMemberService.deletePostByPostId(post);
-            }
-
-            //사용자 이미지 삭제 (imageName은 이미지 이름)
-            if (post.getSwitchPic().equals(ImgType.UserUpload)) {
-                //window전용
-//                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
-
-                //리눅스
-                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.getImgName());
-
-                log.info("path : {}",path);
-                try {
-                    Files.deleteIfExists(path);
-                } catch (IOException e) {
-                    log.info("사진이 사용중입니다.");
-                }
-            }
-
-            postService.deletePost(post);
+        if (!post.getMemberId().getEmail().equals(userDetails.getUsername())) {
+            commonService.deletePost(post);
         }
         else {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(403).body("글 작성자만 글을 삭제할 수 있습니다.");
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Trace
@@ -236,7 +171,7 @@ public class PostController {
             firebaseService.notifyPostLike(post.getMemberId(), post);
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글

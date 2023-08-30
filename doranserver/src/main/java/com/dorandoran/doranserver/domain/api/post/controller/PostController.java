@@ -143,7 +143,7 @@ public class PostController {
                                         @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         Post post = postService.findFetchMember(postDeleteDto.getPostId());
 
-        if (!post.getMemberId().getEmail().equals(userDetails.getUsername())) {
+        if (post.getMemberId().getEmail().equals(userDetails.getUsername())) {
             commonService.deletePost(post);
         }
         else {

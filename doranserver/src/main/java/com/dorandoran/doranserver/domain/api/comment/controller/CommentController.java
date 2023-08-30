@@ -22,7 +22,7 @@ import com.dorandoran.doranserver.domain.api.post.service.AnonymityMemberService
 import com.dorandoran.doranserver.domain.api.post.service.PopularPostService;
 import com.dorandoran.doranserver.domain.api.post.service.PostService;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
-import com.dorandoran.doranserver.global.util.CommonService;
+import com.dorandoran.doranserver.domain.api.common.service.CommonService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

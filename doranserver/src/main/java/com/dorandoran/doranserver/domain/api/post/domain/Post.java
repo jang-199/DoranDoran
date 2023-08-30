@@ -2,7 +2,7 @@ package com.dorandoran.doranserver.domain.api.post.domain;
 
 import com.dorandoran.doranserver.domain.api.member.domain.Member;
 import com.dorandoran.doranserver.domain.api.background.domain.imgtype.ImgType;
-import com.dorandoran.doranserver.global.entity.BaseEntity;
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

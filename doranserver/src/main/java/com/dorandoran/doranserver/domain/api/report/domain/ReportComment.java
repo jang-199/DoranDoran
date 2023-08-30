@@ -2,7 +2,7 @@ package com.dorandoran.doranserver.domain.api.report.domain;
 
 import com.dorandoran.doranserver.domain.api.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.api.member.domain.Member;
-import com.dorandoran.doranserver.global.entity.BaseEntity;
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

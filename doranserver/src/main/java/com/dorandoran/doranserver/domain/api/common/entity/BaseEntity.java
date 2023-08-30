@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.global.entity;
+package com.dorandoran.doranserver.domain.api.common.entity;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.global.config.redis;
 
-import com.dorandoran.doranserver.domain.api.background.dto.Jackson2JsonRedisDto;
+import com.dorandoran.doranserver.domain.background.dto.Jackson2JsonRedisDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.global.config.jwt;
 
-import com.dorandoran.doranserver.domain.api.member.domain.Member;
+import com.dorandoran.doranserver.domain.member.domain.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -94,7 +94,6 @@ public class TokenProvider {
         Claims claims = getClaims(token);
         switch (claims.get("ROLE").toString()) {
             case "ROLE_USER" -> {
-                log.info("user입니다");
                 return getUserAuthentication(token);
             }
             case "ROLE_ADMIN" -> {
@@ -137,10 +136,7 @@ public class TokenProvider {
     public Boolean isExpired(String token) {
         Object detailedValidateToken = detailedValidateToken(token);
 
-        if (detailedValidateToken instanceof ExpiredJwtException) {
-            return true;
-        }
-        return false;
+        return detailedValidateToken instanceof ExpiredJwtException;
     }
     private Claims getClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)))

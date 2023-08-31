@@ -1,12 +1,12 @@
 package com.dorandoran.doranserver.global.util;
 
-import com.dorandoran.doranserver.domain.api.comment.domain.Comment;
-import com.dorandoran.doranserver.domain.api.comment.domain.Reply;
-import com.dorandoran.doranserver.domain.api.hashtag.domain.PostHash;
-import com.dorandoran.doranserver.domain.api.member.domain.Member;
-import com.dorandoran.doranserver.domain.api.member.domain.MemberBlockList;
-import com.dorandoran.doranserver.domain.api.post.domain.PopularPost;
-import com.dorandoran.doranserver.domain.api.post.domain.PostLike;
+import com.dorandoran.doranserver.domain.comment.domain.Comment;
+import com.dorandoran.doranserver.domain.comment.domain.Reply;
+import com.dorandoran.doranserver.domain.hashtag.domain.PostHash;
+import com.dorandoran.doranserver.domain.member.domain.Member;
+import com.dorandoran.doranserver.domain.member.domain.MemberBlockList;
+import com.dorandoran.doranserver.domain.post.domain.PopularPost;
+import com.dorandoran.doranserver.domain.post.domain.PostLike;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

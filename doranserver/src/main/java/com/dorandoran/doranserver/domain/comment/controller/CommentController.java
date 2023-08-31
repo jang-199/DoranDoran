@@ -272,7 +272,7 @@ public class CommentController {
 
     private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember) {
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
-
+        //todo reply 가져오는 로직 수정
         if (comments.size() != 0) {
             for (Comment comment : comments) {
                 //대댓글 10개 저장 로직

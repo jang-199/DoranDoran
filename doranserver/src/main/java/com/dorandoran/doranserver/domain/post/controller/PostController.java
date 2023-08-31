@@ -168,28 +168,18 @@ public class PostController {
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
-        //todo 여기부터 해야됨
         String userEmail = userDetails.getUsername();
         Post post = postService.findFetchMember(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
-        Boolean isWrittenByUser = post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE;
-        //리턴할 postDetail builder
-        PostDto.ReadPostResponse postDetailDto = PostDto.ReadPostResponse.builder()
-                .content(post.getContent())
-                .postLikeCnt(postLikeService.findLIkeCnt(post))
-                .postLikeResult(postLikeService.findLikeResult(userEmail, post))
-                .commentCnt(commentService.findCommentAndReplyCntByPostId(post))
-                .postAnonymity(post.getAnonymity())
-                .postNickname(post.getMemberId().getNickname())
-                .isWrittenByMember(isWrittenByUser)
-                .font(post.getFont())
-                .fontColor(post.getFontColor())
-                .fontSize(post.getFontSize())
-                .fontBold(post.getFontBold())
-                .build();
+        Boolean isWrittenByUser = MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail);
+        Integer lIkeCnt = postLikeService.findLIkeCnt(post);
+        Boolean likeResult = postLikeService.findLikeResult(userEmail, post);
+        Integer commentCnt = commentService.findCommentAndReplyCntByPostId(post);
+
+        PostDto.ReadPostResponse postDetailDto = new PostDto.ReadPostResponse().toEntity(post, lIkeCnt, likeResult, commentCnt, isWrittenByUser);
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
         Boolean isLocationPresent = postRequestDetailDto.getLocation().isBlank() ? Boolean.FALSE : Boolean.TRUE;
@@ -215,10 +205,10 @@ public class PostController {
 
         //todo 대댓글 한번에 가져와서 처리하는 걸로 바꿔야함 쿼리 너무 많이 나감..
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
-        if (comments.size() != 0) {
+        if (!comments.isEmpty()) {
             for (Comment comment : commentList) {
-                //대댓글 10개 저장 로직
-                List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
+                List<Reply> findReplyList = replyService.findFirstRepliesFetchMember(comment);
+                List<Reply> replies = findReplyList.stream().filter(reply -> reply.getCommentId().equals(comment)).toList();
                 List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
                 List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
                 log.info("대댓글 로직 실행");
@@ -267,7 +257,6 @@ public class PostController {
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
         List<PostHash> postHashList = postHashService.findPostHash(post);
-        //todo fetch join으로 hashtag 같이 가져오게끔 수정
         if (!postHashList.isEmpty()){
             for (PostHash postHash : postHashList) {
                 String hashTagName = postHash.getHashTagId().getHashTagName();

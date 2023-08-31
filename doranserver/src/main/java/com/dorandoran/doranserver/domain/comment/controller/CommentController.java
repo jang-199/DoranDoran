@@ -110,7 +110,7 @@ public class CommentController {
         //인기 있는 글 생성
         Post singlePost = postService.findSinglePost(createCommentDto.getPostId());
         List<Comment> commentByPost = commentService.findCommentByPost(singlePost);
-        if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost).size() == 0) {
+        if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost).isEmpty()) {
             PopularPost build = PopularPost.builder().postId(singlePost).build();
             popularPostService.savePopularPost(build);
         }

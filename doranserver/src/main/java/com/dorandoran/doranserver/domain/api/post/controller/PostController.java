@@ -88,7 +88,7 @@ public class PostController {
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
-                return ResponseEntity.badRequest().body("정지된 회원은 댓글을 작성할 수 없습니다.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("정지된 회원은 글을 작성할 수 없습니다.");
             }else {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
@@ -147,7 +147,7 @@ public class PostController {
             commonService.deletePost(post);
         }
         else {
-            return ResponseEntity.status(403).body("글 작성자만 글을 삭제할 수 있습니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("글 작성자만 글을 삭제할 수 있습니다.");
         }
 
         return ResponseEntity.noContent().build();
@@ -162,7 +162,7 @@ public class PostController {
         Optional<PostLike> postLike = postLikeService.findLikeOne(userDetails.getUsername(), post);
 
         if (post.getMemberId().equals(member)){
-            return ResponseEntity.badRequest().body("자신의 글에 추천은 불가능합니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("자신의 글에 추천은 불가능합니다.");
         }
 
         postLikeService.checkPostLike(postLikeDto, userDetails, post, member, postLike);
@@ -179,8 +179,9 @@ public class PostController {
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
+        //todo 여기부터 해야됨
         String userEmail = userDetails.getUsername();
-        Post post = postService.findSinglePost(postRequestDetailDto.getPostId());
+        Post post = postService.findFetchMember(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
@@ -223,6 +224,7 @@ public class PostController {
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
 
+        //todo 대댓글 한번에 가져와서 처리하는 걸로 바꿔야함 쿼리 너무 많이 나감..
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
             for (Comment comment : commentList) {
@@ -276,7 +278,8 @@ public class PostController {
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
         List<PostHash> postHashList = postHashService.findPostHash(post);
-        if (postHashList.size() != 0){
+        //todo fetch join으로 hashtag 같이 가져오게끔 수정
+        if (!postHashList.isEmpty()){
             for (PostHash postHash : postHashList) {
                 String hashTagName = postHash.getHashTagId().getHashTagName();
                 postHashListDto.add(hashTagName);

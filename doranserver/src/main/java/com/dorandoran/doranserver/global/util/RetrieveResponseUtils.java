@@ -112,7 +112,6 @@ public class RetrieveResponseUtils {
             return responseList;
         }
 
-
         @Builder
         public PostResponse(String ipAddress, Boolean isLocationPresent, String[] splitLocation, String userEmail) {
             this.ipAddress = ipAddress;

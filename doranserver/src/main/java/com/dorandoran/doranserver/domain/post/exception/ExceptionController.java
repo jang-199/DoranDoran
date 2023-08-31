@@ -28,7 +28,7 @@ public class ExceptionController {
         @ExceptionHandler(MissingServletRequestParameterException.class)
         public ResponseEntity<?> MissingParameterException(Exception e) {
             LinkedHashMap<String, Object> errorReport = new LinkedHashMap<>();
-            errorReport.put("Code", "MissingServletRequestParameterException");
+            errorReport.put("Error", "MissingServletRequestParameterException");
             errorReport.put("Message", e.getMessage());
             return ResponseEntity.badRequest().body(errorReport);
         }

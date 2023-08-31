@@ -1,7 +1,7 @@
 package com.dorandoran.doranserver.domain.api.common.service;
 
-import com.dorandoran.doranserver.domain.api.post.domain.Post;
-import org.springframework.stereotype.Service;
+
+import com.dorandoran.doranserver.domain.post.domain.Post;
 
 import java.io.IOException;
 

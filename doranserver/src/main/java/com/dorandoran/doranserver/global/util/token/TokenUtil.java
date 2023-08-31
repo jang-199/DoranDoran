@@ -1,8 +1,8 @@
 package com.dorandoran.doranserver.global.util.token;
 
-import com.dorandoran.doranserver.domain.api.member.service.MemberServiceImpl;
+import com.dorandoran.doranserver.domain.member.service.MemberServiceImpl;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
-import com.dorandoran.doranserver.domain.api.member.domain.Member;
+import com.dorandoran.doranserver.domain.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

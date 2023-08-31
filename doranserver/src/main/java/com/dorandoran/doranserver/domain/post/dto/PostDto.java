@@ -106,10 +106,11 @@ public class PostDto {
         private List<String> postHashes;
 
         public ReadPostResponse toEntity(Post post, Integer lIkeCnt, Boolean likeResult, Integer commentCnt, Boolean isWrittenByUser){
-            return PostDto.ReadPostResponse.builder()
+            return ReadPostResponse.builder()
                     .content(post.getContent())
                     .postLikeCnt(lIkeCnt)
                     .postLikeResult(likeResult)
+                    .postTime(post.getCreatedTime())
                     .commentCnt(commentCnt)
                     .postAnonymity(post.getAnonymity())
                     .postNickname(post.getMemberId().getNickname())

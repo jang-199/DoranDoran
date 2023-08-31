@@ -57,6 +57,7 @@ public class CommentDto {
             this.commentCheckDelete = comment.getCheckDelete();
             this.countReply = comment.getCountReply();
             this.isWrittenByMember = isWrittenByMember;
+            this.commentTime = comment.getCreatedTime();
             this.replies = replies;
         }
     }

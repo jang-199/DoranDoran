@@ -46,6 +46,7 @@ public class ReplyDto {
             this.reply = reply.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
             this.replyAnonymityNickname = null;
             this.replyCheckDelete = reply.getCheckDelete();
+            this.replyTime = reply.getCreatedTime();
             this.isWrittenByMember = isWrittenByMember;
         }
     }

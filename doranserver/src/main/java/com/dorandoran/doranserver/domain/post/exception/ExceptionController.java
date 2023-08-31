@@ -13,14 +13,15 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import java.util.LinkedHashMap;
 
 @Slf4j
-
 public class ExceptionController {
 
     @RestControllerAdvice(assignableTypes = PostController.class)
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<?> fileUploadException(Exception e){
-        log.info("파일 업로드 크기 제한 exception",e);
-        return new ResponseEntity<>("파일 업로드 크기 제한", HttpStatus.BAD_REQUEST);
+    public static class MaxUploadSizeExceededExceptionHandler {
+        @ExceptionHandler(MaxUploadSizeExceededException.class)
+        public ResponseEntity<?> fileUploadException(Exception e) {
+            log.info("파일 업로드 크기 제한 exception", e);
+            return new ResponseEntity<>("파일 업로드 크기 제한", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RestControllerAdvice(assignableTypes = RetrieveClosePostController.class)

@@ -208,7 +208,6 @@ public class BackgroundPicDBInitializer {
         Post post = Post.builder().content(contents)
                 .forMe(false)
                 .location(point)
-                .postTime(LocalDateTime.now())
                 .memberId(member)
                 .switchPic(ImgType.DefaultBackground)
                 .ImgName(i + ".jpg")
@@ -227,7 +226,6 @@ public class BackgroundPicDBInitializer {
     private Comment setComment(Post post, Member member, String contents, Boolean anonymity, Boolean locked) {
         Comment comment = Comment.builder()
                 .comment(contents)
-                .commentTime(LocalDateTime.now())
                 .postId(post)
                 .memberId(member)
                 .countReply(1)
@@ -244,7 +242,6 @@ public class BackgroundPicDBInitializer {
                 .commentId(comment)
                 .memberId(buildMember)
                 .reply(contents)
-                .ReplyTime(LocalDateTime.now())
                 .reportCount(0)
                 .isLocked(locked)
                 .anonymity(anonymity)

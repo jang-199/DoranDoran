@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.admin.controller;
 
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.admin.dto.InquiryDto;
@@ -19,7 +20,6 @@ import java.util.List;
 
 @Timed
 @RestController
-//@RequestMapping("/admin")
 @RequiredArgsConstructor
 @Slf4j
 public class InquiryPostController {
@@ -50,6 +50,7 @@ public class InquiryPostController {
         return ResponseEntity.ok().body(readInquiryPost);
     }
 
+    @Trace
     @PostMapping("/api/inquiryPost")
     public ResponseEntity<?> saveInquiryPost(@RequestBody InquiryDto.CreateInquiryPost createInquiryPost,
                                 @AuthenticationPrincipal UserDetails userDetails){

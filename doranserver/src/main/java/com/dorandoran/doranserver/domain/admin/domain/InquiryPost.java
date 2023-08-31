@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.admin.domain;
 
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.admin.domain.inquirytype.InquiryStatus;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import jakarta.persistence.*;
@@ -8,17 +9,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class InquiryPost {
+public class InquiryPost extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "INQUIRY_POST_ID")
     private Long inquiryPostId;
@@ -38,9 +34,6 @@ public class InquiryPost {
     @NotNull
     @Enumerated(EnumType.STRING)
     private InquiryStatus inquiryStatus;
-
-    @CreatedDate
-    private LocalDateTime createdTime;
 
     @Builder
     public InquiryPost(String title, String content, Member memberId) {

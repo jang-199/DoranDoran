@@ -21,6 +21,9 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
             "order by r.commentId.commentId desc ")
     List<Reply> findReplyCntByCommentList(@Param("commentList") List<Comment> commentList);
 
+    @Query("select r from Reply r where r.commentId in :commentList")
+    List<Reply> findReplyByCommentList(@Param("commentList") List<Comment> commentList);
+
     @Query("select r from Reply r " +
             "where r.commentId = :commentId " +
             "order by r.replyId desc")

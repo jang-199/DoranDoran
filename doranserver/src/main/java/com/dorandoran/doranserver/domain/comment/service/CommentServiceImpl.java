@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
+import com.dorandoran.doranserver.domain.api.common.service.CommonService;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
@@ -7,7 +8,6 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
-import com.dorandoran.doranserver.global.util.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -80,14 +80,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteAllCommentByPost(Optional<Comment> comment, List<CommentLike> commentLikeList, List<Reply> replyList) {
-        if (replyList.size() != 0) {
+        if (!replyList.isEmpty()) {
             for (Reply reply : replyList) {
                 replyService.deleteReply(reply);
                 log.info("{}님의 대댓글 삭제", reply.getMemberId().getNickname());
             }
         }
         //댓글 공감 삭제
-        if (commentLikeList.size() != 0) {
+        if (!commentLikeList.isEmpty()) {
             for (CommentLike commentLike : commentLikeList) {
                 commentLikeService.deleteCommentLike(commentLike);
                 log.info("{}님의 댓글 공감 삭제", commentLike.getMemberId().getNickname());

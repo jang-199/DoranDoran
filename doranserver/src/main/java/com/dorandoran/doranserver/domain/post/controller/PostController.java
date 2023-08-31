@@ -1,9 +1,9 @@
 package com.dorandoran.doranserver.domain.post.controller;
 
-import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
+import com.dorandoran.doranserver.global.util.BlockMemberFilter;
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.background.service.UserUploadPicService;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
-import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentLikeService;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
@@ -17,7 +17,6 @@ import com.dorandoran.doranserver.domain.member.service.LockMemberService;
 import com.dorandoran.doranserver.domain.member.service.MemberBlockListService;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.notification.service.FirebaseService;
-import com.dorandoran.doranserver.domain.post.domain.PopularPost;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
@@ -25,26 +24,22 @@ import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
-import com.dorandoran.doranserver.global.util.BlockMemberFilter;
-import com.dorandoran.doranserver.global.util.CommonService;
+import com.dorandoran.doranserver.domain.api.common.service.CommonService;
 import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.net.URI;
 import java.util.*;
 
 @Timed
@@ -78,7 +73,7 @@ public class PostController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
 
-    @Transactional
+    @Trace
     @PostMapping("/post")
     public ResponseEntity<?> savePost(PostDto.CreatePost postDto,
                                       @AuthenticationPrincipal UserDetails userDetails) throws IOException {
@@ -86,17 +81,15 @@ public class PostController {
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
-                return ResponseEntity.badRequest().body("정지된 회원은 댓글을 작성할 수 없습니다.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("정지된 회원은 글을 작성할 수 없습니다.");
             }else {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
 
-        log.info("{}",userDetails.getUsername());
         Post post = Post.builder()
                 .content(postDto.getContent())
                 .forMe(postDto.getForMe())
-                .postTime(LocalDateTime.now())
                 .memberId(member)
                 .anonymity(postDto.getAnonymity())
                 .font(postDto.getFont())
@@ -106,87 +99,29 @@ public class PostController {
                 .isLocked(Boolean.FALSE)
                 .build();
 
-        //location null 처리
-        if (postDto.getLocation().isBlank()) {
-            post.setLatitude(null);
-            post.setLongitude(null);
-        } else {
-            String[] userLocation = postDto.getLocation().split(",");
-            post.setLatitude(Double.valueOf(userLocation[0]));
-            post.setLongitude(Double.valueOf(userLocation[1]));
-        }
+        postService.saveMemberPost(post, postDto);
 
-        //파일 처리
-        if (postDto.getBackgroundImgName().isBlank()) {
-            log.info("사진 생성 중");
-            String fileName = postDto.getFile().getOriginalFilename();
-            String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
-            String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
-            try {
-                postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
-
-                //todo try catch 삭제 (try catch로 잡으면 예외를 안던져서 rollback이 안됨)
-                  //todo 사진 확장자 체크 로직 추가
-            }catch (IOException e){
-                log.info("IO Exception 발생",e);
-                return ResponseEntity.badRequest().build();
-            }
-            catch (MaxUploadSizeExceededException e){
-                log.info("파일 업로드 크기 제한 exception",e);
-                return ResponseEntity.badRequest().body("파일 업로드 크기 제한");
-            }
-
-            post.setSwitchPic(ImgType.UserUpload);
-            post.setImgName(userUploadImgName);
-            UserUploadPic userUploadPic = UserUploadPic
-                    .builder()
-                    .imgName(userUploadImgName)
-                    .serverPath(userUploadPicServerPath + userUploadImgName)
-                    .build();
-            userUploadPicService.saveUserUploadPic(userUploadPic);
-            log.info("사용자 지정 이미지 이름 : {}",fileNameSubstring);
-        } else {
-            post.setSwitchPic(ImgType.DefaultBackground);
-            post.setImgName(postDto.getBackgroundImgName() + ".jpg");
-        }
-
-        log.info("{}의 글 생성", member.getNickname());
-        postService.savePost(post);
-
-        //HashTag 테이블 생성
         if (postDto.getHashTagName() != null) {
-            Post hashTagPost = postService.findSinglePost(post.getPostId());
-            for (String hashTag : postDto.getHashTagName()) {
-                log.info("해시태그 존재");
-                HashTag buildHashTag = HashTag.builder()
-                        .hashTagName(hashTag)
-                        .hashTagCount(1L)
-                        .build();
-                if (hashTagService.duplicateCheckHashTag(hashTag)) {
-                    hashTagService.saveHashTag(buildHashTag);
-                    savePostHash(hashTagPost, hashTag);
-                    log.info("해시태그 {}", hashTag + " 생성");
-                } else {
-                    HashTag byHashTagName = hashTagService.findByHashTagName(hashTag);
-                        Long hashTagCount = byHashTagName.getHashTagCount();
-                        byHashTagName.setHashTagCount(hashTagCount + 1);
-                        hashTagService.saveHashTag(byHashTagName);
-                        savePostHash(hashTagPost, hashTag);
-                        log.info("해시태그 {}", hashTag + "의 카운트 1증가");
-                    }
-                }
-            }
+            hashTagService.saveHashtagList(postDto.getHashTagName());
+        }
 
-        return ResponseEntity.ok().build();
+        Post hashTagPost = postService.findSinglePost(post.getPostId());
+        List<HashTag> byHashTagName = hashTagService.findHashtagList(postDto.getHashTagName());
+        savePostHash(hashTagPost, byHashTagName);
+
+        return ResponseEntity.created(URI.create("")).build();
     }
 
-    private void savePostHash(Post hashTagPost, String hashTag) {
-        HashTag byHashTagName = hashTagService.findByHashTagName(hashTag);
+    private void savePostHash(Post hashTagPost, List<HashTag> hashTagList) {
+        ArrayList<PostHash> postHashList = new ArrayList<>();
+        for (HashTag hashTag : hashTagList) {
             PostHash postHash = PostHash.builder()
                     .postId(hashTagPost)
-                    .hashTagId(byHashTagName)
+                    .hashTagId(hashTag)
                     .build();
-            postHashService.savePostHash(postHash);
+            postHashList.add(postHash);
+        }
+            postHashService.saveAllPostHash(postHashList);
         }
 
     /**
@@ -195,85 +130,23 @@ public class PostController {
      * @param postDeleteDto Long postId, String userEmail
      * @return Ok
      */
-    @Transactional
+    @Trace
     @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
                                         @AuthenticationPrincipal UserDetails userDetails) throws IOException {
-        Post post = postService.findSinglePost(postDeleteDto.getPostId());
-        List<Comment> commentList = commentService.findCommentByPost(post);
+        Post post = postService.findFetchMember(postDeleteDto.getPostId());
 
         if (post.getMemberId().getEmail().equals(userDetails.getUsername())) {
-            //댓글 삭제
-            if (commentList.size() != 0) {
-                log.info("글 삭제 전 댓글 삭제");
-                for (Comment comments : commentList) {
-                    Optional<Comment> comment = commentService.findCommentByCommentId(comments.getCommentId());
-                    List<CommentLike> commentLikeList = commentLikeService.findByCommentId(comment.get());
-                    List<Reply> replyList = replyService.findReplyList(comment.get());
-                    commentService.deleteAllCommentByPost(comment, commentLikeList, replyList);
-                    //댓글 삭제
-                    commentService.deleteComment(comment.get());
-                }
-            }
-
-            //글 공감 삭제
-            List<PostLike> postLikeList = postLikeService.findByPost(post);
-            if (postLikeList.size() != 0) {
-                log.info("글 삭제 전 글 공감 삭제 로직 실행");
-                for (PostLike postLike : postLikeList) {
-                    postLikeService.deletePostLike(postLike);
-                }
-            }
-
-            //해시태그 삭제
-            List<PostHash> postHashList = postHashService.findPostHash(post);
-            if (postHashList.size() != 0) {
-                log.info("글 삭제 전 해시태그 삭제 로직 실행");
-                for (PostHash postHash : postHashList) {
-                    postHashService.deletePostHash(postHash);
-                }
-            }
-
-            //인기있는 글 삭제
-            List<PopularPost> popularPostList = popularPostService.findPopularPostByPost(post);
-            if (popularPostList.size() != 0){
-                log.info("글 삭제 전 인기있는 글 삭제 로직 실행");
-                for (PopularPost popularPost : popularPostList) {
-                    popularPostService.deletePopularPost(popularPost);
-                }
-            }
-
-            //익명 테이블 삭제
-            List<String> anonymityMemberByPost = anonymityMemberService.findAllUserEmail(post);
-            if (anonymityMemberByPost.size() != 0) {
-                anonymityMemberService.deletePostByPostId(post);
-            }
-
-            //사용자 이미지 삭제 (imageName은 이미지 이름)
-            if (post.getSwitchPic().equals(ImgType.UserUpload)) {
-                //window전용
-//                Path path = Paths.get("C:\\Users\\thrus\\Downloads\\DoranPic\\" + post.get().getImgName());
-
-                //리눅스
-                Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.getImgName());
-
-                log.info("path : {}",path);
-                try {
-                    Files.deleteIfExists(path);
-                } catch (IOException e) {
-                    log.info("사진이 사용중입니다.");
-                }
-            }
-
-            postService.deletePost(post);
+            commonService.deletePost(post);
         }
         else {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("글 작성자만 글을 삭제할 수 있습니다.");
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
+    @Trace
     @PostMapping("/post/like")
     ResponseEntity<?> postLike(@RequestBody PostDto.LikePost postLikeDto,
                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -282,24 +155,26 @@ public class PostController {
         Optional<PostLike> postLike = postLikeService.findLikeOne(userDetails.getUsername(), post);
 
         if (post.getMemberId().equals(member)){
-            return ResponseEntity.badRequest().body("자신의 글에 추천은 불가능합니다.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("자신의 글에 추천은 불가능합니다.");
         }
 
         postLikeService.checkPostLike(postLikeDto, userDetails, post, member, postLike);
 
-        if (postLike.isEmpty()) {
+        if (postLike.isEmpty() && post.getMemberId().checkNotification()) {
             firebaseService.notifyPostLike(post.getMemberId(), post);
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
+    @Trace
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
+        //todo 여기부터 해야됨
         String userEmail = userDetails.getUsername();
-        Post post = postService.findSinglePost(postRequestDetailDto.getPostId());
+        Post post = postService.findFetchMember(postRequestDetailDto.getPostId());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
         Member member = memberService.findByEmail(userEmail);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
@@ -308,7 +183,6 @@ public class PostController {
         //리턴할 postDetail builder
         PostDto.ReadPostResponse postDetailDto = PostDto.ReadPostResponse.builder()
                 .content(post.getContent())
-                .postTime(post.getPostTime())
                 .postLikeCnt(postLikeService.findLIkeCnt(post))
                 .postLikeResult(postLikeService.findLikeResult(userEmail, post))
                 .commentCnt(commentService.findCommentAndReplyCntByPostId(post))
@@ -322,22 +196,28 @@ public class PostController {
                 .build();
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
-        if (postRequestDetailDto.getLocation().isBlank() || post.getLatitude()==null || post.getLongitude()==null) {
-            postDetailDto.setLocation(null);
+        Boolean isLocationPresent = postRequestDetailDto.getLocation().isBlank() ? Boolean.FALSE : Boolean.TRUE;
+        Integer distance;
+        if (isLocationPresent && post.getLocation() != null) {
+            String[] splitLocation = postRequestDetailDto.getLocation().split(",");
+            GeometryFactory geometryFactory = new GeometryFactory();
+            String latitude = splitLocation[0];
+            String longitude = splitLocation[1];
+            Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
+            Point point = geometryFactory.createPoint(coordinate);
+
+            distance = (int) Math.round(point.distance(post.getLocation()) * 100);
         } else {
-            String[] userLocation = postRequestDetailDto.getLocation().split(",");
-            Integer distance = distanceService.getDistance(Double.parseDouble(userLocation[0]),
-                    Double.parseDouble(userLocation[1]),
-                    post.getLatitude(),
-                    post.getLongitude());
-            postDetailDto.setLocation(distance);
+            distance = null;
         }
+        postDetailDto.setLocation(distance);
 
         boolean checkWrite = Boolean.FALSE;
         //댓글 builder
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
 
+        //todo 대댓글 한번에 가져와서 처리하는 걸로 바꿔야함 쿼리 너무 많이 나감..
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
         if (comments.size() != 0) {
             for (Comment comment : commentList) {
@@ -391,7 +271,8 @@ public class PostController {
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
         List<PostHash> postHashList = postHashService.findPostHash(post);
-        if (postHashList.size() != 0){
+        //todo fetch join으로 hashtag 같이 가져오게끔 수정
+        if (!postHashList.isEmpty()){
             for (PostHash postHash : postHashList) {
                 String hashTagName = postHash.getHashTagId().getHashTagName();
                 postHashListDto.add(hashTagName);

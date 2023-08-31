@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.member.controller;
 
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.admin.dto.BlockDto;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
 import com.dorandoran.doranserver.domain.comment.service.ReplyService;
@@ -32,7 +33,7 @@ public class BlockMemberController {
     private final ReplyService replyService;
     private final MemberBlockListService memberBlockListService;
 
-
+    @Trace
     @PostMapping("/member/block")
     ResponseEntity<?> blockMember(@RequestBody BlockDto.BlockMember blockMemberDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {

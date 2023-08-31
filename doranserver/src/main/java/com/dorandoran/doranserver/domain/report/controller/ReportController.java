@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.report.controller;
 
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
@@ -44,6 +45,7 @@ public class ReportController {
     private final ReplyService replyService;
     private final LockMemberService lockMemberService;
 
+    @Trace
     @PostMapping("/post/report")
     public ResponseEntity<?> saveReportPost(@RequestBody ReportDto.CreateReportPost reportPostRequestDto,
                                             @AuthenticationPrincipal UserDetails userDetails){
@@ -63,6 +65,7 @@ public class ReportController {
         }
     }
 
+    @Trace
     @PostMapping("/comment/report")
     public ResponseEntity<?> saveReportComment(@RequestBody ReportDto.CreateReportComment
                                                            reportCommentRequestDto,
@@ -84,7 +87,7 @@ public class ReportController {
         }
     }
 
-
+    @Trace
     @PostMapping("/reply/report")
     public ResponseEntity<?> saveReportReply(@RequestBody ReportDto.CreateReportReply reportReplyRequestDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
@@ -105,6 +108,7 @@ public class ReportController {
         }
     }
 
+    @Trace
     @GetMapping("/lockMember")
     public ResponseEntity<?> searchLockMember(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();

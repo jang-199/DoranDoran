@@ -1,26 +1,23 @@
 package com.dorandoran.doranserver.domain.post.domain;
 
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.locationtech.jts.geom.Point;
 import org.springframework.lang.Nullable;
-
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@AttributeOverride(name = "createdTime", column = @Column(name = "POST_TIME"))
 @Builder
-public class Post {
+public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "POST_ID")
@@ -37,10 +34,6 @@ public class Post {
     @Nullable
     @Column(name = "LOCATION", columnDefinition = "GEOMETRY")
     private Point location;
-
-    @NotNull
-    @Column(name = "POST_TIME")
-    private LocalDateTime postTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")

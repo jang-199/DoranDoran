@@ -1,9 +1,11 @@
 package com.dorandoran.doranserver.domain.notification.domain;
 
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.notification.domain.notificationType.NotificationType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Data
-public class NotificationHistory {
+@EqualsAndHashCode(callSuper = false)
+@AttributeOverride(name = "createdTime", column = @Column(name = "NOTIFICATION_TIME"))
+public class NotificationHistory extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NOTIFICATION_HISTORY_ID")
     private Long notificationHistoryId;
@@ -21,10 +25,6 @@ public class NotificationHistory {
     @NotNull
     @Column(name = "MESSAGE")
     private String message;
-
-    @NotNull
-    @Column(name = "NOTIFICATION_TIME")
-    private LocalDateTime notificationTime;
 
     @Column(name = "NOTIFICATION_READ_TIME")
     private LocalDateTime notificationReadTime;
@@ -46,7 +46,6 @@ public class NotificationHistory {
     @Builder
     public NotificationHistory(String message, NotificationType notificationType, Long objectId, Member memberId) {
         this.message = message;
-        this.notificationTime = LocalDateTime.now();
         this.notificationReadTime = null;
         this.notificationType = notificationType;
         this.objectId = objectId;

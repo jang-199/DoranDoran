@@ -1,20 +1,18 @@
 package com.dorandoran.doranserver.domain.report.domain;
 
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ReportComment {
+@EqualsAndHashCode(callSuper = false)
+@AttributeOverride(name = "createdTime", column = @Column(name = "COMMENT_REPORT_TIME"))
+public class ReportComment extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "REPORT_COMMENT_ID")
     private Long ReportCommentId;
@@ -30,13 +28,10 @@ public class ReportComment {
     @Column(name = "REPORT_CONTENT")
     private String reportContent;
 
-    @Column(name = "REPORT_TIME")
-    private LocalDateTime reportTime;
     @Builder
     public ReportComment(Comment commentId, Member memberId, String reportContent) {
         this.commentId = commentId;
         this.memberId = memberId;
         this.reportContent = reportContent;
-        this.reportTime = LocalDateTime.now();
     }
 }

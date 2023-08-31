@@ -1,22 +1,21 @@
 package com.dorandoran.doranserver.domain.comment.domain;
 
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Reply {
+@EqualsAndHashCode(callSuper = false)
+@AttributeOverride(name = "createdTime", column = @Column(name = "REPLY_TIME"))
+public class Reply extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "REPLY_ID")
@@ -25,10 +24,6 @@ public class Reply {
     @NotNull
     @Column(name = "REPLY")
     private String reply;
-
-    @NotNull
-    @Column(name = "REPLY_TIME")
-    private LocalDateTime ReplyTime;
 
     @Column(name = "ANONYMITY")
     @ColumnDefault("True")

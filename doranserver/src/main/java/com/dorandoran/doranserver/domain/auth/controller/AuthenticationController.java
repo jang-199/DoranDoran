@@ -26,7 +26,6 @@ public class AuthenticationController {
     @PatchMapping("/token")
     ResponseEntity<?> tokenCheck(@RequestBody AuthenticationDto.TokenResponse tokenDto) {
         log.info("tokenCheck api 호출");
-        String userEmail = tokenProvider.getUserEmail(tokenDto.getRefreshToken());
         AuthenticationDto.TokenResponse.TokenResponseBuilder builder = AuthenticationDto.TokenResponse.builder();
 
         if (!tokenProvider.validToken(tokenDto.getAccessToken()) && !tokenProvider.validToken(tokenDto.getRefreshToken())) { //Access & Refresh 유효 x

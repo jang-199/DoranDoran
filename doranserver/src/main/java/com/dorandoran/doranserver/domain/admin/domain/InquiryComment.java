@@ -1,22 +1,18 @@
 package com.dorandoran.doranserver.domain.admin.domain;
 
+import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class InquiryComment {
+public class InquiryComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "INQUIRY_COMMENT_ID")
@@ -29,9 +25,6 @@ public class InquiryComment {
     @ManyToOne
     @JoinColumn(name = "INQUIRY_HISTORY")
     private InquiryPost inquiryPostId;
-
-    @CreatedDate
-    private LocalDateTime createdTime;
 
     @Builder
     public InquiryComment(String comment, InquiryPost inquiryPostId) {

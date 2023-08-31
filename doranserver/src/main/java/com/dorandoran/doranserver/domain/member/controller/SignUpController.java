@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.member.controller;
 
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.member.service.PolicyTermsCheck;
 import com.dorandoran.doranserver.domain.member.service.SignUp;
@@ -23,7 +24,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Optional;
 
@@ -40,7 +40,7 @@ public class SignUpController {
     private final TokenProvider tokenProvider;
 
 
-
+    @Trace
     @PostMapping("/nickname")
     ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
@@ -53,6 +53,7 @@ public class SignUpController {
         }
     }
 
+    @Trace
     @PostMapping("registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody AccountDto.CheckRegisteredMember memberDto) {
         Member member;
@@ -78,6 +79,7 @@ public class SignUpController {
                 .tokenDto(new AuthenticationDto.TokenResponse(refreshToken,accessToken)).build());
     }
 
+    @Trace
     @Transactional
     @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto,
@@ -96,6 +98,7 @@ public class SignUpController {
     }
 
 
+    @Trace
     @PostMapping("/member")
     ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
@@ -129,7 +132,6 @@ public class SignUpController {
 
 
                 Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
-                        .signUpDate(LocalDateTime.now())
                         .firebaseToken(signUp.getFirebaseToken())
                         .nickname(signUp.getNickname())
                         .policyTermsId(policyTerms)

@@ -1,12 +1,12 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
+import com.dorandoran.doranserver.domain.api.common.service.CommonService;
 import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
-import com.dorandoran.doranserver.global.util.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

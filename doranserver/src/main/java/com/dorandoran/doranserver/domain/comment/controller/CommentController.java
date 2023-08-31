@@ -159,6 +159,7 @@ public class CommentController {
         Comment comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId())
                 .orElseThrow(() -> new NoSuchElementException("해당 댓글이 존재하지 않습니다."));
         Member member = memberService.findByEmail(userDetails.getUsername());
+        //todo 쿼리 확인 한번 해보기 checkdelete가 필요없는지..
         Optional<CommentLike> commentLike = commentLikeService.findCommentLikeOne(userDetails.getUsername(), comment);
 
         if (comment.getMemberId().equals(member)){
@@ -292,8 +293,9 @@ public class CommentController {
     }
 
     private void makeCommentList(String userEmail, Post post, List<String> anonymityMemberList, List<CommentDto.ReadCommentResponse> commentDetailDtoList, Comment comment, List<ReplyDto.ReadReplyResponse> replyDetailDtoList) {
-        Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
-        Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
+//        Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
+        //todo hashmap으로 만든 commentlike, commentResult로 바꿔야함
+//        Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
         Boolean isCommentWrittenByMember = Boolean.FALSE;
         if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
             isCommentWrittenByMember = Boolean.TRUE;
@@ -302,8 +304,8 @@ public class CommentController {
         CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
                 .comment(comment)
                 .content(comment.getComment())
-                .commentLikeResult(commentLikeResult)
-                .commentLikeCnt(commentLikeCnt)
+//                .commentLikeResult(commentLikeResult)
+//                .commentLikeCnt(commentLikeCnt)
                 .isWrittenByMember(isCommentWrittenByMember)
                 .replies(replyDetailDtoList)
                 .build();

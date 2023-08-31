@@ -28,7 +28,6 @@ public class CommentServiceImpl implements CommentService {
     private final ReplyRepository replyRepository;
     private final ReplyService replyService;
     private final CommentLikeService commentLikeService;
-    private final PostCommonService commonService;
 
     @Override
     public void saveComment(Comment comment) {
@@ -38,7 +37,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Integer findCommentAndReplyCntByPostId(Post post) {
         List<Comment> commentByPostList = commentRepository.findCommentByPostId(post);//글에 해당하는 댓글 리스트
+        log.info("[commentList] {}", commentByPostList.toString());
         List<Reply> replyCntByCommentList = replyRepository.findReplyCntByCommentList(commentByPostList);//댓글에 달린 대댓글 개수 리스트
+        log.info("[replycnt] {}", replyCntByCommentList.size());
 
         return commentByPostList.size() + replyCntByCommentList.size();
     }

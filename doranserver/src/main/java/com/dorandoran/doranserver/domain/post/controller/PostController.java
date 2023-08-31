@@ -202,6 +202,8 @@ public class PostController {
         //댓글 builder
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
+        HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
+        HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
 
         //todo 대댓글 한번에 가져와서 처리하는 걸로 바꿔야함 쿼리 너무 많이 나감..
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
@@ -229,8 +231,6 @@ public class PostController {
                 }
                 Collections.reverse(replyDetailDtoList);
 
-                Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
-                Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
                 Boolean isCommentWrittenByMember = Boolean.FALSE;
                 if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
                     checkWrite = Boolean.TRUE;
@@ -240,8 +240,8 @@ public class PostController {
                 CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
                         .comment(comment)
                         .content(comment.getComment())
-                        .commentLikeResult(commentLikeResult)
-                        .commentLikeCnt(commentLikeCnt)
+                        .commentLikeResult(commentLikeResultHashMap.get(comment))
+                        .commentLikeCnt(commentLikeCntHashMap.get(comment))
                         .isWrittenByMember(isCommentWrittenByMember)
                         .replies(replyDetailDtoList)
                         .build();
@@ -275,6 +275,4 @@ public class PostController {
 
         return ResponseEntity.ok().body(postDetailDto);
     }
-
-
 }

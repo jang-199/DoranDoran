@@ -35,7 +35,7 @@ public class CommentDto {
     public static class ReadCommentResponse{
         private Long commentId; //댓글 pk값
         private String comment; //댓글 내용
-        private Integer commentLike; //댓글 좋아요 개수
+        private Long commentLike; //댓글 좋아요 개수
         private Boolean commentLikeResult; //댓글 좋아요 유뮤
         private String commentNickname; //댓글 쓴 사람 닉네임
         private String CommentAnonymityNickname; //익명일 때 닉네임
@@ -47,7 +47,7 @@ public class CommentDto {
 
 
         @Builder
-        public ReadCommentResponse(Comment comment, String content, Integer commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDto.ReadReplyResponse> replies) {
+        public ReadCommentResponse(Comment comment, String content, Long commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDto.ReadReplyResponse> replies) {
             this.commentId = comment.getCommentId();
             this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
             this.commentLike = commentLikeCnt;

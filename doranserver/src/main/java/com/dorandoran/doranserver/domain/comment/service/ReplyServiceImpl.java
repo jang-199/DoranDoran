@@ -1,12 +1,13 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
-import com.dorandoran.doranserver.domain.common.service.CommonService;
+import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
+import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +24,7 @@ import java.util.Optional;
 public class ReplyServiceImpl implements ReplyService{
 
     private final ReplyRepository replyRepository;
-    private final CommonService commonService;
+    private final PostCommonService commonService;
 
     @Override
     public Integer findReplyCntByComment(Comment comment) {
@@ -72,8 +73,8 @@ public class ReplyServiceImpl implements ReplyService{
     @Override
     public void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, String userEmail) {
         if (reply.checkSecretMode()
-                && !commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)
-                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)
+                && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
                 && !reply.getReply().equals("차단된 사용자가 작성한 내용입니다.")) {
             replyDetailDto.setReply("비밀 댓글입니다.");
         }

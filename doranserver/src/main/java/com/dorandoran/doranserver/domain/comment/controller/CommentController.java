@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.controller;
 
+import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
@@ -22,7 +23,7 @@ import com.dorandoran.doranserver.domain.post.service.AnonymityMemberService;
 import com.dorandoran.doranserver.domain.post.service.PopularPostService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
-import com.dorandoran.doranserver.domain.common.service.CommonService;
+import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,6 @@ public class CommentController {
     private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
-    private final CommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
@@ -295,7 +295,7 @@ public class CommentController {
         Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
         Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
         Boolean isCommentWrittenByMember = Boolean.FALSE;
-        if (commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
+        if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
             isCommentWrittenByMember = Boolean.TRUE;
         }
 
@@ -317,7 +317,7 @@ public class CommentController {
         log.info("대댓글 로직 실행");
         for (Reply reply : replies) {
             Boolean isReplyWrittenByUser = Boolean.FALSE;
-            if (commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
+            if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
                 isReplyWrittenByUser = Boolean.TRUE;
             }
             ReplyDto.ReadReplyResponse replyDetailDto = ReplyDto.ReadReplyResponse.builder()

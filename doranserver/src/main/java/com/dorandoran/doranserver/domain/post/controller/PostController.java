@@ -1,8 +1,8 @@
 package com.dorandoran.doranserver.domain.post.controller;
 
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
+import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
-import com.dorandoran.doranserver.domain.background.service.UserUploadPicService;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentLikeService;
@@ -24,8 +24,7 @@ import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
-import com.dorandoran.doranserver.domain.common.service.CommonService;
-import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
+import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,19 +55,16 @@ public class PostController {
     String ipAddress;
 
     private final MemberService memberService;
-    private final UserUploadPicService userUploadPicService;
     private final PostLikeService postLikeService;
     private final HashTagService hashTagService;
     private final PostService postService;
     private final PostHashService postHashService;
     private final CommentService commentService;
     private final CommentLikeService commentLikeService;
-    private final DistanceUtil distanceService;
     private final ReplyService replyService;
-    private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
-    private final CommonService commonService;
+    private final PostCommonService commonService;
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
@@ -228,7 +224,7 @@ public class PostController {
                 log.info("대댓글 로직 실행");
                 for (Reply reply : replyList) {
                     Boolean isReplyWrittenByUser = Boolean.FALSE;
-                    if (commonService.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
+                    if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
                         checkWrite = Boolean.TRUE;
                         isReplyWrittenByUser = Boolean.TRUE;
                     }
@@ -246,7 +242,7 @@ public class PostController {
                 Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
                 Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
                 Boolean isCommentWrittenByMember = Boolean.FALSE;
-                if (commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
+                if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
                     checkWrite = Boolean.TRUE;
                     isCommentWrittenByMember = Boolean.TRUE;
                 }

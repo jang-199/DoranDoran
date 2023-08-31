@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
-import com.dorandoran.doranserver.domain.common.service.CommonService;
+import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
@@ -8,6 +8,7 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
+import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +28,7 @@ public class CommentServiceImpl implements CommentService {
     private final ReplyRepository replyRepository;
     private final ReplyService replyService;
     private final CommentLikeService commentLikeService;
-    private final CommonService commonService;
+    private final PostCommonService commonService;
 
     @Override
     public void saveComment(Comment comment) {
@@ -118,8 +119,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void checkSecretComment(CommentDto.ReadCommentResponse commentDetailDto, Post post, Comment comment, String userEmail) {
         if (comment.checkSecretMode()
-                && !commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)
-                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)
+                && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
                 && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")) {
             commentDetailDto.setComment("비밀 댓글입니다.");
         }

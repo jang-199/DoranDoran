@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.domain.notification.domain;
 
-import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
+import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.notification.domain.notificationType.NotificationType;
 import jakarta.persistence.*;

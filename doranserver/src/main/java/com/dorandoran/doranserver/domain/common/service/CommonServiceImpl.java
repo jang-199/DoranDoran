@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.domain.api.common.service;
+package com.dorandoran.doranserver.domain.common.service;
 
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;

@@ -105,6 +105,22 @@ public class PostDto {
         private List<CommentDto.ReadCommentResponse> commentDetailDto;
         private List<String> postHashes;
 
+        public ReadPostResponse toEntity(Post post, Integer lIkeCnt, Boolean likeResult, Integer commentCnt, Boolean isWrittenByUser){
+            return PostDto.ReadPostResponse.builder()
+                    .content(post.getContent())
+                    .postLikeCnt(lIkeCnt)
+                    .postLikeResult(likeResult)
+                    .commentCnt(commentCnt)
+                    .postAnonymity(post.getAnonymity())
+                    .postNickname(post.getMemberId().getNickname())
+                    .isWrittenByMember(isWrittenByUser)
+                    .font(post.getFont())
+                    .fontColor(post.getFontColor())
+                    .fontSize(post.getFontSize())
+                    .fontBold(post.getFontBold())
+                    .build();
+        }
+
         @Builder
         public ReadPostResponse(String content, LocalDateTime postTime, Integer location, Integer postLikeCnt, Boolean postLikeResult, Integer commentCnt, String backgroundPicUri, String postNickname, Boolean postAnonymity, String font, String fontColor, Integer fontSize, Integer fontBold, Boolean checkWrite, Boolean isWrittenByMember, List<CommentDto.ReadCommentResponse> commentDetailDto, List<String> postHashes) {
             this.content = content;

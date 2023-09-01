@@ -145,7 +145,7 @@ public class CommentController {
         Optional<CommentLike> commentLike = commentLikeService.findCommentLikeOne(userDetails.getUsername(), comment);
 
         if (comment.getMemberId().equals(member)){
-            return new ResponseEntity<>("자신의 댓글에 추천은 불가능합니다.",HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("자신의 댓글에 추천은 불가능합니다.");
         }
 
         commentLikeService.checkCommentLike(commentLikeDto, userDetails, comment, member, commentLike);
@@ -154,7 +154,7 @@ public class CommentController {
             firebaseService.notifyCommentLike(comment.getMemberId(), comment);
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
     @Trace

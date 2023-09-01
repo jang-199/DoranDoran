@@ -25,6 +25,7 @@ import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
 import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
+import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -186,74 +187,30 @@ public class PostController {
 
         PostDto.ReadPostResponse postDetailDto = new PostDto.ReadPostResponse().toEntity(post, lIkeCnt, likeResult, commentCnt, isWrittenByUser, checkWrite);
 
-        //글의 위치 데이터와 현재 내 위치 거리 계산
         Boolean isLocationPresent = postRequestDetailDto.getLocation().isBlank() ? Boolean.FALSE : Boolean.TRUE;
         Integer distance;
         if (isLocationPresent && post.getLocation() != null) {
+            DistanceUtil distanceUtil = new DistanceUtil();
             String[] splitLocation = postRequestDetailDto.getLocation().split(",");
-            GeometryFactory geometryFactory = new GeometryFactory();
-            String latitude = splitLocation[0];
-            String longitude = splitLocation[1];
-            Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
-            Point point = geometryFactory.createPoint(coordinate);
-
-            distance = (int) Math.round(point.distance(post.getLocation()) * 100);
+            distance = distanceUtil.getDistance(splitLocation, post.getLocation());
         } else {
             distance = null;
         }
         postDetailDto.setLocation(distance);
 
-        //댓글 builder
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
-
         HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
-
-//        if (!comments.isEmpty()) {
-//            for (Comment comment : commentList) {
-//                List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
-//                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
-//                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
-//                for (Reply reply : replyList) {
-//                    Boolean isReplyWrittenByUser = Boolean.FALSE;
-//                    if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
-//                        isReplyWrittenByUser = Boolean.TRUE;
-//                    }
-//                    ReplyDto.ReadReplyResponse replyDetailDto = new ReplyDto.ReadReplyResponse().toEntity(reply, isReplyWrittenByUser);
-//                    replyService.checkSecretReply(replyDetailDto, post, reply, userEmail);
-//                    replyService.checkReplyAnonymityMember(anonymityMemberList, reply, replyDetailDto);
-//                    replyDetailDtoList.add(replyDetailDto);
-//                }
-//                Collections.reverse(replyDetailDtoList);
-//
-//                Boolean isCommentWrittenByMember = Boolean.FALSE;
-//                if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
-//                    isCommentWrittenByMember = Boolean.TRUE;
-//                }
-//
-//                CommentDto.ReadCommentResponse commentDetailDto =  new CommentDto.ReadCommentResponse().toEntity(comment, commentLikeResultHashMap.get(comment), commentLikeCntHashMap.get(comment), isCommentWrittenByMember, replyDetailDtoList);
-//                commentService.checkSecretComment(commentDetailDto, post, comment, userEmail);
-//                commentService.checkCommentAnonymityMember(anonymityMemberList, comment, commentDetailDto);
-//                commentDetailDtoList.add(commentDetailDto);
-//            }
-//        }
-//        Collections.reverse(commentDetailDtoList);
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 
-        //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
         List<PostHash> postHashList = postHashService.findPostHash(post);
         postHashService.makePostHashList(postHashList, postHashListDto);
         postDetailDto.setPostHashes(postHashListDto);
 
-        //배경사진 builder
-        String[] split = post.getImgName().split("[.]");
-        if (post.getSwitchPic().equals(ImgType.DefaultBackground)) {
-            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/pic/default/" + split[0]);
-        } else {
-            postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
-        }
+        String imgName = post.getImgName().split("[.]")[0];
+        postDetailDto.setBackgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName);
 
         return ResponseEntity.ok().body(postDetailDto);
     }

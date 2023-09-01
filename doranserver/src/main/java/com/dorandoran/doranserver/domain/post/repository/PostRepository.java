@@ -38,45 +38,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "select m from Post m " +
             "where (ST_Distance(:point,m.location)) <= :distance and m.isLocked = false " +
             "order by m.postId desc")
-    List<Post> findFirstClosePostV2(@Param("point") Point point,
-                                    @Param("distance") double distance,
-                                    PageRequest pageRequest);
+    List<Post> findFirstClosePost(@Param("point") Point point,
+                                  @Param("distance") double distance,
+                                  PageRequest pageRequest);
 
     @Query("select m from Post m " +
             "where (ST_Distance(:point,m.location)) <= :distance and m.isLocked = false and m.memberId not in :members " +
             "order by m.postId desc")
-    List<Post> findFirstClosePostWithoutBlockListsV2(@Param("point") Point point,
-                                                     @Param("distance") double distance,
+    List<Post> findFirstClosePostWithoutBlockLists(@Param("point") Point point,
+                                                   @Param("distance") double distance,
                                                    @Param("members") List<Member> members,
                                                    PageRequest pageRequest);
 
-//    @Query("select m from Post m " +
-//            "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false " +
-//            "order by m.postId desc")
-//    List<Post> findFirstClosePost(@Param("Slat") Double Slat,
-//                                  @Param("Llat") Double Llat,
-//                                  @Param("Slon") Double Slon,
-//                                  @Param("Llon") Double Llon,
-//                                  PageRequest pageRequest);
-//
-//    @Query("select m from Post m " +
-//            "where m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon and  m.isLocked = false and m.memberId not in :members " +
-//            "order by m.postId desc")
-//    List<Post> findFirstClosePostWithoutBlockLists(@Param("Slat") Double Slat,
-//                                                   @Param("Llat") Double Llat,
-//                                                   @Param("Slon") Double Slon,
-//                                                   @Param("Llon") Double Llon,
-//                                                   @Param("members") List<Member> members,
-//                                                   PageRequest pageRequest);
-//    @Query("select m from Post m " +
-//            "where m.postId <= :pos  and m.latitude >= :Slat and m.latitude <= :Llat and m.longitude >= :Slon and m.longitude <= :Llon  and m.isLocked = false " +
-//            "order by m.postId desc ")
-//    List<Post> findClosePost(@Param("pos") Long pos,
-//                             @Param("Slat") Double Slat,
-//                             @Param("Llat") Double Llat,
-//                             @Param("Slon") Double Slon,
-//                             @Param("Llon") Double Llon,
-//                             PageRequest pageRequest);
     @Query("select m from Post m " +
             "where m.postId <= :pos and (ST_Distance(:Point,m.location)) <= :distance and m.isLocked = false " +
             "order by m.postId desc ")

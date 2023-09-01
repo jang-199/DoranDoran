@@ -77,9 +77,9 @@ public class PostServiceImpl implements PostService {
     public List<Post> findFirstClosePost(Point point,double distance,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postRepository.findFirstClosePostV2(point, distance, of); //todo v2를 기본 매서드로 변경 후 기본 메서드 삭제,,
+            return postRepository.findFirstClosePost(point, distance, of);
         }
-        return postRepository.findFirstClosePostWithoutBlockListsV2(point, distance, memberBlockListByBlockingMember, of);
+        return postRepository.findFirstClosePostWithoutBlockLists(point, distance, memberBlockListByBlockingMember, of);
     }
 
     @Override

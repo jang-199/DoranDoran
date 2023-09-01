@@ -106,7 +106,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<PostLike> findFirstMyLikedPosts(String email,List<Member> memberBlockListByBlockingMember) {
+    public List<Post> findFirstMyLikedPosts(String email,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
             return postLikeRepository.findFirstMyLikedPosts(email, of);
@@ -116,7 +116,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<PostLike> findMyLikedPosts(String email, Long position,List<Member> memberBlockListByBlockingMember) {
+    public List<Post> findMyLikedPosts(String email, Long position,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
             return postLikeRepository.findMyLikedPosts(email,position, of);

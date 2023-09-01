@@ -33,27 +33,27 @@ public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
             "order by p.postId.postId desc ")
     List<PostLike> findLikeResultByPostList(@Param("email") String email, @Param("postList") List<Post> postList);
 
-    @Query("select p from PostLike p " +
+    @Query("select p.postId from PostLike p " +
             "where p.memberId.email = :email and p.checkDelete = false " +
             "order by p.postLikeId desc ")
-    List<PostLike> findFirstMyLikedPosts(@Param("email") String email, PageRequest pageRequest);
-    @Query("select p from PostLike p " +
+    List<Post> findFirstMyLikedPosts(@Param("email") String email, PageRequest pageRequest);
+    @Query("select p.postId from PostLike p " +
             "where p.memberId.email = :email and p.checkDelete = false and p.memberId not in :members " +
             "order by p.postLikeId desc ")
-    List<PostLike> findFirstMyLikedPostsWithoutBlockLists(@Param("email") String email,
+    List<Post> findFirstMyLikedPostsWithoutBlockLists(@Param("email") String email,
                                                           @Param("members") List<Member> members,
                                                           PageRequest pageRequest);
 
-    @Query("select p from PostLike p " +
+    @Query("select p.postId from PostLike p " +
             "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false " +
             "order by p.postLikeId desc ")
-    List<PostLike> findMyLikedPosts(@Param("email") String email,
+    List<Post> findMyLikedPosts(@Param("email") String email,
                                     @Param("pos") Long position,
                                     PageRequest pageRequest);
-    @Query("select p from PostLike p " +
+    @Query("select p.postId from PostLike p " +
             "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false and p.memberId not in :members " +
             "order by p.postLikeId desc ")
-    List<PostLike> findMyLikedPostsWithoutBlockLists(@Param("email") String email,
+    List<Post> findMyLikedPostsWithoutBlockLists(@Param("email") String email,
                                                      @Param("pos") Long position,
                                                      @Param("members") List<Member> members,
                                                      PageRequest pageRequest);

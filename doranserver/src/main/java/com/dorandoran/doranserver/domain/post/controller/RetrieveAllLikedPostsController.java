@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.domain.post.controller;
 
+import com.dorandoran.doranserver.domain.post.domain.Post;
+import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.post.dto.RetrievePostDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
@@ -8,7 +10,6 @@ import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.member.service.MemberBlockListService;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
-import com.dorandoran.doranserver.global.util.BlockMemberFilter;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,51 +41,31 @@ public class RetrieveAllLikedPostsController {
 
     private final PostLikeService postLikeService;
     private final MemberService memberService;
-    private final BlockMemberFilter blockMemberFilter;
     private final MemberBlockListService memberBlockListService;
 
     @Trace
     @GetMapping("/post/member/like/{position}")
-    public ResponseEntity<LinkedList<RetrievePostDto.ReadPostResponse>> getAllLikedPosts(@PathVariable("position") Long position,
+    public ResponseEntity<List<RetrievePostDto.ReadPostResponse>> getAllLikedPosts(@PathVariable("position") Long position,
                                                                                          @AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
         Member member = memberService.findByEmail(username);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
 
-        List<PostLike> myPost;
+        List<Post> myPost;
         if (position == 0) {
             myPost = postLikeService.findFirstMyLikedPosts(username,memberBlockListByBlockingMember);
-            myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         } else {
             myPost = postLikeService.findMyLikedPosts(username, position,memberBlockListByBlockingMember);
-            myPost = blockMemberFilter.postLikeFilter(myPost, memberBlockListByBlockingMember);
         }
 
-        LinkedList<RetrievePostDto.ReadPostResponse> postDtoList = new LinkedList<>();
-        for (PostLike post : myPost) {
-            String[] split = post.getPostId().getImgName().split("[.]");
+        List<Integer> likeCntList = postLikeService.findLIkeCntByPostList(myPost);
 
-            RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder()
-                    .postId(post.getPostId().getPostId())
-                    .contents(post.getPostId().getContent())
-                    .postTime(post.getPostId().getCreatedTime())
-                    .location(null)
-                    .likeCnt(postLikeService.findLIkeCnt(post.getPostId()))
-                    .likeResult(null)
-                    .replyCnt(null)
-                    .backgroundPicUri(
-                            post.getPostId().getSwitchPic() == ImgType.DefaultBackground
-                                    ? ipAddress + ":8080/api/pic/default/" + split[0]
-                                    : ipAddress + ":8080/api/pic/member/" + split[0])
-                    .font(post.getPostId().getFont())
-                    .fontColor(post.getPostId().getFontColor())
-                    .fontSize(post.getPostId().getFontSize())
-                    .fontBold(post.getPostId().getFontBold())
-                    .build();
-            postDtoList.add(postResponseDto);
-        }
+        RetrieveResponseUtils.AllLikedPostsResponse retrieveResponseUtils = RetrieveResponseUtils.AllLikedPostsResponse.builder()
+                .ipAddress(ipAddress)
+                .build();
+        List<RetrievePostDto.ReadPostResponse> responseList = retrieveResponseUtils.makeAllPostsResponseList(myPost, likeCntList);
 
-        return ResponseEntity.ok().body(postDtoList);
+        return ResponseEntity.ok().body(responseList);
     }
 }

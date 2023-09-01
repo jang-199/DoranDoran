@@ -126,10 +126,10 @@ public class CommentController {
     @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDto.DeleteComment commentDeleteDto,
                                            @AuthenticationPrincipal UserDetails userDetails){
-        Optional<Comment> comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
-        if (comment.get().getMemberId().getEmail().equals(userDetails.getUsername())) {
+        Comment comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
+        if (comment.getMemberId().getEmail().equals(userDetails.getUsername())) {
             //댓글 checkDelete 삭제로 표시
-            comment.get().setCheckDelete(Boolean.TRUE);
+            comment.setCheckDelete(Boolean.TRUE);
             log.info("댓글 숨김 처리");
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -143,8 +143,7 @@ public class CommentController {
     @PostMapping("/comment/like")
     ResponseEntity<?> commentLike(@RequestBody CommentDto.LikeComment commentLikeDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
-        Comment comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId())
-                .orElseThrow(() -> new NoSuchElementException("해당 댓글이 존재하지 않습니다."));
+        Comment comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Member member = memberService.findByEmail(userDetails.getUsername());
         //todo 쿼리 확인 한번 해보기 checkdelete가 필요없는지..
         Optional<CommentLike> commentLike = commentLikeService.findCommentLikeOne(userDetails.getUsername(), comment);
@@ -184,11 +183,11 @@ public class CommentController {
     @Trace
     @Transactional
     @PostMapping("/reply")
-    public ResponseEntity<?> reply(@RequestBody ReplyDto.CreateReply replyDto,
+    public ResponseEntity<?> saveReply(@RequestBody ReplyDto.CreateReply replyDto,
                                    @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = memberService.findByEmail(userDetails.getUsername());
-        Comment comment = commentService.findCommentByCommentId(replyDto.getCommentId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail);
+        Comment comment = commentService.findCommentByCommentId(replyDto.getCommentId());
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
@@ -202,16 +201,7 @@ public class CommentController {
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.getPostId());
         Long nextIndex = anonymityMembers.size() + 1L;
 
-        Reply buildReply = Reply.builder()
-                .reply(replyDto.getReply())
-                .anonymity(replyDto.getAnonymity())
-                .commentId(comment)
-                .memberId(member)
-                .checkDelete(Boolean.FALSE)
-                .secretMode(replyDto.getSecretMode())
-                .isLocked(Boolean.FALSE)
-                .build();
-
+        Reply buildReply = new Reply().toEntity(replyDto, comment, member);
 
         replyService.saveReply(buildReply);
 
@@ -222,11 +212,8 @@ public class CommentController {
             firebaseService.notifyReply(fcmMemberList, buildReply);
         }
 
-//        extracted(replyDto.getAnonymity(), anonymityMembers, userDetails, AnonymityMember.builder()
-//                .userEmail(member.getEmail())
-//                .postId(comment.getPostId())
-//                .anonymityIndex(nextIndex)
-//                .build());
+        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, comment.getPostId(), nextIndex);
+        anonymityMemberService.checkAndSave(replyDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

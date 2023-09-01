@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.post.domain;
 
+import com.dorandoran.doranserver.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,4 +27,12 @@ public class AnonymityMember {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post postId;
+
+    public AnonymityMember toEntity(String userEmail, Post post, Long nextIndex){
+        return AnonymityMember.builder()
+                .userEmail(userEmail)
+                .postId(post)
+                .anonymityIndex(nextIndex)
+                .build();
+    }
 }

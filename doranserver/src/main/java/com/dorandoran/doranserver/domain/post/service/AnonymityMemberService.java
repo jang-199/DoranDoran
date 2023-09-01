@@ -6,8 +6,9 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import java.util.List;
 
 public interface AnonymityMemberService {
-    public List<String> findAllUserEmail(Post post);
-    public void save(AnonymityMember anonymityMember);
+    List<String> findAllUserEmail(Post post);
+    void save(AnonymityMember anonymityMember);
+    void checkAndSave(Boolean anonymityCheck, List<String> anonymityMembers, String userEmails, AnonymityMember anonymityMember);
 
     void deletePostByPostId(Post post);
 

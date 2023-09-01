@@ -11,9 +11,76 @@ import org.locationtech.jts.geom.Point;
 import java.util.*;
 
 public class RetrieveResponseUtils {
+    public static class AllLikedPostsResponse{
+        String ipAddress;
+        public List<RetrievePostDto.ReadPostResponse> makeAllPostsResponseList(List<Post> myPost, List<Integer> likeCntList) {
+            List<RetrievePostDto.ReadPostResponse> postDtoList = new ArrayList<>();
+            Iterator<Integer> likeCntListIter = likeCntList.iterator();
+            for (Post post : myPost) {
+                String[] split = post.getImgName().split("[.]");
+
+                RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder()
+                        .postId(post.getPostId())
+                        .contents(post.getContent())
+                        .postTime(post.getCreatedTime())
+                        .location(null)
+                        .likeCnt(likeCntListIter.hasNext() ? likeCntListIter.next() : 0)
+                        .likeResult(null)
+                        .replyCnt(null)
+                        .backgroundPicUri(
+                                post.getSwitchPic() == ImgType.DefaultBackground
+                                        ? ipAddress + ":8080/api/pic/default/" + split[0]
+                                        : ipAddress + ":8080/api/pic/member/" + split[0])
+                        .font(post.getFont())
+                        .fontColor(post.getFontColor())
+                        .fontSize(post.getFontSize())
+                        .fontBold(post.getFontBold())
+                        .build();
+                postDtoList.add(postResponseDto);
+            }
+            return postDtoList;
+        }
+        @Builder
+        public AllLikedPostsResponse(String ipAddress) {
+            this.ipAddress = ipAddress;
+        }
+    }
+    public static class AllPostsResponse{
+        String ipAddress;
+        public List<RetrievePostDto.ReadPostResponse> makeAllPostsResponseList(List<Post> myPost, List<Integer> likeCntList) {
+            List<RetrievePostDto.ReadPostResponse> responseList = new ArrayList<>();
+            Iterator<Integer> likeCntListIter = likeCntList.iterator();
+            for (Post post : myPost) {
+                String[] split = post.getImgName().split("[.]");
+
+                RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder().postId(post.getPostId())
+                        .contents(post.getContent())
+                        .postTime(post.getCreatedTime())
+                        .location(null)
+                        .likeCnt(likeCntListIter.hasNext() ? likeCntListIter.next() : 0)
+                        .likeResult(null)
+                        .replyCnt(null)
+                        .backgroundPicUri(
+                                post.getSwitchPic() == ImgType.DefaultBackground
+                                        ? ipAddress + ":8080/api/pic/default/" + split[0]
+                                        : ipAddress + ":8080/api/pic/member/" + split[0])
+                        .font(post.getFont())
+                        .fontColor(post.getFontColor())
+                        .fontSize(post.getFontSize())
+                        .fontBold(post.getFontBold())
+                        .build();
+                responseList.add(postResponseDto);
+            }
+            return responseList;
+        }
+        @Builder
+        public AllPostsResponse(String ipAddress) {
+            this.ipAddress = ipAddress;
+        }
+    }
     public static class InterestedPostResponse{
         String userEmail;
-        String ipAddress; //todo 공통으로 사용하는 이메일이랑 아이피는 필드 변수
+        String ipAddress;
 
         public LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> makeRetrieveInterestedResponseList(List<Post> postList,
                                                                                                                            List<Integer> likeCntList,
@@ -35,8 +102,8 @@ public class RetrieveResponseUtils {
                         .postTime(post.getCreatedTime())
                         .location(null)
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
-                        .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
-                        .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
+                        .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
+                        .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
                         .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
@@ -90,8 +157,8 @@ public class RetrieveResponseUtils {
                         .postTime(post.getCreatedTime())
                         .location(distance)
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
-                        .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
-                        .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
+                        .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
+                        .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
                         .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
@@ -145,8 +212,8 @@ public class RetrieveResponseUtils {
                         .postTime(post.getCreatedTime())
                         .location(distance)
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
-                        .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
-                        .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
+                        .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
+                        .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
                         .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
@@ -199,8 +266,8 @@ public class RetrieveResponseUtils {
                         .postTime(post.getCreatedTime())
                         .location(distance)
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
-                        .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
-                        .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
+                        .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
+                        .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
                         .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
@@ -248,8 +315,8 @@ public class RetrieveResponseUtils {
                         .postTime(post.getCreatedTime())
                         .location(distance)
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
-                        .likeResult(likeResultByPostListIter.hasNext()?likeResultByPostListIter.next():false)
-                        .replyCnt(commentAndReplyCntListIter.hasNext()?commentAndReplyCntListIter.next():0)
+                        .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
+                        .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
                         .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())

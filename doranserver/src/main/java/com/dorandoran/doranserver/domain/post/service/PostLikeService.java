@@ -18,8 +18,8 @@ public interface PostLikeService {
     public List<PostLike> findByMemberId(String email);
     public void deletePostLike(PostLike postLike);
     public List<PostLike> findByPost(Post post);
-    List<PostLike> findFirstMyLikedPosts(String email, List<Member> memberBlockListByBlockingMember);
-    List<PostLike> findMyLikedPosts(String email, Long position, List<Member> memberBlockListByBlockingMember);
+    List<Post> findFirstMyLikedPosts(String email, List<Member> memberBlockListByBlockingMember);
+    List<Post> findMyLikedPosts(String email, Long position, List<Member> memberBlockListByBlockingMember);
     Optional<PostLike> findLikeOne(String email, Post post);
     void checkPostLike(PostDto.LikePost postLikeDto, UserDetails userDetails, Post post, Member member, Optional<PostLike> postLike);
 }

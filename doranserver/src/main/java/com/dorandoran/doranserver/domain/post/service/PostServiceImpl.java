@@ -79,15 +79,14 @@ public class PostServiceImpl implements PostService {
     public List<Post> findFirstClosePost(Point point,double distance,List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postRepository.findFirstClosePostV2(point, distance, of);
+            return postRepository.findFirstClosePost(point, distance, of);
         }
-        return postRepository.findFirstClosePostWithoutBlockListsV2(point, distance, memberBlockListByBlockingMember, of);
+        return postRepository.findFirstClosePostWithoutBlockLists(point, distance, memberBlockListByBlockingMember, of);
     }
 
     @Override
     public List<Post> findClosePost(Point point,double distance, Long startPost, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
         if (memberBlockListByBlockingMember.isEmpty()) {
             return postRepository.findClosePostV2(startPost, point, distance, of);
         }

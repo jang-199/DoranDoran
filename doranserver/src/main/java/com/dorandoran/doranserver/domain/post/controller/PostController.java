@@ -29,9 +29,6 @@ import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -67,7 +64,6 @@ public class PostController {
     private final LockMemberService lockMemberService;
     private final PostCommonService commonService;
     private final MemberBlockListService memberBlockListService;
-    private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
     private final CommentResponseUtils commentResponseUtils;
 
@@ -122,12 +118,6 @@ public class PostController {
             postHashService.saveAllPostHash(postHashList);
         }
 
-    /**
-     * 댓글 삭제 -> 글 공감 삭제 -> 글 해시 태그 삭제 -> 인기있는 글 삭제 -> 익명 테이블 삭제 -> 사용자 이미지 삭제 -> 글 삭제
-     * 삭제하려는 사용자가 본인 글이 아닐 경우 bad request
-     * @param postDeleteDto Long postId, String userEmail
-     * @return Ok
-     */
     @Trace
     @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
@@ -165,7 +155,6 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    //글 내용, 작성자, 공감수, 위치, 댓글수, 작성 시간, 댓글
     @Trace
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,

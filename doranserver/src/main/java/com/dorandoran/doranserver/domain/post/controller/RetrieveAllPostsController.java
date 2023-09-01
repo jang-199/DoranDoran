@@ -1,10 +1,10 @@
 package com.dorandoran.doranserver.domain.post.controller;
 
+import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.post.dto.RetrievePostDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
-import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
@@ -17,7 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @Timed
@@ -40,7 +39,7 @@ public class RetrieveAllPostsController {
 
     @Trace
     @GetMapping("/post/member/{position}")
-    ResponseEntity<LinkedList<RetrievePostDto.ReadPostResponse>> getAllPosts(@PathVariable("position") Long position,
+    ResponseEntity<List<RetrievePostDto.ReadPostResponse>> getAllPosts(@PathVariable("position") Long position,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
 
         Member member = memberService.findByEmail(userDetails.getUsername());
@@ -50,30 +49,14 @@ public class RetrieveAllPostsController {
         } else {
             myPost = postService.findMyPost(member, position);
         }
+        List<Integer> likeCntList = postLikeService.findLIkeCntByPostList(myPost);
 
-        LinkedList<RetrievePostDto.ReadPostResponse> postDtoList = new LinkedList<>();
-        for (Post post : myPost) {
-            String[] split = post.getImgName().split("[.]");
+        RetrieveResponseUtils.AllPostsResponse retrieveResponseUtils = RetrieveResponseUtils.AllPostsResponse.builder()
+                .ipAddress(ipAddress)
+                .build();
 
-            RetrievePostDto.ReadPostResponse postResponseDto = RetrievePostDto.ReadPostResponse.builder().postId(post.getPostId())
-                    .contents(post.getContent())
-                    .postTime(post.getCreatedTime())
-                    .location(null)
-                    .likeCnt(postLikeService.findLIkeCnt(post))
-                    .likeResult(null)
-                    .replyCnt(null)
-                    .backgroundPicUri(
-                            post.getSwitchPic() == ImgType.DefaultBackground
-                                    ? ipAddress + ":8080/api/pic/default/" + split[0]
-                                    : ipAddress + ":8080/api/pic/member/" + split[0])
-                    .font(post.getFont())
-                    .fontColor(post.getFontColor())
-                    .fontSize(post.getFontSize())
-                    .fontBold(post.getFontBold())
-                    .build();
-            postDtoList.add(postResponseDto);
-        }
+        List<RetrievePostDto.ReadPostResponse> responseList = retrieveResponseUtils.makeAllPostsResponseList(myPost, likeCntList);
 
-        return ResponseEntity.ok().body(postDtoList);
+        return ResponseEntity.ok().body(responseList);
     }
 }

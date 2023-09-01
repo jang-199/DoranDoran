@@ -1,6 +1,8 @@
 package com.dorandoran.doranserver.domain.auth.controller;
 
 import com.dorandoran.doranserver.domain.auth.dto.AuthenticationDto;
+import com.dorandoran.doranserver.domain.member.domain.Member;
+import com.dorandoran.doranserver.domain.member.repository.MemberRepository;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.global.util.token.TokenUtil;
 import io.micrometer.core.annotation.Timed;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Timed
 @Slf4j
@@ -18,6 +21,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @RestController
 public class AuthenticationController {
+    private final MemberRepository memberRepository;
 
     private final TokenProvider tokenProvider;
     private final TokenUtil tokenUtil;
@@ -57,5 +61,13 @@ public class AuthenticationController {
         }
 
         return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/test/token")
+    ResponseEntity<?> tokenCheckTest(@RequestBody AuthenticationDto.TokenTest tokenDto) {
+
+        Optional<Member> byRefreshToken = memberRepository.findByRefreshToken(tokenDto.getRefreshToken());
+        String s = tokenProvider.generateAccessToken(byRefreshToken.get(), Duration.ofMillis(Long.parseLong(tokenDto.getLimitTime())));
+        return ResponseEntity.ok().body(s);
     }
 }

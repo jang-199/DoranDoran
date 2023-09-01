@@ -42,7 +42,7 @@ public class RetrievePostController {
                                                                              @RequestParam(required = false, defaultValue = "") String location,
                                                                              @AuthenticationPrincipal UserDetails userDetails) {
         boolean isLocationPresent = !location.isBlank();
-        String[] splitLocation = location.split(",");
+        String[] splitLocation = location.split(","); //todo 거리 부분 유틸로,,
         String userEmail = userDetails.getUsername();
 
         Member member = memberService.findByEmail(userEmail);

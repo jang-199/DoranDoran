@@ -14,7 +14,7 @@ import java.util.*;
 public class RetrieveResponseUtils {
     public static class InterestedPostResponse{
         String userEmail;
-        String ipAddress;
+        String ipAddress; //todo 공통으로 사용하는 이메일이랑 아이피는 필드 변수
 
         public LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> makeRetrieveInterestedResponseList(List<Post> postList,
                                                                                                                            List<Integer> likeCntList,

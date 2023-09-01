@@ -245,6 +245,7 @@ public class BackgroundPicDBInitializer {
                 .reply(contents)
                 .reportCount(0)
                 .isLocked(locked)
+                .checkDelete(false)
                 .anonymity(anonymity)
                 .build();
         replyService.saveReply(reply);

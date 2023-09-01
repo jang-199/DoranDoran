@@ -18,5 +18,5 @@ public interface PostHashService {
 
     List<Post> inquiryFirstPostHash(HashTag hashTag, Member member, List<Member> memberBlockListByBlockingMember);
     List<Post> inquiryPostHash(HashTag hashTag, Long postCnt,Member member, List<Member> memberBlockListByBlockingMember);
-
+    void makePostHashList(List<PostHash> postHashList, List<String> postHashListDto);
 }

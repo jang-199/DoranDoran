@@ -54,7 +54,7 @@ public class SignUpController {
     }
 
     @Trace
-    @PostMapping("registered")
+    @PostMapping("/registered")
     ResponseEntity<?> checkRegisteredMember(@RequestBody AccountDto.CheckRegisteredMember memberDto) {
         Member member;
         try {
@@ -82,7 +82,7 @@ public class SignUpController {
     @Trace
     @Transactional
     @PatchMapping("/nickname")
-    public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto,
+    public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto, //todo 비속어, 관리자, 운영자 등등은 막을것
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member findMember = memberService.findByEmail(userEmail);

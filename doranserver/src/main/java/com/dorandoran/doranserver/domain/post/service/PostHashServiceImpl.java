@@ -16,13 +16,14 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PostHashServiceImpl implements PostHashService{
+public class PostHashServiceImpl implements PostHashService {
     private final PostHashRepository postHashRepository;
 
     @Override
     public void savePostHash(PostHash postHash) {
         postHashRepository.save(postHash);
     }
+
     @Override
     public void saveAllPostHash(List<PostHash> postHash) {
         postHashRepository.saveAll(postHash);
@@ -44,16 +45,16 @@ public class PostHashServiceImpl implements PostHashService{
         if (memberBlockListByBlockingMember.isEmpty()) {
             return postHashRepository.findTopByHashTag(hashTag, member);
         }
-        return postHashRepository.findTopByHashTagWithoutBlockLists(hashTag,member, memberBlockListByBlockingMember);
+        return postHashRepository.findTopByHashTagWithoutBlockLists(hashTag, member, memberBlockListByBlockingMember);
     }
 
     @Override
     public List<Post> inquiryFirstPostHash(HashTag hashTag, Member member, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postHashRepository.findFirstPostHash(hashTag,member, of);
+            return postHashRepository.findFirstPostHash(hashTag, member, of);
         }
-        return postHashRepository.findFirstPostHashWithoutBlockLists(hashTag,member,memberBlockListByBlockingMember, of);
+        return postHashRepository.findFirstPostHashWithoutBlockLists(hashTag, member, memberBlockListByBlockingMember, of);
 
     }
 
@@ -61,10 +62,18 @@ public class PostHashServiceImpl implements PostHashService{
     public List<Post> inquiryPostHash(HashTag hashTag, Long postCnt, Member member, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postHashRepository.findPostHash(hashTag,member, postCnt, of);
+            return postHashRepository.findPostHash(hashTag, member, postCnt, of);
         }
         return postHashRepository.findPostHashWithoutBlockLists(hashTag, member, postCnt, memberBlockListByBlockingMember, of);
     }
 
-
+    @Override
+    public void makePostHashList(List<PostHash> postHashList, List<String> postHashListDto) {
+        if (!postHashList.isEmpty()) {
+            for (PostHash postHash : postHashList) {
+                String hashTagName = postHash.getHashTagId().getHashTagName();
+                postHashListDto.add(hashTagName);
+            }
+        }
+    }
 }

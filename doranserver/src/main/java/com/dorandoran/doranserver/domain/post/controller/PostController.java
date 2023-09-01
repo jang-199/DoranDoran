@@ -1,10 +1,11 @@
 package com.dorandoran.doranserver.domain.post.controller;
 
+import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
+import com.dorandoran.doranserver.global.util.CommentResponseUtils;
 import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
-import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentLikeService;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
 import com.dorandoran.doranserver.domain.comment.service.ReplyService;
@@ -21,7 +22,6 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
-import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
 import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
@@ -68,6 +68,7 @@ public class PostController {
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
+    private final CommentResponseUtils commentResponseUtils;
 
     @Trace
     @PostMapping("/post")
@@ -177,9 +178,13 @@ public class PostController {
         Boolean isWrittenByUser = MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail);
         Integer lIkeCnt = postLikeService.findLIkeCnt(post);
         Boolean likeResult = postLikeService.findLikeResult(userEmail, post);
-        Integer commentCnt = commentService.findCommentAndReplyCntByPostId(post);
 
-        PostDto.ReadPostResponse postDetailDto = new PostDto.ReadPostResponse().toEntity(post, lIkeCnt, likeResult, commentCnt, isWrittenByUser);
+        List<Comment> commentList = commentService.findCommentByPost(post);
+        List<Reply> replyList = replyService.findReplyByCommentList(commentList);
+        Integer commentCnt = commentService.findCommentAndReplyCntByPostId(commentList, replyList);
+        Boolean checkWrite = postService.isCommentReplyAuthor(commentList, replyList, member);
+
+        PostDto.ReadPostResponse postDetailDto = new PostDto.ReadPostResponse().toEntity(post, lIkeCnt, likeResult, commentCnt, isWrittenByUser, checkWrite);
 
         //글의 위치 데이터와 현재 내 위치 거리 계산
         Boolean isLocationPresent = postRequestDetailDto.getLocation().isBlank() ? Boolean.FALSE : Boolean.TRUE;
@@ -198,71 +203,48 @@ public class PostController {
         }
         postDetailDto.setLocation(distance);
 
-        boolean checkWrite = Boolean.FALSE;
         //댓글 builder
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
-        List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
+
         HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
 
-        //todo 대댓글 한번에 가져와서 처리하는 걸로 바꿔야함 쿼리 너무 많이 나감..
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
-        if (!comments.isEmpty()) {
-            for (Comment comment : commentList) {
-                List<Reply> findReplyList = replyService.findFirstRepliesFetchMember(comment);
-                List<Reply> replies = findReplyList.stream().filter(reply -> reply.getCommentId().equals(comment)).toList();
-                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
-                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
-                log.info("대댓글 로직 실행");
-                for (Reply reply : replyList) {
-                    Boolean isReplyWrittenByUser = Boolean.FALSE;
-                    if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
-                        checkWrite = Boolean.TRUE;
-                        isReplyWrittenByUser = Boolean.TRUE;
-                    }
-                    ReplyDto.ReadReplyResponse replyDetailDto = ReplyDto.ReadReplyResponse.builder()
-                            .reply(reply)
-                            .content(reply.getReply())
-                            .isWrittenByMember(isReplyWrittenByUser)
-                            .build();
-                    replyService.checkSecretReply(replyDetailDto, post, reply, userEmail);
-                    replyService.checkReplyAnonymityMember(anonymityMemberList, reply, replyDetailDto);
-                    replyDetailDtoList.add(replyDetailDto);
-                }
-                Collections.reverse(replyDetailDtoList);
-
-                Boolean isCommentWrittenByMember = Boolean.FALSE;
-                if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
-                    checkWrite = Boolean.TRUE;
-                    isCommentWrittenByMember = Boolean.TRUE;
-                }
-
-                CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
-                        .comment(comment)
-                        .content(comment.getComment())
-                        .commentLikeResult(commentLikeResultHashMap.get(comment))
-                        .commentLikeCnt(commentLikeCntHashMap.get(comment))
-                        .isWrittenByMember(isCommentWrittenByMember)
-                        .replies(replyDetailDtoList)
-                        .build();
-                commentService.checkSecretComment(commentDetailDto, post, comment, userEmail);
-                commentService.checkCommentAnonymityMember(anonymityMemberList, comment, commentDetailDto);
-                commentDetailDtoList.add(commentDetailDto);
-            }
-        }
-        Collections.reverse(commentDetailDtoList);
+//        if (!comments.isEmpty()) {
+//            for (Comment comment : commentList) {
+//                List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
+//                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
+//                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
+//                for (Reply reply : replyList) {
+//                    Boolean isReplyWrittenByUser = Boolean.FALSE;
+//                    if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
+//                        isReplyWrittenByUser = Boolean.TRUE;
+//                    }
+//                    ReplyDto.ReadReplyResponse replyDetailDto = new ReplyDto.ReadReplyResponse().toEntity(reply, isReplyWrittenByUser);
+//                    replyService.checkSecretReply(replyDetailDto, post, reply, userEmail);
+//                    replyService.checkReplyAnonymityMember(anonymityMemberList, reply, replyDetailDto);
+//                    replyDetailDtoList.add(replyDetailDto);
+//                }
+//                Collections.reverse(replyDetailDtoList);
+//
+//                Boolean isCommentWrittenByMember = Boolean.FALSE;
+//                if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
+//                    isCommentWrittenByMember = Boolean.TRUE;
+//                }
+//
+//                CommentDto.ReadCommentResponse commentDetailDto =  new CommentDto.ReadCommentResponse().toEntity(comment, commentLikeResultHashMap.get(comment), commentLikeCntHashMap.get(comment), isCommentWrittenByMember, replyDetailDtoList);
+//                commentService.checkSecretComment(commentDetailDto, post, comment, userEmail);
+//                commentService.checkCommentAnonymityMember(anonymityMemberList, comment, commentDetailDto);
+//                commentDetailDtoList.add(commentDetailDto);
+//            }
+//        }
+//        Collections.reverse(commentDetailDtoList);
+        List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
-        postDetailDto.setCheckWrite(checkWrite);
 
         //해시태그 builder
         List<String> postHashListDto = new ArrayList<>();
         List<PostHash> postHashList = postHashService.findPostHash(post);
-        if (!postHashList.isEmpty()){
-            for (PostHash postHash : postHashList) {
-                String hashTagName = postHash.getHashTagId().getHashTagName();
-                postHashListDto.add(hashTagName);
-            }
-        }
+        postHashService.makePostHashList(postHashList, postHashListDto);
         postDetailDto.setPostHashes(postHashListDto);
 
         //배경사진 builder

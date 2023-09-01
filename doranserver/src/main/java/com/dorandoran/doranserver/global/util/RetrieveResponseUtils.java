@@ -4,9 +4,8 @@ import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.dto.*;
+import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import lombok.Builder;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
 import java.util.*;
@@ -14,7 +13,7 @@ import java.util.*;
 public class RetrieveResponseUtils {
     public static class InterestedPostResponse{
         String userEmail;
-        String ipAddress;
+        String ipAddress; //todo 공통으로 사용하는 이메일이랑 아이피는 필드 변수
 
         public LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> makeRetrieveInterestedResponseList(List<Post> postList,
                                                                                                                            List<Integer> likeCntList,
@@ -28,7 +27,6 @@ public class RetrieveResponseUtils {
             Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCnt.iterator();
             Iterator<HashTag> hashTagIterator = hashTagList.iterator();
             for (Post post : postList) {
-
                 String[] splitImgName = post.getImgName().split("[.]");
                 String imgName = splitImgName[0];
                 RetrieveInterestedDto.ReadInterestedResponse postResponse = RetrieveInterestedDto.ReadInterestedResponse.builder()
@@ -74,18 +72,12 @@ public class RetrieveResponseUtils {
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
             Iterator<Boolean> likeResultByPostListIter = likeResultList.iterator();
             Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCnt.iterator();
-
+            DistanceUtil distanceUtil = new DistanceUtil();
 
             for (Post post : postList) {
                 Integer distance;
                 if (isLocationPresent && post.getLocation() != null) {
-                    GeometryFactory geometryFactory = new GeometryFactory();
-                    String latitude = splitLocation[0];
-                    String longitude = splitLocation[1];
-                    Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
-                    Point point = geometryFactory.createPoint(coordinate);
-
-                    distance = (int) Math.round(point.distance(post.getLocation()) * 100);
+                    distance = distanceUtil.getDistance(splitLocation, post.getLocation());
                 } else {
                     distance = null;
                 }
@@ -135,16 +127,12 @@ public class RetrieveResponseUtils {
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
             Iterator<Boolean> likeResultByPostListIter = likeResultList.iterator();
             Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCnt.iterator();
+            DistanceUtil distanceUtil = new DistanceUtil();
             for (Post post : postList) {
                 Integer distance;
                 if (isLocationPresent && post.getLocation() != null) {
-                    GeometryFactory geometryFactory = new GeometryFactory();
-                    String latitude = splitLocation[0];
-                    String longitude = splitLocation[1];
-                    Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
-                    Point point = geometryFactory.createPoint(coordinate);
+                    distance = distanceUtil.getDistance(splitLocation, post.getLocation());
 
-                    distance = (int) Math.round(point.distance(post.getLocation()) * 100);
                 } else {
                     distance = null;
                 }
@@ -194,16 +182,11 @@ public class RetrieveResponseUtils {
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
             Iterator<Boolean> likeResultByPostListIter = likeResultList.iterator();
             Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCnt.iterator();
+            DistanceUtil distanceUtil = new DistanceUtil();
             for (Post post : postList) {
                 Integer distance;
                 if (isLocationPresent && post.getLocation() != null) {
-                    GeometryFactory geometryFactory = new GeometryFactory();
-                    String latitude = splitLocation[0];
-                    String longitude = splitLocation[1];
-                    Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
-                    Point point = geometryFactory.createPoint(coordinate);
-
-                    distance = (int) Math.round(point.distance(post.getLocation()) * 100);
+                    distance = distanceUtil.getDistance(splitLocation, post.getLocation());
                 } else {
                     distance = null;
                 }

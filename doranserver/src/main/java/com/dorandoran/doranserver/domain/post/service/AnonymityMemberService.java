@@ -10,4 +10,5 @@ public interface AnonymityMemberService {
     public void save(AnonymityMember anonymityMember);
 
     void deletePostByPostId(Post post);
+
 }

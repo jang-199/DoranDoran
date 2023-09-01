@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.controller;
 
+import com.dorandoran.doranserver.global.util.CommentResponseUtils;
 import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
@@ -23,7 +24,6 @@ import com.dorandoran.doranserver.domain.post.service.AnonymityMemberService;
 import com.dorandoran.doranserver.domain.post.service.PopularPostService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
-import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +55,7 @@ public class CommentController {
     private final MemberBlockListService memberBlockListService;
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
+    private final CommentResponseUtils commentResponseUtils;
 
     @Trace
     @GetMapping("/comment")
@@ -65,10 +66,13 @@ public class CommentController {
         Post post = postService.findSinglePost(postId);
         Member member = memberService.findByEmail(userEmail);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
-        log.info("글쓴이 email : {}", post.getMemberId().getEmail());
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
+
         List<Comment> comments = commentService.findNextComments(postId, commentId);
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember);
+
+        HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
+        HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
+        List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
@@ -189,7 +193,7 @@ public class CommentController {
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
         List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, replyList);
 
         return ResponseEntity.ok().body(replyDetailDtoList);
     }
@@ -271,7 +275,7 @@ public class CommentController {
         }
     }
 
-    private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember) {
+    private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Comment, Boolean> commentLikeResultHashMap, HashMap<Comment, Long> commentLikeCntHashMap) {
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
         //todo reply 가져오는 로직 수정
         if (comments.size() != 0) {
@@ -284,7 +288,7 @@ public class CommentController {
                 Collections.reverse(replyDetailDtoList);
 
                 //댓글 10개 저장 로직
-                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailDtoList);
+                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailDtoList, commentLikeResultHashMap.get(comment), commentLikeCntHashMap.get(comment));
                 Collections.reverse(commentDetailDtoList);
             }
         }
@@ -292,7 +296,7 @@ public class CommentController {
         return commentDetailDtoList;
     }
 
-    private void makeCommentList(String userEmail, Post post, List<String> anonymityMemberList, List<CommentDto.ReadCommentResponse> commentDetailDtoList, Comment comment, List<ReplyDto.ReadReplyResponse> replyDetailDtoList) {
+    private void makeCommentList(String userEmail, Post post, List<String> anonymityMemberList, List<CommentDto.ReadCommentResponse> commentDetailDtoList, Comment comment, List<ReplyDto.ReadReplyResponse> replyDetailDtoList, Boolean aBoolean, Long aLong) {
 //        Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
         //todo hashmap으로 만든 commentlike, commentResult로 바꿔야함
 //        Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);

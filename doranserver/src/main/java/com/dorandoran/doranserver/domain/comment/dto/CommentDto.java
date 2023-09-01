@@ -45,6 +45,17 @@ public class CommentDto {
         private LocalDateTime commentTime; //댓글 작성 시간
         private List<ReplyDto.ReadReplyResponse> replies; //대댓글
 
+        public ReadCommentResponse toEntity(Comment comment, Boolean commentLikeResult, Long commentLikeCnt, Boolean isCommentWrittenByMember, List<ReplyDto.ReadReplyResponse> replyDetailDtoList){
+            return CommentDto.ReadCommentResponse.builder()
+                    .comment(comment)
+                    .content(comment.getComment())
+                    .commentLikeResult(commentLikeResult)
+                    .commentLikeCnt(commentLikeCnt)
+                    .isWrittenByMember(isCommentWrittenByMember)
+                    .replies(replyDetailDtoList)
+                    .build();
+        }
+
 
         @Builder
         public ReadCommentResponse(Comment comment, String content, Long commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDto.ReadReplyResponse> replies) {

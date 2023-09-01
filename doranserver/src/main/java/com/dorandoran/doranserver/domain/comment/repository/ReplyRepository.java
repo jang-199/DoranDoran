@@ -56,4 +56,6 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
     @Query("select r from Reply r join fetch r.memberId where r.replyId = :replyId")
     Optional<Reply> findFetchMember(@Param("replyId") Long replyId);
 
+    @Query("select r from Reply r where r.commentId in :commentList")
+    List<Reply> findCommentListTest(@Param("commentList") List<Comment> commentList);
 }

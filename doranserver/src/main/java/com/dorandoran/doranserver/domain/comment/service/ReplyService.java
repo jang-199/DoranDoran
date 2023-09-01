@@ -11,6 +11,9 @@ import java.util.Optional;
 
 public interface ReplyService {
     Integer findReplyCntByComment(Comment comment);
+
+    List<Reply> findReplyByCommentList(List<Comment> commentByPostList);
+
     List<Reply> findReplyList(Comment comment);
     void deleteReply(Reply reply);
     void saveReply(Reply reply);
@@ -25,4 +28,5 @@ public interface ReplyService {
     List<Reply> findBlockedReplyDetail(Comment comment);
     void setUnLocked(Reply reply);
     Reply findFetchMember(Long replyId);
+    List<Reply> findTest(List<Comment> commentList);
 }

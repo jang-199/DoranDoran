@@ -33,6 +33,11 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
+    public List<Reply> findReplyByCommentList(List<Comment> commentByPostList) {
+        return replyRepository.findReplyCntByCommentList(commentByPostList);//댓글에 달린 대댓글 개수 리스트
+    }
+
+    @Override
     public List<Reply> findReplyList(Comment comment) {
         return replyRepository.findReplyCntByComment(comment);
     }
@@ -75,7 +80,8 @@ public class ReplyServiceImpl implements ReplyService{
         if (reply.checkSecretMode()
                 && !MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)
                 && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
-                && !reply.getReply().equals("차단된 사용자가 작성한 내용입니다.")) {
+                && !reply.getReply().equals("차단된 사용자가 작성한 내용입니다.")
+                && !reply.getIsLocked().equals(Boolean.FALSE)) {
             replyDetailDto.setReply("비밀 댓글입니다.");
         }
     }
@@ -115,5 +121,10 @@ public class ReplyServiceImpl implements ReplyService{
     public Reply findFetchMember(Long replyId) {
         return replyRepository.findFetchMember(replyId)
                 .orElseThrow(() -> new NoSuchElementException("해당 대댓글이 없습니다."));
+    }
+
+    @Override
+    public List<Reply> findTest(List<Comment> commentList) {
+        return replyRepository.findCommentListTest(commentList);
     }
 }

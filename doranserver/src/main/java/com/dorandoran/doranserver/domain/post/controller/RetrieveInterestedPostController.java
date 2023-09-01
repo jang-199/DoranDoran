@@ -70,7 +70,7 @@ public class RetrieveInterestedPostController {
 
         if (responseList.getFirst().isEmpty()) {
             return ResponseEntity.noContent().build();
-        }
+        }//todo aop로 변경
         return ResponseEntity.ok(responseList);
     }
 }

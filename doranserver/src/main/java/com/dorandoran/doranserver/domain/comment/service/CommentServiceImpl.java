@@ -1,6 +1,5 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
-import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
@@ -35,12 +34,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Integer findCommentAndReplyCntByPostId(Post post) {
-        List<Comment> commentByPostList = commentRepository.findCommentByPostId(post);//글에 해당하는 댓글 리스트
-        log.info("[commentList] {}", commentByPostList.toString());
-        List<Reply> replyCntByCommentList = replyRepository.findReplyCntByCommentList(commentByPostList);//댓글에 달린 대댓글 개수 리스트
-        log.info("[replycnt] {}", replyCntByCommentList.size());
-
+    public Integer findCommentAndReplyCntByPostId(List<Comment> commentByPostList, List<Reply> replyCntByCommentList) {
         return commentByPostList.size() + replyCntByCommentList.size();
     }
 
@@ -118,7 +112,8 @@ public class CommentServiceImpl implements CommentService {
         if (comment.checkSecretMode()
                 && !MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)
                 && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
-                && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")) {
+                && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")
+                && !comment.getIsLocked().equals(Boolean.FALSE)) {
             commentDetailDto.setComment("비밀 댓글입니다.");
         }
     }

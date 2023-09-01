@@ -3,6 +3,8 @@ package com.dorandoran.doranserver.domain.post.service;
 import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.background.service.UserUploadPicService;
+import com.dorandoran.doranserver.domain.comment.domain.Comment;
+import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -147,6 +149,18 @@ public class PostServiceImpl implements PostService {
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
     }
+
+    @Override
+    public Boolean isCommentReplyAuthor(List<Comment> commentList, List<Reply> replyList, Member member) {
+        boolean checkCommentList = commentList.stream()
+                .anyMatch(comment -> comment.getMemberId().equals(member));
+
+        boolean checkReplyList = replyList.stream()
+                .anyMatch(reply -> reply.getMemberId().equals(member));
+
+        return checkCommentList || checkReplyList ? Boolean.TRUE : Boolean.FALSE;
+    }
+
     private static void setPostLocation(PostDto.CreatePost postDto, Post post) {
         Point distance;
         if (!postDto.getLocation().isBlank()) {

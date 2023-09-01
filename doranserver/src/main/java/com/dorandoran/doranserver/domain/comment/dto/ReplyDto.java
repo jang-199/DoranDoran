@@ -39,6 +39,14 @@ public class ReplyDto {
         Boolean isWrittenByMember;
         LocalDateTime replyTime;
 
+        public ReadReplyResponse toEntity(Reply reply, Boolean isReplyWrittenByUser){
+            return ReplyDto.ReadReplyResponse.builder()
+                    .reply(reply)
+                    .content(reply.getReply())
+                    .isWrittenByMember(isReplyWrittenByUser)
+                    .build();
+        }
+
         @Builder
         public ReadReplyResponse(Reply reply, String content, Boolean isWrittenByMember) {
             this.replyId = reply.getReplyId();

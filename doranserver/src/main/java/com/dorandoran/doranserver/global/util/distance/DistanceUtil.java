@@ -1,19 +1,20 @@
 package com.dorandoran.doranserver.global.util.distance;
 
-import org.springframework.stereotype.Service;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 
-@Service
 public class DistanceUtil {
 
     // km 기준
-    public Integer getDistance(Double lat, Double lnt, Double lat2, Double lnt2) {
-        double theta = lnt - lnt2;
-        double dist = Math.sin(deg2rad(lat))* Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat))*Math.cos(deg2rad(lat2))*Math.cos(deg2rad(theta));
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60*1.1515*1609.344;
+    public Integer getDistance(String[] splitLocation, Point targetPoint) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        String latitude = splitLocation[0];
+        String longitude = splitLocation[1];
+        Coordinate coordinate = new Coordinate(Double.parseDouble(latitude), Double.parseDouble(longitude));
+        Point point = geometryFactory.createPoint(coordinate);
 
-        return Long.valueOf(Math.round(dist / 1000)).intValue();
+        return  (int) Math.round(point.distance(targetPoint) * 100);
     }
 
     //10진수를 radian(라디안)으로 변환

@@ -10,11 +10,11 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
-    properties:
-      hibernate:
-        format_sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
 
-    show-sql: true
+#    show-sql: true
     hibernate:
       ddl-auto: create
 
@@ -89,8 +89,6 @@ management:
 #log level
 logging:
   level:
-#    org.springframework.orm.jpa: DEBUG
-#    org.springframework.transaction: DEBUG
     com:
       dorandoran: debug
   slack:

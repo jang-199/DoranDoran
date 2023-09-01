@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.domain.common.service;
+package com.dorandoran.doranserver.domain.post.service.common;
 
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
@@ -25,7 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CommonServiceImpl implements CommonService{
+public class PostCommonServiceImpl implements PostCommonService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
@@ -33,10 +33,7 @@ public class CommonServiceImpl implements CommonService{
     private final PostHashRepository postHashRepository;
     private final PopularPostRepository popularPostRepository;
     private final AnonymityMemberRepository anonymityMemberRepository;
-    @Override
-    public Boolean compareEmails(String objectEmail, String userEmail){
-        return objectEmail.equals(userEmail) ? Boolean.TRUE : Boolean.FALSE;
-    }
+
     @Transactional
     @Override
     public void deletePost(Post post) throws IOException {

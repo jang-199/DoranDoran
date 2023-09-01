@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.domain.post.service;
 
+import com.dorandoran.doranserver.domain.comment.domain.Comment;
+import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
@@ -23,4 +25,5 @@ public interface PostService {
     Post findFetchMember(Long postId);
     void setUnLocked(Post post);
     void setPostPic(PostDto.CreatePost postDto, Post post) throws IOException;
+    Boolean isCommentReplyAuthor(List<Comment> commentList, List<Reply> replyList, Member member);
 }

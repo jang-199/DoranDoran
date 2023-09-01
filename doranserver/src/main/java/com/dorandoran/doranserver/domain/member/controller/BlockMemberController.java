@@ -45,7 +45,7 @@ public class BlockMemberController {
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
             }
             case comment -> {
-                Member blockedMember = commentService.findCommentByCommentId(blockMemberDto.getId()).orElseThrow().getMemberId();
+                Member blockedMember = commentService.findCommentByCommentId(blockMemberDto.getId()).getMemberId();
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
             }
             case reply -> {

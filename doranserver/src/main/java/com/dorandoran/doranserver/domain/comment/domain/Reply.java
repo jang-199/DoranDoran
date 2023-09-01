@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.domain;
 
+import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import jakarta.persistence.*;
@@ -55,5 +56,16 @@ public class Reply extends BaseEntity {
 
     public Boolean checkSecretMode(){
         return this.secretMode == Boolean.TRUE ? Boolean.TRUE : Boolean.FALSE;
+    }
+    public Reply toEntity(ReplyDto.CreateReply replyDto, Comment comment, Member member){
+        return Reply.builder()
+                .reply(replyDto.getReply())
+                .anonymity(replyDto.getAnonymity())
+                .commentId(comment)
+                .memberId(member)
+                .checkDelete(Boolean.FALSE)
+                .secretMode(replyDto.getSecretMode())
+                .isLocked(Boolean.FALSE)
+                .build();
     }
 }

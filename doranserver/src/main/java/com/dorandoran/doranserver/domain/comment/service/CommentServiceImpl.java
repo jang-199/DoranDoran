@@ -1,6 +1,5 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
-import com.dorandoran.doranserver.domain.common.service.CommonService;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
@@ -8,6 +7,7 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
+import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +27,6 @@ public class CommentServiceImpl implements CommentService {
     private final ReplyRepository replyRepository;
     private final ReplyService replyService;
     private final CommentLikeService commentLikeService;
-    private final CommonService commonService;
 
     @Override
     public void saveComment(Comment comment) {
@@ -35,15 +34,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Integer findCommentAndReplyCntByPostId(Post post) {
-        int cnt = 0;
-        List<Comment> commentCntByPostId = commentRepository.findCommentCntByPostId(post);
-        cnt += commentCntByPostId.size();
-        for (Comment comment : commentCntByPostId) {
-            List<Reply> replyCntByComment = replyRepository.findReplyCntByComment(comment);
-            cnt += replyCntByComment.size();
-        }
-        return cnt;
+    public Integer findCommentAndReplyCntByPostId(List<Comment> commentByPostList, List<Reply> replyCntByCommentList) {
+        return commentByPostList.size() + replyCntByCommentList.size();
     }
 
     @Override
@@ -69,8 +61,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Optional<Comment> findCommentByCommentId(Long commentId) {
-        return commentRepository.findById(commentId);
+    public Comment findCommentByCommentId(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -118,9 +110,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void checkSecretComment(CommentDto.ReadCommentResponse commentDetailDto, Post post, Comment comment, String userEmail) {
         if (comment.checkSecretMode()
-                && !commonService.compareEmails(comment.getMemberId().getEmail(), userEmail)
-                && !commonService.compareEmails(post.getMemberId().getEmail(), userEmail)
-                && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")) {
+                && !MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)
+                && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")
+                && !comment.getIsLocked().equals(Boolean.FALSE)) {
             commentDetailDto.setComment("비밀 댓글입니다.");
         }
     }
@@ -155,5 +148,11 @@ public class CommentServiceImpl implements CommentService {
     public Comment findFetchMember(Long commentId) {
         return commentRepository.findFetchMember(commentId)
                 .orElseThrow(() -> new NoSuchElementException("해당 댓글이 없습니다."));
+    }
+
+    @Override
+    @Transactional
+    public void setCheckDelete(Comment comment) {
+        comment.setCheckDelete(Boolean.TRUE);
     }
 }

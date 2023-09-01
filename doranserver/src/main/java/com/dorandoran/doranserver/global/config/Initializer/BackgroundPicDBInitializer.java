@@ -234,6 +234,7 @@ public class BackgroundPicDBInitializer {
                 .isLocked(locked)
                 .anonymity(anonymity)
                 .checkDelete(false)
+                .secretMode(false)
                 .build();
         commentService.saveComment(comment);
         return comment;
@@ -248,6 +249,7 @@ public class BackgroundPicDBInitializer {
                 .isLocked(locked)
                 .checkDelete(false)
                 .anonymity(anonymity)
+                .secretMode(false)
                 .build();
         replyService.saveReply(reply);
         return reply;

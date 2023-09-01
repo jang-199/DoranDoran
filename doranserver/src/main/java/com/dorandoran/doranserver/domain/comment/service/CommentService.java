@@ -12,10 +12,11 @@ import java.util.Optional;
 public interface CommentService {
     void saveComment(Comment comment);
 
-    public Integer findCommentAndReplyCntByPostId(Post post);
+    Integer findCommentAndReplyCntByPostId(List<Comment> commentByPostList, List<Reply> replyCntByCommentList);
+
     List<Integer> findCommentAndReplyCntByPostIdByList(List<Post> post);
     public List<Comment> findCommentByPost(Post post);
-    public Optional<Comment> findCommentByCommentId(Long commentId);
+    public Comment findCommentByCommentId(Long commentId);
     public void deleteComment(Comment comment);
     public void deleteAllCommentByPost(Optional<Comment> comment, List<CommentLike> commentLikeList, List<Reply> replyList);
     public List<Comment> findFirstComments(Post post);
@@ -27,4 +28,5 @@ public interface CommentService {
     List<Comment> findBlockedCommentDetail(Post post);
     void setUnLocked(Comment comment);
     Comment findFetchMember(Long commentId);
+    void setCheckDelete(Comment comment);
 }

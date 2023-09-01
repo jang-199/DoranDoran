@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.domain.report.domain;
 
-import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
+import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import jakarta.persistence.*;

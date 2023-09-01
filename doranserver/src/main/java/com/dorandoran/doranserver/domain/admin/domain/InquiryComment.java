@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.domain.admin.domain;
 
-import com.dorandoran.doranserver.domain.api.common.entity.BaseEntity;
+import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

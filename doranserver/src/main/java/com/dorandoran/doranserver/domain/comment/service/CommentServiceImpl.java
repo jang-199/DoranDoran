@@ -1,6 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.service;
 
-import com.dorandoran.doranserver.domain.api.common.service.CommonService;
+import com.dorandoran.doranserver.domain.common.service.CommonService;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;

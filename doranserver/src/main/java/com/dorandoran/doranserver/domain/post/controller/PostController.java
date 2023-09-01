@@ -24,7 +24,7 @@ import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
-import com.dorandoran.doranserver.domain.api.common.service.CommonService;
+import com.dorandoran.doranserver.domain.common.service.CommonService;
 import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;

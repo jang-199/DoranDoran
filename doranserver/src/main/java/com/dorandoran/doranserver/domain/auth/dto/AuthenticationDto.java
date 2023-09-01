@@ -20,4 +20,18 @@ public class AuthenticationDto {
             this.accessToken = accessToken;
         }
     }
+
+    @Getter
+    @Setter
+    public static class TokenTest{
+
+        private String refreshToken;
+        private String limitTime;
+
+        @Builder
+        public TokenTest(String refreshToken, String limitTime) {
+            this.refreshToken = refreshToken;
+            this.limitTime = limitTime;
+        }
+    }
 }

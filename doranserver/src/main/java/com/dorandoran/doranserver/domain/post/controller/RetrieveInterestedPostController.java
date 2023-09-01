@@ -9,11 +9,8 @@ import com.dorandoran.doranserver.domain.post.dto.RetrieveInterestedDto;
 import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.domain.MemberHash;
-import com.dorandoran.doranserver.domain.hashtag.domain.PostHash;
 import com.dorandoran.doranserver.domain.post.service.PostHashService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
-import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
-import com.dorandoran.doranserver.global.util.BlockMemberFilter;
 import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +70,7 @@ public class RetrieveInterestedPostController {
 
         if (responseList.getFirst().isEmpty()) {
             return ResponseEntity.noContent().build();
-        }
+        }//todo aop로 변경
         return ResponseEntity.ok(responseList);
     }
 }

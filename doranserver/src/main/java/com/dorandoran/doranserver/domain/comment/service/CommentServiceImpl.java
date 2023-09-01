@@ -61,8 +61,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Optional<Comment> findCommentByCommentId(Long commentId) {
-        return commentRepository.findById(commentId);
+    public Comment findCommentByCommentId(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(NoSuchElementException::new);
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface CommentService {
 
     List<Integer> findCommentAndReplyCntByPostIdByList(List<Post> post);
     public List<Comment> findCommentByPost(Post post);
-    public Optional<Comment> findCommentByCommentId(Long commentId);
+    public Comment findCommentByCommentId(Long commentId);
     public void deleteComment(Comment comment);
     public void deleteAllCommentByPost(Optional<Comment> comment, List<CommentLike> commentLikeList, List<Reply> replyList);
     public List<Comment> findFirstComments(Post post);

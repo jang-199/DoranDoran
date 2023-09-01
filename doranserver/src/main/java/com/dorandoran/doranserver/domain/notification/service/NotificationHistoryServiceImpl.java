@@ -74,8 +74,7 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
     }
 
     private NotificationDto.notificationReadResponse makeCommentNotification(Long notificationObjectId, NotificationHistory notificationHistory) {
-        Comment comment = commentService.findCommentByCommentId(notificationObjectId)
-                .orElseThrow(() -> new NoSuchElementException("해당 댓글이 존재하지 않습니다."));
+        Comment comment = commentService.findCommentByCommentId(notificationObjectId);
         return NotificationDto.notificationReadResponse.builder()
                 .notificationHistory(notificationHistory)
                 .postId(comment.getPostId().getPostId())

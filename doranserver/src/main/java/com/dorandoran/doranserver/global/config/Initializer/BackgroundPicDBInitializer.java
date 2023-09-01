@@ -97,7 +97,7 @@ public class BackgroundPicDBInitializer {
                         .dateOfBirth(LocalDate.now())
                         .firebaseToken("firebasetoken")
                         .closureDate(LocalDate.of(2000,12,12))
-                        .nickname("Admin")
+                        .nickname("Admin").checkNotification(true)
                         .signUpDate(LocalDateTime.now())
                         .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjkxMjYwMjkzLCJleHAiOjE3MDY4MTIyOTMsInN1YiI6IuyImOyduCIsIlJPTEUiOiJST0xFX1VTRVIiLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.Jp88iBJy6OEfLyBGu8bQ9q8yAiQXi_M50syJJ5aTR0E")
                         .build();
@@ -190,6 +190,7 @@ public class BackgroundPicDBInitializer {
                 .nickname("nickname")
                 .closureDate(LocalDate.of(2000,12,12))
                 .signUpDate(LocalDateTime.now())
+                .checkNotification(true)
                 .refreshToken("refreshTokenByInitializer")
                 .osType(osType)
                 .build();
@@ -245,6 +246,7 @@ public class BackgroundPicDBInitializer {
                 .reply(contents)
                 .reportCount(0)
                 .isLocked(locked)
+                .checkDelete(false)
                 .anonymity(anonymity)
                 .build();
         replyService.saveReply(reply);

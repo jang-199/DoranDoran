@@ -47,6 +47,8 @@ public class RetrieveClosePostController {
                                    @RequestParam double range,
                                    @AuthenticationPrincipal UserDetails userDetails) {
 
+        range *= range*0.01;
+
         String userEmail = userDetails.getUsername();
 
         String[] splitLocation = location.split(",");

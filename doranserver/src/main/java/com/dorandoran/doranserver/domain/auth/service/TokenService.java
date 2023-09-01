@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.global.util.token;
+package com.dorandoran.doranserver.domain.auth.service;
 
 import com.dorandoran.doranserver.domain.member.service.MemberServiceImpl;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
@@ -12,7 +12,7 @@ import java.time.Period;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TokenUtil {
+public class TokenService {
     private final TokenProvider tokenProvider;
     private final MemberServiceImpl memberService;
 

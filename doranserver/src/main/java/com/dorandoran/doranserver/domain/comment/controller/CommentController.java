@@ -215,19 +215,15 @@ public class CommentController {
 
     @Trace
     @DeleteMapping("/reply")
-    @Transactional
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDto.DeleteReply replyDeleteDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
         Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId()).orElseThrow(() -> new NoSuchElementException("에러 발생"));
         if (reply.getMemberId().getEmail().equals(userDetails.getUsername())){
-            //대댓글 checkDelete 삭제로 표시
-            reply.setCheckDelete(Boolean.TRUE);
-            log.info("대댓글 숨김 처리");
-            return new ResponseEntity<>(HttpStatus.OK);
+            replyService.setCheckDelete(reply);
+            return ResponseEntity.noContent().build();
         }
         else {
-            log.info("대댓글을 작성한 사용자가 아닙니다.");
-            return new ResponseEntity<>("대댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("대댓글 작성자가 아닙니다.");
         }
     }
 

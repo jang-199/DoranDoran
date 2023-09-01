@@ -29,4 +29,5 @@ public interface ReplyService {
     void setUnLocked(Reply reply);
     Reply findFetchMember(Long replyId);
     List<Reply> findTest(List<Comment> commentList);
+    void setCheckDelete(Reply reply);
 }

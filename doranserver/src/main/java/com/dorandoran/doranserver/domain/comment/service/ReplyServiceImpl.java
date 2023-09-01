@@ -127,4 +127,10 @@ public class ReplyServiceImpl implements ReplyService{
     public List<Reply> findTest(List<Comment> commentList) {
         return replyRepository.findCommentListTest(commentList);
     }
+
+    @Override
+    @Transactional
+    public void setCheckDelete(Reply reply) {
+        reply.setCheckDelete(Boolean.TRUE);
+    }
 }

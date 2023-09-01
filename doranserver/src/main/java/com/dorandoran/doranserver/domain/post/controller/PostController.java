@@ -25,7 +25,6 @@ import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
 import com.dorandoran.doranserver.domain.common.service.CommonService;
-import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,16 +55,13 @@ public class PostController {
     String ipAddress;
 
     private final MemberService memberService;
-    private final UserUploadPicService userUploadPicService;
     private final PostLikeService postLikeService;
     private final HashTagService hashTagService;
     private final PostService postService;
     private final PostHashService postHashService;
     private final CommentService commentService;
     private final CommentLikeService commentLikeService;
-    private final DistanceUtil distanceService;
     private final ReplyService replyService;
-    private final PopularPostService popularPostService;
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
     private final CommonService commonService;

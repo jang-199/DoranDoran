@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.controller;
 
 import com.dorandoran.doranserver.global.util.CommentResponseUtils;
-import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
@@ -36,7 +35,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -141,7 +139,6 @@ public class CommentController {
                                   @AuthenticationPrincipal UserDetails userDetails) {
         Comment comment = commentService.findCommentByCommentId(commentLikeDto.getCommentId());
         Member member = memberService.findByEmail(userDetails.getUsername());
-        //todo 쿼리 확인 한번 해보기 checkdelete가 필요없는지..
         Optional<CommentLike> commentLike = commentLikeService.findCommentLikeOne(userDetails.getUsername(), comment);
 
         if (comment.getMemberId().equals(member)){
@@ -225,69 +222,6 @@ public class CommentController {
         else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("대댓글 작성자가 아닙니다.");
         }
-    }
-
-    private List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Comment, Boolean> commentLikeResultHashMap, HashMap<Comment, Long> commentLikeCntHashMap) {
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
-        //todo reply 가져오는 로직 수정
-        if (comments.size() != 0) {
-            for (Comment comment : comments) {
-                //대댓글 10개 저장 로직
-                List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
-                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
-
-                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
-                Collections.reverse(replyDetailDtoList);
-
-                //댓글 10개 저장 로직
-                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailDtoList, commentLikeResultHashMap.get(comment), commentLikeCntHashMap.get(comment));
-                Collections.reverse(commentDetailDtoList);
-            }
-        }
-
-        return commentDetailDtoList;
-    }
-
-    private void makeCommentList(String userEmail, Post post, List<String> anonymityMemberList, List<CommentDto.ReadCommentResponse> commentDetailDtoList, Comment comment, List<ReplyDto.ReadReplyResponse> replyDetailDtoList, Boolean aBoolean, Long aLong) {
-//        Integer commentLikeCnt = commentLikeService.findCommentLikeCnt(comment);
-        //todo hashmap으로 만든 commentlike, commentResult로 바꿔야함
-//        Boolean commentLikeResult = commentLikeService.findCommentLikeResult(userEmail, comment);
-        Boolean isCommentWrittenByMember = Boolean.FALSE;
-        if (MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)) {
-            isCommentWrittenByMember = Boolean.TRUE;
-        }
-
-        CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
-                .comment(comment)
-                .content(comment.getComment())
-//                .commentLikeResult(commentLikeResult)
-//                .commentLikeCnt(commentLikeCnt)
-                .isWrittenByMember(isCommentWrittenByMember)
-                .replies(replyDetailDtoList)
-                .build();
-        commentService.checkSecretComment(commentDetailDto, post, comment, userEmail);
-        commentService.checkCommentAnonymityMember(anonymityMemberList, comment, commentDetailDto);
-        commentDetailDtoList.add(commentDetailDto);
-    }
-
-    private List<ReplyDto.ReadReplyResponse> makeReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Reply> replies) {
-        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
-        log.info("대댓글 로직 실행");
-        for (Reply reply : replies) {
-            Boolean isReplyWrittenByUser = Boolean.FALSE;
-            if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
-                isReplyWrittenByUser = Boolean.TRUE;
-            }
-            ReplyDto.ReadReplyResponse replyDetailDto = ReplyDto.ReadReplyResponse.builder()
-                    .reply(reply)
-                    .content(reply.getReply())
-                    .isWrittenByMember(isReplyWrittenByUser)
-                    .build();
-            replyService.checkSecretReply(replyDetailDto, post, reply, userEmail);
-            replyService.checkReplyAnonymityMember(anonymityMemberList, reply, replyDetailDto);
-            replyDetailDtoList.add(replyDetailDto);
-        }
-        return replyDetailDtoList;
     }
 
     private static List<Member> checkMyComment(List<Member> memberList, Member writeMember) {

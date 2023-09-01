@@ -85,7 +85,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> findClosePost(Point point,double distance, Long startPost, List<Member> memberBlockListByBlockingMember) {
         PageRequest of = PageRequest.of(0, 20);
-//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
         if (memberBlockListByBlockingMember.isEmpty()) {
             return postRepository.findClosePostV2(startPost, point, distance, of);
         }

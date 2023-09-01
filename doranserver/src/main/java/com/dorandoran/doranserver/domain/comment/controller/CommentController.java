@@ -123,19 +123,15 @@ public class CommentController {
 
     @Trace
     @DeleteMapping("/comment")
-    @Transactional
     public ResponseEntity<?> deleteComment(@RequestBody CommentDto.DeleteComment commentDeleteDto,
                                            @AuthenticationPrincipal UserDetails userDetails){
         Comment comment = commentService.findCommentByCommentId(commentDeleteDto.getCommentId());
         if (comment.getMemberId().getEmail().equals(userDetails.getUsername())) {
-            //댓글 checkDelete 삭제로 표시
-            comment.setCheckDelete(Boolean.TRUE);
-            log.info("댓글 숨김 처리");
-            return new ResponseEntity<>(HttpStatus.OK);
+            commentService.setCheckDelete(comment);
+            return ResponseEntity.noContent().build();
         }
         else {
-            log.info("댓글을 작성한 사용자가 아닙니다.");
-            return new ResponseEntity<>("댓글 작성자가 아닙니다.",HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("댓글 작성자가 아닙니다.");
         }
     }
 

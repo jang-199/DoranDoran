@@ -149,4 +149,10 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findFetchMember(commentId)
                 .orElseThrow(() -> new NoSuchElementException("해당 댓글이 없습니다."));
     }
+
+    @Override
+    @Transactional
+    public void setCheckDelete(Comment comment) {
+        comment.setCheckDelete(Boolean.TRUE);
+    }
 }

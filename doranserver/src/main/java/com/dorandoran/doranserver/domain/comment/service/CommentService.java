@@ -28,4 +28,5 @@ public interface CommentService {
     List<Comment> findBlockedCommentDetail(Post post);
     void setUnLocked(Comment comment);
     Comment findFetchMember(Long commentId);
+    void setCheckDelete(Comment comment);
 }

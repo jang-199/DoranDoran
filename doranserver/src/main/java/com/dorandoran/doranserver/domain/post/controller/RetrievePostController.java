@@ -41,6 +41,7 @@ public class RetrievePostController {
     ResponseEntity<List<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
                                                                              @RequestParam(required = false, defaultValue = "") String location,
                                                                              @AuthenticationPrincipal UserDetails userDetails) {
+        long start = System.currentTimeMillis();
         boolean isLocationPresent = !location.isBlank();
         String[] splitLocation = location.split(",");
         String userEmail = userDetails.getUsername();
@@ -70,6 +71,8 @@ public class RetrievePostController {
 
         List<RetrievePostDto.ReadPostResponse> responseList = retrieveResponseUtils.makeRetrievePostResponseList(postList, lIkeCntList, likeResultByPostList, commentAndReplyCntList);
 
+        long end = System.currentTimeMillis();
+        log.info("{}",end - start);
         if (responseList.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

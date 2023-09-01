@@ -168,6 +168,7 @@ public class PostController {
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
+        long start = System.currentTimeMillis();
         //todo 여기부터 해야됨
         String userEmail = userDetails.getUsername();
         Post post = postService.findFetchMember(postRequestDetailDto.getPostId());
@@ -284,6 +285,8 @@ public class PostController {
             postDetailDto.setBackgroundPicUri(ipAddress + ":8080/api/pic/member/" + split[0]);
         }
 
+        long end = System.currentTimeMillis();
+        log.info("{}",end - start);
         return ResponseEntity.ok().body(postDetailDto);
     }
 

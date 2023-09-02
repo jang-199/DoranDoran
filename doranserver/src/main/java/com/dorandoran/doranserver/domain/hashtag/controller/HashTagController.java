@@ -68,13 +68,11 @@ public class HashTagController {
     @GetMapping("/hashTag/member")
     public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
+
         List<String> memberHash = memberHashService.findHashByEmail(userEmail);
-        if (memberHash.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            HashTagDto.ReadMemberHashTagResponse hashTagList = HashTagDto.ReadMemberHashTagResponse.builder().hashTagList(memberHash).build();
-            return ResponseEntity.ok().body(hashTagList);
-        }
+        HashTagDto.ReadMemberHashTagResponse hashTagList = HashTagDto.ReadMemberHashTagResponse.builder().hashTagList(memberHash).build();
+
+        return ResponseEntity.ok().body(hashTagList);
     }
 
     @Trace

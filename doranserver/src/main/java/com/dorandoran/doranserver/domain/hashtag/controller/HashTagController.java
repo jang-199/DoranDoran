@@ -102,13 +102,11 @@ public class HashTagController {
                                            @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Optional<MemberHash> memberHash = memberHashService.findMemberHashByEmailAndHashTag(userEmail, hashTagRequestDto.getHashTag());
-        //todo return responseEntity 변경
         if (memberHash.isEmpty()) {
-            log.info("즐겨찾기된 해시태그가 없습니다.");
+            return ResponseEntity.notFound().build();
         } else {
             memberHashService.deleteMemberHash(memberHash.get());
-            log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 삭제하였습니다.",userEmail, hashTagRequestDto.getHashTag());
+            return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

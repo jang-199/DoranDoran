@@ -190,8 +190,10 @@ public class CommentController {
 
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.getPostId());
         Long nextIndex = anonymityMembers.size() + 1L;
-
         Reply buildReply = new Reply().toEntity(replyDto, comment, member);
+        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, comment.getPostId(), nextIndex);
+
+        replyCommonService.saveReply(replyDto, comment, buildReply, anonymityMembers, userEmail, anonymityMember);
 
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
         replyMemberList.add(comment.getMemberId());
@@ -200,9 +202,6 @@ public class CommentController {
             firebaseService.notifyReply(fcmMemberList, buildReply);
         }
 
-        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, comment.getPostId(), nextIndex);
-
-        replyCommonService.saveReply(replyDto, comment, buildReply, anonymityMembers, userEmail, anonymityMember);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

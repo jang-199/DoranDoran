@@ -1,8 +1,11 @@
 package com.dorandoran.doranserver.domain.comment.service.common;
 
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
+import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
+import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
+import com.dorandoran.doranserver.domain.comment.service.ReplyService;
 import com.dorandoran.doranserver.domain.post.domain.AnonymityMember;
 import com.dorandoran.doranserver.domain.post.domain.PopularPost;
 import com.dorandoran.doranserver.domain.post.domain.Post;
@@ -16,20 +19,16 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class CommentCommonServiceImpl implements CommentCommonService{
-    private final CommentService commentService;
-    private final PopularPostService popularPostService;
+public class ReplyCommonServiceImpl implements ReplyCommonService{
+    private final ReplyService replyService;
     private final AnonymityMemberService anonymityMemberService;
+
     @Override
     @Transactional
-    public void saveComment(CommentDto.CreateComment createCommentDto, Comment comment, List<Comment> commentByPost, List<PopularPost> popularPostByPost, Post post, String userEmail, Long nextIndex, List<String> anonymityMembers) {
-        commentService.saveComment(comment);
-        if (commentByPost.size() >= 10 && popularPostByPost.isEmpty()) {
-            PopularPost build = PopularPost.builder().postId(post).build();
-            popularPostService.savePopularPost(build);
-        }
+    public void saveReply(ReplyDto.CreateReply replyDto, Comment comment, Reply buildReply, List<String> anonymityMembers, String userEmail, AnonymityMember anonymityMember) {
+        comment.setCountReply(comment.getCountReply()+1);
 
-        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, post, nextIndex);
-        anonymityMemberService.checkAndSave(createCommentDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
+        replyService.saveReply(buildReply);
+        anonymityMemberService.checkAndSave(replyDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
     }
 }

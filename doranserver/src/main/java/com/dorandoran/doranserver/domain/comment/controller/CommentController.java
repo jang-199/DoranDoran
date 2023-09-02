@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.domain.comment.controller;
 
+import com.dorandoran.doranserver.domain.comment.service.common.CommentCommonService;
+import com.dorandoran.doranserver.domain.comment.service.common.ReplyCommonServiceImpl;
 import com.dorandoran.doranserver.global.util.CommentResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
@@ -23,6 +25,7 @@ import com.dorandoran.doranserver.domain.post.service.AnonymityMemberService;
 import com.dorandoran.doranserver.domain.post.service.PopularPostService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
+import com.google.api.Http;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +59,8 @@ public class CommentController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
     private final CommentResponseUtils commentResponseUtils;
+    private final CommentCommonService commentCommonService;
+    private final ReplyCommonServiceImpl replyCommonService;
     @Value("${doran.ip.address}")
     String ipAddress;
 
@@ -100,21 +105,15 @@ public class CommentController {
         Long nextIndex = anonymityMembers.size() + 1L;
 
         Comment comment = new Comment().toEntity(createCommentDto, post, member);
-        commentService.saveComment(comment);
+
+        List<Comment> commentByPost = commentService.findCommentByPost(post);
+        List<PopularPost> popularPostByPost = popularPostService.findPopularPostByPost(post);
+
+        commentCommonService.saveComment(createCommentDto, comment, commentByPost, popularPostByPost, post, userEmail, nextIndex, anonymityMembers);
 
         if (!post.getMemberId().equals(member) && post.getMemberId().checkNotification()){
             firebaseService.notifyComment(post.getMemberId(), comment);
         }
-
-        Post singlePost = postService.findSinglePost(createCommentDto.getPostId());
-        List<Comment> commentByPost = commentService.findCommentByPost(singlePost);
-        if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost).isEmpty()) {
-            PopularPost build = PopularPost.builder().postId(singlePost).build();
-            popularPostService.savePopularPost(build);
-        }
-
-        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, post, nextIndex);
-        anonymityMemberService.checkAndSave(createCommentDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -174,7 +173,6 @@ public class CommentController {
     }
 
     @Trace
-    @Transactional
     @PostMapping("/reply")
     public ResponseEntity<?> saveReply(@RequestBody ReplyDto.CreateReply replyDto,
                                    @AuthenticationPrincipal UserDetails userDetails) {
@@ -184,19 +182,16 @@ public class CommentController {
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
-                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("정지된 회원은 댓글을 작성할 수 없습니다.");
             }else {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
 
-        comment.setCountReply(comment.getCountReply()+1);
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.getPostId());
         Long nextIndex = anonymityMembers.size() + 1L;
 
         Reply buildReply = new Reply().toEntity(replyDto, comment, member);
-
-        replyService.saveReply(buildReply);
 
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
         replyMemberList.add(comment.getMemberId());
@@ -206,8 +201,9 @@ public class CommentController {
         }
 
         AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, comment.getPostId(), nextIndex);
-        anonymityMemberService.checkAndSave(replyDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
-        return new ResponseEntity<>(HttpStatus.OK);
+
+        replyCommonService.saveReply(replyDto, comment, buildReply, anonymityMembers, userEmail, anonymityMember);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Trace

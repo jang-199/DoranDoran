@@ -36,9 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/pic/default/**").permitAll()
                 .requestMatchers("/api/pic/member/**").permitAll()
                 .requestMatchers("/api/**").hasAnyRole("USER","ADMIN")
-//                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/admin/**").hasAnyRole("USER","ADMIN")
-                //todo admin 페이지는 hasRole admin만 되게끔 수정(주석 해제)
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll());
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable)

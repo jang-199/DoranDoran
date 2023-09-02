@@ -65,7 +65,6 @@ public class ManageBlockMemberController {
                         .reply(reply)
                         .build())
                 .toList();
-        //todo 쿼리문 많이 나가는 문제 해결
 
         return ResponseEntity.ok().body(responseReply);
     }

@@ -137,7 +137,6 @@ public class PostLikeServiceImpl implements PostLikeService {
                 postLike.get().restore();
             }else {
                 postLike.get().delete();
-                log.info("{} 글의 공감 취소", postLikeDto.getPostId());
             }
         }else {
             PostLike postLikeBuild = PostLike.builder()

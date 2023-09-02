@@ -137,9 +137,7 @@ public class ManageBlockMemberController {
 
     @PostMapping("/reply/unBlock/{unBlockReplyId}")
     public ResponseEntity<?> unBlockReply(@PathVariable Long unBlockReplyId){
-        log.info("[replyId] {}", unBlockReplyId);
         Reply reply = replyService.findFetchMember(unBlockReplyId);
-        log.info("[reply] {}", reply);
         unLockedMember(reply.getMemberId().getEmail());
         replyService.setUnLocked(reply);
 

@@ -31,7 +31,6 @@ public class NotificationController {
                                                                                     @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
-        log.info("{}", member);
         List<NotificationHistory> notificationList =
                 notCnt == 0
                 ? notificationHistoryService.findFirstNotification(member)

@@ -92,7 +92,6 @@ public class CommentLikeServiceImpl implements CommentLikeService{
                 commentLike.get().restore();
             }else {
                 commentLike.get().delete();
-                log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.get().getCommentId().getCommentId());
             }
         }else {
             CommentLike commentLikeBuild = CommentLike.builder()

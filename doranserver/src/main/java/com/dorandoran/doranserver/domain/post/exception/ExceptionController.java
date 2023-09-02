@@ -19,7 +19,6 @@ public class ExceptionController {
     public static class MaxUploadSizeExceededExceptionHandler {
         @ExceptionHandler(MaxUploadSizeExceededException.class)
         public ResponseEntity<?> fileUploadException(Exception e) {
-            log.info("파일 업로드 크기 제한 exception", e);
             return new ResponseEntity<>("파일 업로드 크기 제한", HttpStatus.BAD_REQUEST);
         }
     }

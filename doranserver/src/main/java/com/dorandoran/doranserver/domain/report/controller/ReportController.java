@@ -54,12 +54,12 @@ public class ReportController {
         Post post = postService.findSinglePost(reportPostRequestDto.getPostId());
 
         if (reportPostService.existReportPost(post,member)){
-            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.notFound().build();
         }else {
             ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
             reportPostService.postBlockLogic(post);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
 
@@ -73,12 +73,13 @@ public class ReportController {
         Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId());
 
         if (reportCommentService.existedReportComment(comment, member)) {
-            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.notFound().build();
+
         }else {
             ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
             reportCommentService.commentBlockLogic(comment);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
 
@@ -92,12 +93,12 @@ public class ReportController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
         if (reportReplyService.existedReportReply(reply, member)){
-            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.notFound().build();
         }else {
             ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
             reportReplyService.saveReportReply(reportReply);
             reportReplyService.replyBlockLogic(reply);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
 

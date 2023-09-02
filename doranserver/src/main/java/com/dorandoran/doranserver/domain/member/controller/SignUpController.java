@@ -78,7 +78,6 @@ public class SignUpController {
     }
 
     @Trace
-    @Transactional
     @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto, //todo 비속어, 관리자, 운영자 등등은 막을것
                                      @AuthenticationPrincipal UserDetails userDetails){
@@ -87,8 +86,8 @@ public class SignUpController {
         if (existedNickname(changeNicknameDto.getNickname())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
-            findMember.setNickname(changeNicknameDto.getNickname());
-            return new ResponseEntity<>(HttpStatus.OK);
+            memberService.setNickname(findMember, changeNicknameDto.getNickname());
+            return ResponseEntity.noContent().build();
         }
     }
 

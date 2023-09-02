@@ -57,14 +57,11 @@ public class HashTagController {
     @GetMapping("/hashTag/popular")
     public ResponseEntity<?> popularHashTag(){
         List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
-        if (hashTag.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            List<HashTagDto.ReadPopularHashTagResponse> hashTagList = hashTag.stream()
-                    .map(HashTagDto.ReadPopularHashTagResponse::new)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok().body(hashTagList);
-        }
+        List<HashTagDto.ReadPopularHashTagResponse> hashTagList = hashTag.stream()
+                .map(HashTagDto.ReadPopularHashTagResponse::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(hashTagList);
     }
 
     @Trace

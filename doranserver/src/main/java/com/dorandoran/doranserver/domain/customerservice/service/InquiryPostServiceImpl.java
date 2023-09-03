@@ -48,6 +48,11 @@ public class InquiryPostServiceImpl implements InquiryPostService{
     }
 
     @Override
+    public InquiryPost findInquiryPostFetchMember(Long inquiryPostId){
+        return inquiryPostRepository.findFetchMember(inquiryPostId).orElseThrow(() -> new NoSuchElementException("해당 문의 글이 존재하지 않습니다."));
+    }
+
+    @Override
     public List<InquiryPost> findByPostTitle(Integer page, String title) {
         PageRequest of = PageRequest.of(page, 20);
         return inquiryPostRepository.findByTitleContainingOrderByInquiryPostId(title, of);

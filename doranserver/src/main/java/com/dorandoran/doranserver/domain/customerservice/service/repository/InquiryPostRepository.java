@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface InquiryPostRepository extends JpaRepository<InquiryPost, Long> {
     List<InquiryPost> findByMemberId(Member member);
@@ -23,4 +24,7 @@ public interface InquiryPostRepository extends JpaRepository<InquiryPost, Long> 
 
     @Query("SELECT ip from InquiryPost ip where ip.inquiryStatus = :answerType order by ip.inquiryPostId desc")
     List<InquiryPost> findByInquiryStatusContains(@Param("answerType") InquiryStatus answerType, Pageable pageable);
+
+    @Query("select ip from InquiryPost ip join fetch ip.memberId where ip.inquiryPostId = :inquiryPostId")
+    Optional<InquiryPost> findFetchMember(@Param("inquiryPostId") Long inquiryPostId);
 }

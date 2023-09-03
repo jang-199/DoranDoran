@@ -42,6 +42,13 @@ public class InquiryDto {
         String postCreateTime;
         List<ReadInquiryComment> inquiryCommentList;
 
+        public ReadInquiryPost toEntity(InquiryPost inquiryPost, List<ReadInquiryComment> inquiryCommentListDto) {
+            return InquiryDto.ReadInquiryPost.builder()
+                    .inquiryPost(inquiryPost)
+                    .inquiryCommentList(inquiryCommentListDto)
+                    .build();
+        }
+
         @Builder
         public ReadInquiryPost(InquiryPost inquiryPost, List<ReadInquiryComment> inquiryCommentList) {
             this.inquiryPostId = inquiryPost.getInquiryPostId();

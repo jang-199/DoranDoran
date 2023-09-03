@@ -11,6 +11,9 @@ public interface InquiryPostService {
     List<InquiryPost> findAll(Integer page);
     List<InquiryPost> findByMember(Member member);
     InquiryPost findInquiryPost(Long inquiryPostId);
+
+    InquiryPost findInquiryPostFetchMember(Long inquiryPostId);
+
     List<InquiryPost> findByPostTitle(Integer page, String title);
     List<InquiryPost> findByPostContent(Integer page, String content);
     List<InquiryPost> findByPostTime(Integer page, String postTime);

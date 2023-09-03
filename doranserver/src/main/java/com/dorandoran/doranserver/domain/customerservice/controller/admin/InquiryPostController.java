@@ -1,7 +1,9 @@
 package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
 import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
@@ -9,6 +11,7 @@ import com.dorandoran.doranserver.global.util.InquiryResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +26,7 @@ import java.util.List;
 public class InquiryPostController {
     private final MemberService memberService;
     private final InquiryPostService inquiryPostService;
+    private final InquiryCommentService inquiryCommentService;
 
     @Trace
     @PostMapping("/inquiryPost")
@@ -46,5 +50,26 @@ public class InquiryPostController {
         List<InquiryPost> inquiryPostList = inquiryPostService.findByMember(member);
 
         return ResponseEntity.ok().body(InquiryResponseUtils.makeInquiryPostList(inquiryPostList));
+    }
+
+    @Trace
+    @GetMapping("/inquiryPost/{inquiryPostId}/read")
+    public ResponseEntity<?> readInquiryPost(@PathVariable(name = "inquiryPostId") Long inquiryPostId,
+                                             @AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        Member member = memberService.findByEmail(username);
+
+        InquiryPost inquiryPost = inquiryPostService.findInquiryPostFetchMember(inquiryPostId);
+
+        if (inquiryPost.getMemberId().equals(member)) {
+            List<InquiryComment> inquiryComments = inquiryCommentService.findCommentByPost(inquiryPost);
+
+            List<InquiryDto.ReadInquiryComment> inquiryCommentListDto = InquiryResponseUtils.makeInquiryCommentList(inquiryComments);
+            InquiryDto.ReadInquiryPost readInquiryPost = new InquiryDto.ReadInquiryPost().toEntity(inquiryPost, inquiryCommentListDto);
+
+            return ResponseEntity.ok().body(readInquiryPost);
+        }else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }

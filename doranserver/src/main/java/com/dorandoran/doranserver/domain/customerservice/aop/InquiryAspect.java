@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InquiryAspect {
 
-    @Around("execution(* com.dorandoran.doranserver.domain.customerservice.controller..*Inquiry*(..))")
+    @Around("@annotation(com.dorandoran.doranserver.domain.customerservice.annotation.Admin)")
     public Object returnErrorLog(ProceedingJoinPoint joinPoint) {
         try {
             log.info("[aop] {}", joinPoint.getSignature());

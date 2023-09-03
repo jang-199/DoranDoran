@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
+import com.dorandoran.doranserver.domain.customerservice.annotation.Admin;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
@@ -21,6 +22,8 @@ import java.util.List;
 public class InquiryAdminCommentController {
     private final InquiryPostService inquiryPostService;
     private final InquiryCommentService inquiryCommentService;
+
+    @Admin
     @GetMapping("/inquiryComment/{inquiryCommentId}")
     public ResponseEntity<?> getInquiryComment(@PathVariable Long inquiryCommentId){
         InquiryComment findinquiryComment = inquiryCommentService.findCommentById(inquiryCommentId);
@@ -33,6 +36,7 @@ public class InquiryAdminCommentController {
         return ResponseEntity.ok().body(inquiryComment);
     }
 
+    @Admin
     @PostMapping("/inquiryComment")
     public ResponseEntity<?> saveInquiryComment(@RequestBody InquiryDto.CreateInquiryComment inquiryCommentDto){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryCommentDto.getInquiryPostId());
@@ -45,6 +49,7 @@ public class InquiryAdminCommentController {
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @PostMapping("/inquiryComment/update")
     public ResponseEntity<?> patchInquiryComment(@RequestBody InquiryDto.UpdateInquiryComment updateInquiryComment){
         InquiryComment inquiryComment = inquiryCommentService.findCommentById(updateInquiryComment.getInquiryCommentId());
@@ -52,6 +57,7 @@ public class InquiryAdminCommentController {
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @DeleteMapping("/inquiryComment/{inquiryCommentId}")
     public ResponseEntity<?> deleteInquiryComment(@PathVariable Long inquiryCommentId){
         InquiryComment inquiryComment = inquiryCommentService.findCommentFetchPost(inquiryCommentId);

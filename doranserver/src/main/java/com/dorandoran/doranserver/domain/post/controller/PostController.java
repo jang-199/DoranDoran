@@ -168,7 +168,6 @@ public class PostController {
     @PostMapping("/post/detail")
     ResponseEntity<?> postDetails(@RequestBody PostDto.ReadPost postRequestDetailDto,
                                   @AuthenticationPrincipal UserDetails userDetails) {
-        long start = System.currentTimeMillis();
         //todo 여기부터 해야됨
         String userEmail = userDetails.getUsername();
         Post post = postService.findFetchMember(postRequestDetailDto.getPostId());
@@ -216,7 +215,7 @@ public class PostController {
 
         //todo 대댓글 한번에 가져와서 처리하는 걸로 바꿔야함 쿼리 너무 많이 나감..
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
-        if (comments.size() != 0) {
+        if (!comments.isEmpty()) {
             for (Comment comment : commentList) {
                 //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
@@ -286,7 +285,6 @@ public class PostController {
         }
 
         long end = System.currentTimeMillis();
-        log.info("{}",end - start);
         return ResponseEntity.ok().body(postDetailDto);
     }
 

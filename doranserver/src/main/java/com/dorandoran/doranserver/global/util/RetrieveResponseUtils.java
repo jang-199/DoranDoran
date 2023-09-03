@@ -241,10 +241,14 @@ public class RetrieveResponseUtils {
         String[] splitLocation;
         String userEmail;
 
-        public List<RetrieveHashtagDto.ReadHashtagResponse> makeRetrieveHashtagResponseList(List<Post> postList,
-                                                                                            List<Integer> likeCntList,
-                                                                                            List<Boolean> likeResultList,
-                                                                                            List<Integer> commentAndReplyCnt){
+        public HashMap<String, Object> makeRetrieveHashtagResponseList(Boolean isBookmarked,
+                                                                       List<Post> postList,
+                                                                       List<Integer> likeCntList,
+                                                                       List<Boolean> likeResultList,
+                                                                       List<Integer> commentAndReplyCnt){
+            HashMap<String, Object> responseMap = new HashMap<>();
+            responseMap.put("isBookmarked", isBookmarked);
+
             List<RetrieveHashtagDto.ReadHashtagResponse> postResponseList = new ArrayList<>();
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
             Iterator<Boolean> likeResultByPostListIter = likeResultList.iterator();
@@ -277,7 +281,8 @@ public class RetrieveResponseUtils {
                         .build();
                 postResponseList.add(postResponse);
             }
-            return postResponseList;
+            responseMap.put("Data", postResponseList);
+            return responseMap;
         }
 
         @Builder

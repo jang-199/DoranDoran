@@ -44,10 +44,9 @@ public class RetrieveClosePostController {
     @GetMapping("/post/close")
     ResponseEntity<?> retrievePost(@RequestParam Long postCnt,
                                    @RequestParam String location,
-                                   @RequestParam double range,
+                                   @RequestParam Double range,
                                    @AuthenticationPrincipal UserDetails userDetails) {
-
-        range *= range*0.01;
+        range*=0.1;
 
         String userEmail = userDetails.getUsername();
 

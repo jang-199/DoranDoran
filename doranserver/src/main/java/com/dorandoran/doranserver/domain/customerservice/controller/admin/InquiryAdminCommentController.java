@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Timed
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor

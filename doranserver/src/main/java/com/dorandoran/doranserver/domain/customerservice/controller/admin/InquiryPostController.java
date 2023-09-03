@@ -10,6 +10,7 @@ import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.global.util.InquiryResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@Timed
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor

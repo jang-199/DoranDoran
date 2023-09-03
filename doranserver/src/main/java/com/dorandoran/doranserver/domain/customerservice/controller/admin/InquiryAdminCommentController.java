@@ -52,6 +52,7 @@ public class InquiryAdminCommentController {
 
     @DeleteMapping("/inquiryComment/{inquiryCommentId}")
     public ResponseEntity<?> deleteInquiryComment(@PathVariable Long inquiryCommentId){
+        //todo answered -> not answered
         InquiryComment inquiryComment = inquiryCommentService.findCommentById(inquiryCommentId);
         inquiryCommentService.deleteInquiryComment(inquiryComment);
         return ResponseEntity.ok().build();

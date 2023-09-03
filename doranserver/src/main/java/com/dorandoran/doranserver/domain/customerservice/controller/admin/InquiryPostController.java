@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
 import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
 import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
 import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
@@ -75,6 +76,23 @@ public class InquiryPostController {
             InquiryDto.ReadInquiryPost readInquiryPost = new InquiryDto.ReadInquiryPost().toEntity(inquiryPost, inquiryCommentListDto);
 
             return ResponseEntity.ok().body(readInquiryPost);
+        }else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @Trace
+    @DeleteMapping("/inquiryPost/{inquiryPostId}")
+    public ResponseEntity<?> deleteInquiryPost(@PathVariable(name = "inquiryPostId") Long inquiryPostId,
+                                               @AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        Member member = memberService.findByEmail(username);
+
+        InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryPostId);
+
+        if (inquiryPost.getInquiryStatus().equals(InquiryStatus.NotAnswered) && inquiryPost.getMemberId().equals(member)){
+            inquiryPostService.deleteInquiryPost(inquiryPost);
+            return ResponseEntity.noContent().build();
         }else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

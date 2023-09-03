@@ -45,7 +45,7 @@ public class SignUpController {
     ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         if (existedNickname(nicknameDto.getNickname())) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             return ResponseEntity.ok().build();
         }
@@ -84,7 +84,7 @@ public class SignUpController {
         String userEmail = userDetails.getUsername();
         Member findMember = memberService.findByEmail(userEmail);
         if (existedNickname(changeNicknameDto.getNickname())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             memberService.setNickname(findMember, changeNicknameDto.getNickname());
             return ResponseEntity.noContent().build();

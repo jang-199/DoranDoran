@@ -1,19 +1,15 @@
 package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
-import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
 import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
 import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
-import com.dorandoran.doranserver.domain.member.domain.Member;
-import com.dorandoran.doranserver.domain.member.service.MemberService;
+import com.dorandoran.doranserver.global.util.InquiryResponseUtils;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +26,7 @@ public class InquiryAdminPostController {
     @GetMapping("/inquiryPost/board")
     public ResponseEntity<List<InquiryDto.ReadInquiryPostBoard>> getAllInquiryPost(@RequestParam("page") Integer page){
         List<InquiryPost> inquiryPostPage = inquiryPostService.findAll(page);
-        return ResponseEntity.ok().body(makeInquiryPostBoardList(inquiryPostPage));
+        return ResponseEntity.ok().body(InquiryResponseUtils.makeInquiryPostList(inquiryPostPage));
     }
 
     @GetMapping("/inquiryPost/{inquiryPostId}")
@@ -73,14 +69,6 @@ public class InquiryAdminPostController {
                     case "answerType" -> inquiryPostService.findByAnswerType(page, content);
                     default -> throw new IllegalArgumentException("해당 검색 조건은 없습니다.");
                 };
-        return ResponseEntity.ok().body(makeInquiryPostBoardList(inquiryPostList));
-    }
-
-    private static List<InquiryDto.ReadInquiryPostBoard> makeInquiryPostBoardList(List<InquiryPost> inquiryPostPage) {
-        return inquiryPostPage.stream()
-                .map(inquiryPost -> InquiryDto.ReadInquiryPostBoard.builder()
-                        .inquiryPost(inquiryPost)
-                        .build())
-                .toList();
+        return ResponseEntity.ok().body(InquiryResponseUtils.makeInquiryPostList(inquiryPostList));
     }
 }

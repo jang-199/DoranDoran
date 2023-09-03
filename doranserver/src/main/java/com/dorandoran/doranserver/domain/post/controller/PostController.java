@@ -188,8 +188,8 @@ public class PostController {
         postDetailDto.setLocation(distance);
 
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
-        HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
-        HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
+        HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
+        HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 

@@ -77,8 +77,8 @@ public class CommentController {
 
         List<Comment> comments = commentService.findNextComments(postId, commentId);
 
-        HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
-        HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
+        HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
+        HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
         return ResponseEntity.ok().body(commentDetailDtoList);
     }

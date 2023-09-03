@@ -54,7 +54,7 @@ public class ReportController {
         Post post = postService.findSinglePost(reportPostRequestDto.getPostId());
 
         if (reportPostService.existReportPost(post,member)){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
@@ -73,8 +73,7 @@ public class ReportController {
         Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId());
 
         if (reportCommentService.existedReportComment(comment, member)) {
-            return ResponseEntity.notFound().build();
-
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
@@ -93,7 +92,7 @@ public class ReportController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
         if (reportReplyService.existedReportReply(reply, member)){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
             reportReplyService.saveReportReply(reportReply);

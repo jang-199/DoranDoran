@@ -84,7 +84,7 @@ public class HashTagController {
         HashTag hashTag = hashTagService.findByHashTagName(hashTagRequestDto.getHashTag());
         List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
         if (memberHashes.contains(hashTagRequestDto.getHashTag())){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         else {
             MemberHash memberHashBuild = MemberHash.builder()

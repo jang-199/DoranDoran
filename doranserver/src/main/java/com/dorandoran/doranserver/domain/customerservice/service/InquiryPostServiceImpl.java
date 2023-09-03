@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.customerservice.service;
 
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
@@ -83,5 +84,13 @@ public class InquiryPostServiceImpl implements InquiryPostService{
         PageRequest of = PageRequest.of(page, 20);
         InquiryStatus findAnswerType = answerType.equals("NotAnswered") ? InquiryStatus.NotAnswered : InquiryStatus.Answered;
         return inquiryPostRepository.findByInquiryStatusContains(findAnswerType, of);
+    }
+
+    @Override
+    @Transactional
+    public void setAnsweredType(InquiryPost inquiryPost, List<InquiryComment> inquiryCommentList) {
+        if (inquiryPost.getInquiryStatus().equals(InquiryStatus.Answered) && inquiryCommentList.size() == 1) {
+            inquiryPost.setInquiryStatus(InquiryStatus.NotAnswered);
+        }
     }
 }

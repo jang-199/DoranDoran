@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Timed
 @RestController
 @RequestMapping("/admin")
@@ -52,8 +54,9 @@ public class InquiryAdminCommentController {
 
     @DeleteMapping("/inquiryComment/{inquiryCommentId}")
     public ResponseEntity<?> deleteInquiryComment(@PathVariable Long inquiryCommentId){
-        //todo answered -> not answered
-        InquiryComment inquiryComment = inquiryCommentService.findCommentById(inquiryCommentId);
+        InquiryComment inquiryComment = inquiryCommentService.findCommentFetchPost(inquiryCommentId);
+        List<InquiryComment> inquiryCommentList = inquiryCommentService.findCommentByPost(inquiryComment.getInquiryPostId());
+        inquiryPostService.setAnsweredType(inquiryComment.getInquiryPostId(), inquiryCommentList);
         inquiryCommentService.deleteInquiryComment(inquiryComment);
         return ResponseEntity.ok().build();
     }

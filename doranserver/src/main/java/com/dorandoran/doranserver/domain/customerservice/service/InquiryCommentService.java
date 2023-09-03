@@ -11,6 +11,9 @@ public interface InquiryCommentService {
     void deleteInquiryCommentList(List<InquiryComment> inquiryCommentList);
     List<InquiryComment> findCommentByPost(InquiryPost inquiryPost);
     InquiryComment findCommentById(Long inquiryCommentId);
+
+    InquiryComment findCommentFetchPost(Long inquiryCommentId);
+
     void updateInquiryComment(InquiryComment inquiryComment, String content);
 
 }

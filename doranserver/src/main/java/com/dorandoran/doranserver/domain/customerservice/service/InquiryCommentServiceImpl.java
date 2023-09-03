@@ -42,6 +42,11 @@ public class InquiryCommentServiceImpl implements InquiryCommentService{
     }
 
     @Override
+    public InquiryComment findCommentFetchPost(Long inquiryCommentId){
+        return inquiryCommentRepository.findFetchPost(inquiryCommentId);
+    }
+
+    @Override
     @Transactional
     public void updateInquiryComment(InquiryComment inquiryComment, String content) {
         inquiryComment.setComment(content);

@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.customerservice.service;
 
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 
@@ -19,4 +20,6 @@ public interface InquiryPostService {
     List<InquiryPost> findByPostTime(Integer page, String postTime);
 
     List<InquiryPost> findByAnswerType(Integer page, String answerType);
+
+    void setAnsweredType(InquiryPost inquiryPost, List<InquiryComment> inquiryCommentList);
 }

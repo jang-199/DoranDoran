@@ -35,7 +35,7 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
     List<Reply> findNextReplies(@Param("commentId") Long commentId, @Param("replyId") Long replyId, Pageable pageable);
 
     @Query("select r from Reply r join fetch r.memberId m " +
-            "where r.commentId = :commentId " +
+            "where r.commentId in :commentId " +
             "order by r.replyId desc")
     List<Reply> findFirstRepliesFetchMember(@Param("commentId") Comment comment, Pageable pageable);
 
@@ -56,4 +56,6 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
     @Query("select r from Reply r join fetch r.memberId where r.replyId = :replyId")
     Optional<Reply> findFetchMember(@Param("replyId") Long replyId);
 
+    @Query("select r from Reply r where r.commentId in :commentList")
+    List<Reply> findCommentListTest(@Param("commentList") List<Comment> commentList);
 }

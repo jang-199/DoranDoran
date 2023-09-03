@@ -72,8 +72,7 @@ public class ReportController {
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
-        Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+        Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId());
 
         if (reportCommentService.existedReportComment(comment, member)) {
             log.info("이미 신고한 회원입니다.");

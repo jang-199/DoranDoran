@@ -39,6 +39,14 @@ public class ReplyDto {
         Boolean isWrittenByMember;
         LocalDateTime replyTime;
 
+        public ReadReplyResponse toEntity(Reply reply, Boolean isReplyWrittenByUser){
+            return ReplyDto.ReadReplyResponse.builder()
+                    .reply(reply)
+                    .content(reply.getReply())
+                    .isWrittenByMember(isReplyWrittenByUser)
+                    .build();
+        }
+
         @Builder
         public ReadReplyResponse(Reply reply, String content, Boolean isWrittenByMember) {
             this.replyId = reply.getReplyId();
@@ -46,6 +54,7 @@ public class ReplyDto {
             this.reply = reply.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
             this.replyAnonymityNickname = null;
             this.replyCheckDelete = reply.getCheckDelete();
+            this.replyTime = reply.getCreatedTime();
             this.isWrittenByMember = isWrittenByMember;
         }
     }

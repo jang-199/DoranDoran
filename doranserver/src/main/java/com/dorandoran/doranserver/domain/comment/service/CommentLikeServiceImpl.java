@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +22,15 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
-    public Integer findCommentLikeCnt(Comment comment) {
-        List<CommentLike> commentLikeByCommentId = commentLikeRepository.findUnDeletedByCommentId(comment);
-        return commentLikeByCommentId.size();
+    public HashMap<Comment, Long> findCommentLikeCnt(List<Comment> commentList) {
+        List<CommentLike> commentLikeList = commentLikeRepository.findUnDeletedByCommentId(commentList);
+        HashMap<Comment, Long> commntLikeHashMap = new HashMap<>();
+
+        for (Comment comment : commentList) {
+            Long count = commentLikeList.stream().filter(commentLike -> commentLike.getCommentId().equals(comment)).count();
+            commntLikeHashMap.put(comment, count);
+        }
+        return commntLikeHashMap;
     }
 
     @Override
@@ -47,13 +54,29 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     }
 
     @Override
-    public Boolean findCommentLikeResult(String userEmail, Comment commentId) {
-        Optional<CommentLike> commentLikeResult = commentLikeRepository.findCommentLikeResult(userEmail, commentId);
-        if(commentLikeResult.isPresent() && commentLikeResult.get().getCheckDelete().equals(Boolean.FALSE)){
-            return Boolean.TRUE;
-        }else {
-            return Boolean.FALSE;
+    public HashMap<Comment, Boolean> findCommentLikeResult(String userEmail, List<Comment> commentList) {
+        List<CommentLike> commentLikeResultList = commentLikeRepository.findCommentList(userEmail, commentList);
+        HashMap<Comment, Boolean> commentLikeResultHashMap = new HashMap<>();
+
+        int position = 0;
+        for (Comment comment : commentList) {
+            if (commentLikeResultList.isEmpty()){
+                commentLikeResultHashMap.put(comment, Boolean.FALSE);
+                continue;
+            }
+
+            if (comment.equals(commentLikeResultList.get(position).getCommentId())){
+                if (commentLikeResultList.size()-1 != position) {
+                    position++;
+                }
+
+                commentLikeResultHashMap.put(comment,Boolean.TRUE);
+            }else {
+                commentLikeResultHashMap.put(comment, Boolean.FALSE);
+            }
         }
+
+        return commentLikeResultHashMap;
     }
 
     @Override

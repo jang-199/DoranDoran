@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.comment.domain;
 
+import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.member.domain.Member;
@@ -11,9 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Builder
 @AttributeOverride(name = "createdTime", column = @Column(name = "COMMENT_TIME"))
 public class Comment extends BaseEntity {
     @Id
@@ -58,5 +57,27 @@ public class Comment extends BaseEntity {
     public Boolean checkSecretMode(){
         return this.getSecretMode() == Boolean.TRUE ? Boolean.TRUE : Boolean.FALSE;
     }
-
+    public Comment toEntity(CommentDto.CreateComment createCommentDto, Post post, Member member){
+        return Comment.builder()
+                .comment(createCommentDto.getComment())
+                .postId(post)
+                .memberId(member)
+                .anonymity(createCommentDto.getAnonymity())
+                .checkDelete(Boolean.FALSE)
+                .secretMode(createCommentDto.getSecretMode())
+                .isLocked(Boolean.FALSE)
+                .build();
+    }
+    @Builder
+    public Comment(String comment, Boolean anonymity, Boolean checkDelete, Boolean secretMode, int countReply, int reportCount, Boolean isLocked, Post postId, Member memberId) {
+        this.comment = comment;
+        this.anonymity = anonymity;
+        this.checkDelete = checkDelete;
+        this.secretMode = secretMode;
+        this.countReply = countReply;
+        this.reportCount = reportCount;
+        this.isLocked = isLocked;
+        this.postId = postId;
+        this.memberId = memberId;
+    }
 }

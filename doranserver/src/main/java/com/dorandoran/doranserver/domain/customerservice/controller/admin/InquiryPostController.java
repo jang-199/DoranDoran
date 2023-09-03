@@ -11,12 +11,15 @@ import com.dorandoran.doranserver.global.util.InquiryResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,6 +30,8 @@ public class InquiryPostController {
     private final MemberService memberService;
     private final InquiryPostService inquiryPostService;
     private final InquiryCommentService inquiryCommentService;
+    @Value("${doran.ip.address}")
+    String address;
 
     @Trace
     @PostMapping("/inquiryPost")
@@ -39,7 +44,9 @@ public class InquiryPostController {
                 .memberId(member)
                 .build();
         inquiryPostService.saveInquiryPost(inquiryPost);
-        return ResponseEntity.ok().build();
+
+        String locationUri = "http://" + address + ":8080/api/inquiryPost/" + inquiryPost.getInquiryPostId() + "/read";
+        return ResponseEntity.created(URI.create(locationUri)).build();
     }
 
     @Trace

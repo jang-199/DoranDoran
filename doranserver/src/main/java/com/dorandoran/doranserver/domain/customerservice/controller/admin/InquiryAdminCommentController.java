@@ -1,10 +1,10 @@
-package com.dorandoran.doranserver.domain.admin.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
-import com.dorandoran.doranserver.domain.admin.dto.InquiryDto;
-import com.dorandoran.doranserver.domain.admin.service.InquiryCommentService;
-import com.dorandoran.doranserver.domain.admin.service.InquiryPostService;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class InquiryCommentController {
+public class InquiryAdminCommentController {
     private final InquiryPostService inquiryPostService;
     private final InquiryCommentService inquiryCommentService;
     @GetMapping("/inquiryComment/{inquiryCommentId}")

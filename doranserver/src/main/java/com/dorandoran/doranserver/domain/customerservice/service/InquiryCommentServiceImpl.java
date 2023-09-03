@@ -1,8 +1,8 @@
-package com.dorandoran.doranserver.domain.admin.service;
+package com.dorandoran.doranserver.domain.customerservice.service;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
-import com.dorandoran.doranserver.domain.admin.service.repository.InquiryCommentRepository;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.service.repository.InquiryCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

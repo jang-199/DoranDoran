@@ -1,6 +1,6 @@
-package com.dorandoran.doranserver.domain.admin.service;
+package com.dorandoran.doranserver.domain.customerservice.service;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 
 import java.util.List;

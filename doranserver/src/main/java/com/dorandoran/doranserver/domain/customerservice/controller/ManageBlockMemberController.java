@@ -1,6 +1,6 @@
-package com.dorandoran.doranserver.domain.admin.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller;
 
-import com.dorandoran.doranserver.domain.admin.dto.BlockDto;
+import com.dorandoran.doranserver.domain.customerservice.dto.BlockDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;

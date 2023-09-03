@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.domain.admin.domain;
+package com.dorandoran.doranserver.domain.customerservice.domain;
 
 import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;

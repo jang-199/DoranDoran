@@ -1,7 +1,7 @@
-package com.dorandoran.doranserver.domain.admin.service.repository;
+package com.dorandoran.doranserver.domain.customerservice.service.repository;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
-import com.dorandoran.doranserver.domain.admin.domain.inquirytype.InquiryStatus;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

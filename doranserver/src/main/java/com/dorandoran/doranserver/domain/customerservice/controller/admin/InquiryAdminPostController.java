@@ -1,11 +1,11 @@
-package com.dorandoran.doranserver.domain.admin.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
 import com.dorandoran.doranserver.global.util.annotation.Trace;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
-import com.dorandoran.doranserver.domain.admin.dto.InquiryDto;
-import com.dorandoran.doranserver.domain.admin.service.InquiryCommentService;
-import com.dorandoran.doranserver.domain.admin.service.InquiryPostService;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import io.micrometer.core.annotation.Timed;
@@ -21,19 +21,19 @@ import java.util.List;
 @Timed
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/admin")
 @Slf4j
-public class InquiryPostController {
-    private final MemberService memberService;
+public class InquiryAdminPostController {
     private final InquiryPostService inquiryPostService;
     private final InquiryCommentService inquiryCommentService;
 
-    @GetMapping("/admin/inquiryPost/board")
+    @GetMapping("/inquiryPost/board")
     public ResponseEntity<List<InquiryDto.ReadInquiryPostBoard>> getAllInquiryPost(@RequestParam("page") Integer page){
         List<InquiryPost> inquiryPostPage = inquiryPostService.findAll(page);
         return ResponseEntity.ok().body(makeInquiryPostBoardList(inquiryPostPage));
     }
 
-    @GetMapping("/admin/inquiryPost/{inquiryPostId}")
+    @GetMapping("/inquiryPost/{inquiryPostId}")
     public ResponseEntity<InquiryDto.ReadInquiryPost> getInquiryPostDetail(@PathVariable Long inquiryPostId){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryPostId);
         List<InquiryComment> inquiryComments = inquiryCommentService.findCommentByPost(inquiryPost);
@@ -50,21 +50,7 @@ public class InquiryPostController {
         return ResponseEntity.ok().body(readInquiryPost);
     }
 
-    @Trace
-    @PostMapping("/api/inquiryPost")
-    public ResponseEntity<?> saveInquiryPost(@RequestBody InquiryDto.CreateInquiryPost createInquiryPost,
-                                @AuthenticationPrincipal UserDetails userDetails){
-        Member member = memberService.findByEmail(userDetails.getUsername());
-        InquiryPost inquiryPost = InquiryPost.builder()
-                .title(createInquiryPost.getTitle())
-                .content(createInquiryPost.getContent())
-                .memberId(member)
-                .build();
-        inquiryPostService.saveInquiryPost(inquiryPost);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/admin/inquiryPost/{inquiryPostId}")
+    @DeleteMapping("/inquiryPost/{inquiryPostId}")
     public ResponseEntity<?> deleteInquiryPost(@PathVariable Long inquiryPostId){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryPostId);
 
@@ -75,7 +61,7 @@ public class InquiryPostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/admin/inquiryPost/search")
+    @GetMapping("/inquiryPost/search")
     public ResponseEntity<List<InquiryDto.ReadInquiryPostBoard>> searchInquiryPost(@RequestParam("page") Integer page,
                                                                                    @RequestParam("searchType") String searchType,
                                                                                    @RequestParam("content") String content){

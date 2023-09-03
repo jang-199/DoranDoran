@@ -1,9 +1,9 @@
-package com.dorandoran.doranserver.domain.admin.service;
+package com.dorandoran.doranserver.domain.customerservice.service;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.member.domain.Member;
-import com.dorandoran.doranserver.domain.admin.domain.inquirytype.InquiryStatus;
-import com.dorandoran.doranserver.domain.admin.service.repository.InquiryPostRepository;
+import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
+import com.dorandoran.doranserver.domain.customerservice.service.repository.InquiryPostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.domain.admin.dto;
+package com.dorandoran.doranserver.domain.customerservice.dto;
 
 import com.dorandoran.doranserver.domain.member.dto.blockMemberType.BlockType;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;

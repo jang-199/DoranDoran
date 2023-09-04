@@ -6,6 +6,7 @@ import com.dorandoran.doranserver.domain.background.service.UserUploadPicService
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
+import com.dorandoran.doranserver.domain.post.exception.UnsupportedImageExtensionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -21,9 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -129,9 +128,11 @@ public class PostServiceImpl implements PostService {
         if (postDto.getBackgroundImgName().isBlank()) {
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
+
+            checkFileExtension(fileNameSubstring);
+
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
             postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
-            //todo 사진 확장자 체크 로직 추가
 
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -158,7 +159,7 @@ public class PostServiceImpl implements PostService {
         return checkCommentList || checkReplyList ? Boolean.TRUE : Boolean.FALSE;
     }
 
-    private static void setPostLocation(PostDto.CreatePost postDto, Post post) {
+    private void setPostLocation(PostDto.CreatePost postDto, Post post) {
         Point distance;
         if (!postDto.getLocation().isBlank()) {
             String[] splitLocation = postDto.getLocation().split(",");
@@ -172,5 +173,13 @@ public class PostServiceImpl implements PostService {
             distance = null;
         }
         post.setLocation(distance);
+    }
+
+    private void checkFileExtension(String fileExtension){
+        List<String> forbiddenList = new ArrayList<>();
+        Collections.addAll(forbiddenList, "gif", "apng");
+        if (forbiddenList.contains(fileExtension)){
+            throw new UnsupportedImageExtensionException("지원하지 않는 확장자입니다.");
+        }
     }
 }

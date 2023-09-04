@@ -43,7 +43,6 @@ public class SignUpController {
     @Trace
     @PostMapping("/nickname")
     ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
-        log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         if (existedNickname(nicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
@@ -58,7 +57,6 @@ public class SignUpController {
         try {
             member = memberService.findByEmail(memberDto.getEmail());
         } catch (RuntimeException e) {
-            log.info("{}은 가입되지 않은 회원입니다.",memberDto.getEmail());
             return ResponseEntity.badRequest().build();
         }
 
@@ -94,9 +92,6 @@ public class SignUpController {
     @Trace
     @PostMapping("/member")
     ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
-
-        log.info("fireBaseToken: {}", signUp.getFirebaseToken());
-
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -107,13 +102,10 @@ public class SignUpController {
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> response = restTemplate.exchange(KAKAO_USERINFO_REQUEST_URL, HttpMethod.GET, request, String.class);
-            log.info("response : {}", response);
-            log.info("response.getBody() : {}", response.getBody());
             JSONObject jsonObject = new JSONObject(response.getBody());
 
             JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
             String email = kakao_account.getString("email");
-            log.info("email : {}", email);
             if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
 
                 PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
@@ -135,12 +127,10 @@ public class SignUpController {
                 String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6)); //약 6개월 기간의 refreshToken create
 
                 member.setRefreshToken(refreshToken);
-                log.info("refreshToken : {}",refreshToken);
 
                 this.signUp.saveMember(member);
 
                 String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1)); //AccessToken generate
-                log.info("accessToken : {}",accessToken);
 
                 return ResponseEntity.ok().body(
                         AccountDto.SignUpResponse.builder()

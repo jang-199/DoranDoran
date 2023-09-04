@@ -17,7 +17,6 @@ public class TokenService {
     private final MemberServiceImpl memberService;
 
     public String createNewAccessToken(String refreshToken) {
-        log.info("createNewAccessToken");
         if (!tokenProvider.validToken(refreshToken)) {
             throw new IllegalArgumentException("Unexpected RefreshToken");
         }
@@ -27,7 +26,6 @@ public class TokenService {
     }
 
     public String createNewRefreshToken(String refreshToken) {
-        log.info("createNewRefreshToken");
         if (!tokenProvider.validToken(refreshToken)) {
             throw new IllegalArgumentException("Unexpected RefreshToken");
         }

@@ -9,15 +9,14 @@ import com.dorandoran.doranserver.domain.comment.service.ReplyService;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentResponseUtils {
     private final ReplyService replyService;
     private final CommentService commentService;
@@ -25,7 +24,7 @@ public class CommentResponseUtils {
     public void makeCommentList (String userEmail,
                                  Post post,
                                  List < String > anonymityMemberList,
-                                 List < CommentDto.ReadCommentResponse > commentDetailDtoList,
+                                 LinkedList< CommentDto.ReadCommentResponse > commentDetailDtoList,
                                  Comment comment,
                                  HashMap<String, Object> replyDetailHashMap,
                                  Boolean commentLikeResult,
@@ -52,7 +51,7 @@ public class CommentResponseUtils {
                                                           Post post,
                                                           List<String> anonymityMemberList,
                                                           List<Reply> replies) {
-        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
+        LinkedList<ReplyDto.ReadReplyResponse> replyDetailDtoList = new LinkedList<>();
 
         Boolean isExistNextReply = replyService.checkExistAndDelete(replies);
 
@@ -80,7 +79,7 @@ public class CommentResponseUtils {
     }
 
     public HashMap<String,Object> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Long, Boolean> commentLikeResultHashMap, HashMap<Long, Long> commentLikeCntHashMap, Boolean isExistNextComment) {
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
+        LinkedList<CommentDto.ReadCommentResponse> commentDetailDtoList = new LinkedList<>();
 
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
         if (!comments.isEmpty()) {
@@ -91,9 +90,10 @@ public class CommentResponseUtils {
                 HashMap<String, Object> replyDetailHashMap = makeReplyList(userEmail, post, anonymityMemberList, replyList);
 
                 makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailHashMap, commentLikeResultHashMap.get(comment.getCommentId()), commentLikeCntHashMap.get(comment.getCommentId()));
-                Collections.reverse(commentDetailDtoList);
             }
         }
+        Collections.reverse(commentDetailDtoList);
+
         HashMap<String, Object> commentDetailHashMap = new HashMap<>();
         commentDetailHashMap.put("commentData",commentDetailDtoList);
         commentDetailHashMap.put("isExistNextComment", isExistNextComment);

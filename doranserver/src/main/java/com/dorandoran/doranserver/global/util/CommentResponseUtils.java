@@ -85,13 +85,11 @@ public class CommentResponseUtils {
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
         if (!comments.isEmpty()) {
             for (Comment comment : commentList) {
-                //대댓글 10개 저장 로직
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
                 List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
                 HashMap<String, Object> replyDetailHashMap = makeReplyList(userEmail, post, anonymityMemberList, replyList);
 
-                //댓글 10개 저장 로직
                 makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailHashMap, commentLikeResultHashMap.get(comment.getCommentId()), commentLikeCntHashMap.get(comment.getCommentId()));
                 Collections.reverse(commentDetailDtoList);
             }

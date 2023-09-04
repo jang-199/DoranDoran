@@ -77,13 +77,11 @@ public class CommentServiceImpl implements CommentService {
                 replyService.deleteReply(reply);
             }
         }
-        //댓글 공감 삭제
         if (!commentLikeList.isEmpty()) {
             for (CommentLike commentLike : commentLikeList) {
                 commentLikeService.deleteCommentLike(commentLike);
             }
         }
-        //댓글 삭제
         deleteComment(comment.get());
     }
 

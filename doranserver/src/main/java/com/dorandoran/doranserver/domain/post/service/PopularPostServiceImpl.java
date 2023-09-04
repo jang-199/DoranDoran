@@ -32,7 +32,6 @@ public class PopularPostServiceImpl implements PopularPostService{
         if (memberBlockListByBlockingMember.isEmpty()) {
             return popularPostRepository.findPopularPost(startPost, member, of);
         }
-//        List<Member> list = memberBlockListByBlockingMember.stream().map(MemberBlockList::getBlockedMember).toList();
         return popularPostRepository.findPopularPostWithoutBlockLists(startPost, memberBlockListByBlockingMember, of);
 
     }

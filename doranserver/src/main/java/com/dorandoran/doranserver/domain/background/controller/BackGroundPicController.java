@@ -53,21 +53,6 @@ public class BackGroundPicController {
 
     @GetMapping("/pic/default/{picName}")
     public ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
-//        Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(picName);
-
-
-//        if (backgroundPic.isPresent()) {
-//            UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
-//            log.info("{}", backgroundPic.get().getBackgroundPicId());
-//            log.info("{}", backgroundPic.get().getImgName());
-//            log.info("{}", backgroundPic.get().getServerPath());
-//            return ResponseEntity.ok()
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"")
-//                    .body(urlResource);
-//        } else {
-//            throw new RuntimeException("해당 사진이 존재하지 않습니다.");
-//        }
-
         Jackson2JsonRedisDto jackson2JsonREdisDto = redisTemplate.opsForValue().get(picName.toString());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + jackson2JsonREdisDto.getFileName() + "\"")

@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 public class PostDto {
@@ -102,7 +103,7 @@ public class PostDto {
         private Integer fontBold;
         private Boolean checkWrite;
         private Boolean isWrittenByMember;
-        private List<CommentDto.ReadCommentResponse> commentDetailDto;
+        private HashMap<String, Object> commentDetailDto;
         private List<String> postHashes;
 
         public ReadPostResponse toEntity(Post post, Integer lIkeCnt, Boolean likeResult, Integer commentCnt, Boolean isWrittenByUser, Boolean checkWrite){
@@ -124,7 +125,7 @@ public class PostDto {
         }
 
         @Builder
-        public ReadPostResponse(String content, LocalDateTime postTime, Integer location, Integer postLikeCnt, Boolean postLikeResult, Integer commentCnt, String backgroundPicUri, String postNickname, Boolean postAnonymity, String font, String fontColor, Integer fontSize, Integer fontBold, Boolean checkWrite, Boolean isWrittenByMember, List<CommentDto.ReadCommentResponse> commentDetailDto, List<String> postHashes) {
+        public ReadPostResponse(String content, LocalDateTime postTime, Integer location, Integer postLikeCnt, Boolean postLikeResult, Integer commentCnt, String backgroundPicUri, String postNickname, Boolean postAnonymity, String font, String fontColor, Integer fontSize, Integer fontBold, Boolean checkWrite, Boolean isWrittenByMember, HashMap<String, Object> commentDetailDto, List<String> postHashes) {
             this.content = content;
             this.postTime = postTime;
             this.location = location;

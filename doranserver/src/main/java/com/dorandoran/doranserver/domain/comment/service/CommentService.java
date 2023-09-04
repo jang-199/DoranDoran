@@ -29,4 +29,5 @@ public interface CommentService {
     void setUnLocked(Comment comment);
     Comment findFetchMember(Long commentId);
     void setCheckDelete(Comment comment);
+    Boolean checkExistAndDelete(List<Comment> commentList);
 }

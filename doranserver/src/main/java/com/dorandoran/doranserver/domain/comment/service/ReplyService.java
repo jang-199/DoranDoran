@@ -30,4 +30,5 @@ public interface ReplyService {
     Reply findFetchMember(Long replyId);
     List<Reply> findTest(List<Comment> commentList);
     void setCheckDelete(Reply reply);
+    Boolean checkExistAndDelete(List<Reply> replyList);
 }

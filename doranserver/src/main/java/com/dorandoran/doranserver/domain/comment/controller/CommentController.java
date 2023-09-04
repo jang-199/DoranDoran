@@ -76,10 +76,15 @@ public class CommentController {
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
 
         List<Comment> comments = commentService.findNextComments(postId, commentId);
+        Boolean isExistNext = commentService.checkExistAndDelete(comments);
 
         HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
+        HashMap<String, Object> commentDetailHashMap = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, isExistNext);
+
+        ArrayList<HashMap<String, Object>> commentDetailDtoList = new ArrayList<>();
+        commentDetailDtoList.add(commentDetailHashMap);
+
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
@@ -167,7 +172,9 @@ public class CommentController {
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
         List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        HashMap<String, Object> replyDetailHashMap = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        ArrayList<HashMap<String, Object>> replyDetailDtoList = new ArrayList<>();
+        replyDetailDtoList.add(replyDetailHashMap);
 
         return ResponseEntity.ok().body(replyDetailDtoList);
     }

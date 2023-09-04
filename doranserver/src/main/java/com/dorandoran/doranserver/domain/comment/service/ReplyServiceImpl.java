@@ -65,7 +65,7 @@ public class ReplyServiceImpl implements ReplyService{
 
     @Override
     public List<Reply> findFirstRepliesFetchMember(Comment comment) {
-        PageRequest of = PageRequest.of(0, 10);
+        PageRequest of = PageRequest.of(0, 11);
         return replyRepository.findFirstRepliesFetchMember(comment, of);
     }
 
@@ -131,5 +131,24 @@ public class ReplyServiceImpl implements ReplyService{
     @Transactional
     public void setCheckDelete(Reply reply) {
         reply.setCheckDelete(Boolean.TRUE);
+    }
+
+    @Override
+    public Boolean checkExistAndDelete(List<Reply> replyList) {
+        int size = replyList.size();
+
+        if (checkReplySize(replyList)) {
+            deleteLastIndex(replyList);
+        }
+
+        return size == 11 ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    private void deleteLastIndex(List<Reply> replyList) {
+        replyList.remove(replyList.size() - 1);
+    }
+
+    private boolean checkReplySize(List<Reply> replyList) {
+        return replyList.size() == 11;
     }
 }

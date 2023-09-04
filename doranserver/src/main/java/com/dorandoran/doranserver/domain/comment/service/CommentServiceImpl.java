@@ -95,13 +95,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> findFirstCommentsFetchMember(Post post) {
-        PageRequest of = PageRequest.of(0, 10);
+        PageRequest of = PageRequest.of(0, 11);
         return commentRepository.findFirstCommentsFetchMember(post, of);
     }
 
     @Override
     public List<Comment> findNextComments(Long postId, Long commentId) {
-        PageRequest of = PageRequest.of(0, 10);
+        PageRequest of = PageRequest.of(0, 11);
         return commentRepository.findNextComments(postId, commentId, of);
     }
 
@@ -151,5 +151,25 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void setCheckDelete(Comment comment) {
         comment.setCheckDelete(Boolean.TRUE);
+    }
+
+    @Override
+    public Boolean checkExistAndDelete(List<Comment> commentList) {
+        int size = commentList.size();
+
+        if (checkCommentSize(commentList)) {
+            deleteLastIndex(commentList);
+        }
+
+        return size == 11 ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    private void deleteLastIndex(List<Comment> commentList) {
+        commentList.remove(commentList.size() - 1);
+    }
+
+
+    private boolean checkCommentSize(List<Comment> commentList) {
+        return commentList.size() == 11;
     }
 }

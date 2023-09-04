@@ -27,7 +27,7 @@ public class CommentResponseUtils {
                                  List < String > anonymityMemberList,
                                  List < CommentDto.ReadCommentResponse > commentDetailDtoList,
                                  Comment comment,
-                                 List < ReplyDto.ReadReplyResponse > replyDetailDtoList,
+                                 HashMap<String, Object> replyDetailHashMap,
                                  Boolean commentLikeResult,
                                  Long commentLikeCnt){
         Boolean isCommentWrittenByMember = Boolean.FALSE;
@@ -41,18 +41,21 @@ public class CommentResponseUtils {
                 .commentLikeResult(commentLikeResult)
                 .commentLikeCnt(commentLikeCnt)
                 .isWrittenByMember(isCommentWrittenByMember)
-                .replies(replyDetailDtoList)
+                .replies(replyDetailHashMap)
                 .build();
         commentService.checkSecretComment(commentDetailDto, post, comment, userEmail);
         commentService.checkCommentAnonymityMember(anonymityMemberList, comment, commentDetailDto);
         commentDetailDtoList.add(commentDetailDto);
     }
 
-    public List<ReplyDto.ReadReplyResponse> makeReplyList(String userEmail,
+    public HashMap<String, Object> makeReplyList(String userEmail,
                                                           Post post,
                                                           List<String> anonymityMemberList,
                                                           List<Reply> replies) {
         List<ReplyDto.ReadReplyResponse> replyDetailDtoList = new ArrayList<>();
+
+        Boolean isExistNextReply = replyService.checkExistAndDelete(replies);
+
         for (Reply reply : replies) {
             Boolean isReplyWrittenByUser = Boolean.FALSE;
             if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
@@ -67,9 +70,16 @@ public class CommentResponseUtils {
             replyService.checkReplyAnonymityMember(anonymityMemberList, reply, replyDetailDto);
             replyDetailDtoList.add(replyDetailDto);
         }
-        return replyDetailDtoList;
+        Collections.reverse(replyDetailDtoList);
+
+        HashMap<String, Object> replyDetailHashMap = new HashMap<>();
+        replyDetailHashMap.put("replyData", replyDetailDtoList);
+        replyDetailHashMap.put("isExistNextReply", isExistNextReply);
+
+        return replyDetailHashMap;
     }
-    public List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Long, Boolean> commentLikeResultHashMap, HashMap<Long, Long> commentLikeCntHashMap) {
+
+    public HashMap<String,Object> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Long, Boolean> commentLikeResultHashMap, HashMap<Long, Long> commentLikeCntHashMap, Boolean isExistNextComment) {
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
 
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
@@ -79,15 +89,17 @@ public class CommentResponseUtils {
                 List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
                 List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-                List<ReplyDto.ReadReplyResponse> replyDetailDtoList = makeReplyList(userEmail, post, anonymityMemberList, replyList);
-                Collections.reverse(replyDetailDtoList);
+                HashMap<String, Object> replyDetailHashMap = makeReplyList(userEmail, post, anonymityMemberList, replyList);
 
                 //댓글 10개 저장 로직
-                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailDtoList, commentLikeResultHashMap.get(comment.getCommentId()), commentLikeCntHashMap.get(comment.getCommentId()));
+                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailHashMap, commentLikeResultHashMap.get(comment.getCommentId()), commentLikeCntHashMap.get(comment.getCommentId()));
                 Collections.reverse(commentDetailDtoList);
             }
         }
+        HashMap<String, Object> commentDetailHashMap = new HashMap<>();
+        commentDetailHashMap.put("commentData",commentDetailDtoList);
+        commentDetailHashMap.put("isExistNextComment", isExistNextComment);
 
-        return commentDetailDtoList;
+        return commentDetailHashMap;
     }
 }

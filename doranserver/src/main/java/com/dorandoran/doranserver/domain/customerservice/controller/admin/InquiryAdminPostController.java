@@ -1,19 +1,16 @@
-package com.dorandoran.doranserver.domain.admin.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
-import com.dorandoran.doranserver.global.util.annotation.Trace;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
-import com.dorandoran.doranserver.domain.admin.dto.InquiryDto;
-import com.dorandoran.doranserver.domain.admin.service.InquiryCommentService;
-import com.dorandoran.doranserver.domain.admin.service.InquiryPostService;
-import com.dorandoran.doranserver.domain.member.domain.Member;
-import com.dorandoran.doranserver.domain.member.service.MemberService;
+import com.dorandoran.doranserver.domain.customerservice.annotation.Admin;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
+import com.dorandoran.doranserver.global.util.InquiryResponseUtils;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,19 +18,21 @@ import java.util.List;
 @Timed
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/admin")
 @Slf4j
-public class InquiryPostController {
-    private final MemberService memberService;
+public class InquiryAdminPostController {
     private final InquiryPostService inquiryPostService;
     private final InquiryCommentService inquiryCommentService;
 
-    @GetMapping("/admin/inquiryPost/board")
+    @Admin
+    @GetMapping("/inquiryPost/board")
     public ResponseEntity<List<InquiryDto.ReadInquiryPostBoard>> getAllInquiryPost(@RequestParam("page") Integer page){
         List<InquiryPost> inquiryPostPage = inquiryPostService.findAll(page);
-        return ResponseEntity.ok().body(makeInquiryPostBoardList(inquiryPostPage));
+        return ResponseEntity.ok().body(InquiryResponseUtils.makeInquiryPostList(inquiryPostPage));
     }
 
-    @GetMapping("/admin/inquiryPost/{inquiryPostId}")
+    @Admin
+    @GetMapping("/inquiryPost/{inquiryPostId}")
     public ResponseEntity<InquiryDto.ReadInquiryPost> getInquiryPostDetail(@PathVariable Long inquiryPostId){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryPostId);
         List<InquiryComment> inquiryComments = inquiryCommentService.findCommentByPost(inquiryPost);
@@ -50,21 +49,8 @@ public class InquiryPostController {
         return ResponseEntity.ok().body(readInquiryPost);
     }
 
-    @Trace
-    @PostMapping("/api/inquiryPost")
-    public ResponseEntity<?> saveInquiryPost(@RequestBody InquiryDto.CreateInquiryPost createInquiryPost,
-                                @AuthenticationPrincipal UserDetails userDetails){
-        Member member = memberService.findByEmail(userDetails.getUsername());
-        InquiryPost inquiryPost = InquiryPost.builder()
-                .title(createInquiryPost.getTitle())
-                .content(createInquiryPost.getContent())
-                .memberId(member)
-                .build();
-        inquiryPostService.saveInquiryPost(inquiryPost);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/admin/inquiryPost/{inquiryPostId}")
+    @Admin
+    @DeleteMapping("/inquiryPost/{inquiryPostId}")
     public ResponseEntity<?> deleteInquiryPost(@PathVariable Long inquiryPostId){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryPostId);
 
@@ -75,7 +61,8 @@ public class InquiryPostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/admin/inquiryPost/search")
+    @Admin
+    @GetMapping("/inquiryPost/search")
     public ResponseEntity<List<InquiryDto.ReadInquiryPostBoard>> searchInquiryPost(@RequestParam("page") Integer page,
                                                                                    @RequestParam("searchType") String searchType,
                                                                                    @RequestParam("content") String content){
@@ -87,14 +74,6 @@ public class InquiryPostController {
                     case "answerType" -> inquiryPostService.findByAnswerType(page, content);
                     default -> throw new IllegalArgumentException("해당 검색 조건은 없습니다.");
                 };
-        return ResponseEntity.ok().body(makeInquiryPostBoardList(inquiryPostList));
-    }
-
-    private static List<InquiryDto.ReadInquiryPostBoard> makeInquiryPostBoardList(List<InquiryPost> inquiryPostPage) {
-        return inquiryPostPage.stream()
-                .map(inquiryPost -> InquiryDto.ReadInquiryPostBoard.builder()
-                        .inquiryPost(inquiryPost)
-                        .build())
-                .toList();
+        return ResponseEntity.ok().body(InquiryResponseUtils.makeInquiryPostList(inquiryPostList));
     }
 }

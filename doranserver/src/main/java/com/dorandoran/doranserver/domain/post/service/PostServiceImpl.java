@@ -127,7 +127,6 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void setPostPic(PostDto.CreatePost postDto, Post post) throws IOException {
         if (postDto.getBackgroundImgName().isBlank()) {
-            log.info("사진 생성 중");
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
@@ -142,7 +141,6 @@ public class PostServiceImpl implements PostService {
                     .serverPath(userUploadPicServerPath + userUploadImgName)
                     .build();
             userUploadPicService.saveUserUploadPic(userUploadPic);
-            log.info("사용자 지정 이미지 이름 : {}",fileNameSubstring);
         } else {
             post.setSwitchPic(ImgType.DefaultBackground);
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");

@@ -45,10 +45,8 @@ public class SignUpController {
     ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
         if (existedNickname(nicknameDto.getNickname())) {
-            log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다.");
             return ResponseEntity.ok().build();
         }
     }
@@ -80,23 +78,18 @@ public class SignUpController {
     }
 
     @Trace
-    @Transactional
     @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto, //todo 비속어, 관리자, 운영자 등등은 막을것
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member findMember = memberService.findByEmail(userEmail);
         if (existedNickname(changeNicknameDto.getNickname())) {
-            log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다. 변경 가능합니다.");
-            findMember.setNickname(changeNicknameDto.getNickname());
-            log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, findMember.getNickname(), changeNicknameDto.getNickname());
-            return new ResponseEntity<>(HttpStatus.OK);
+            memberService.setNickname(findMember, changeNicknameDto.getNickname());
+            return ResponseEntity.noContent().build();
         }
     }
-
 
     @Trace
     @PostMapping("/member")

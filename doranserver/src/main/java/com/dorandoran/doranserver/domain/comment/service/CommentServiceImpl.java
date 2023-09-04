@@ -75,14 +75,12 @@ public class CommentServiceImpl implements CommentService {
         if (!replyList.isEmpty()) {
             for (Reply reply : replyList) {
                 replyService.deleteReply(reply);
-                log.info("{}님의 대댓글 삭제", reply.getMemberId().getNickname());
             }
         }
         //댓글 공감 삭제
         if (!commentLikeList.isEmpty()) {
             for (CommentLike commentLike : commentLikeList) {
                 commentLikeService.deleteCommentLike(commentLike);
-                log.info("{}님의 댓글 공감 삭제", commentLike.getMemberId().getNickname());
             }
         }
         //댓글 삭제
@@ -122,7 +120,6 @@ public class CommentServiceImpl implements CommentService {
     public void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDto.ReadCommentResponse commentDetailDto) {
         if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
             int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
-            log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
             commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
         }
     }

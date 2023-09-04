@@ -69,7 +69,7 @@ public class CommentResponseUtils {
         }
         return replyDetailDtoList;
     }
-    public List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Comment, Boolean> commentLikeResultHashMap, HashMap<Comment, Long> commentLikeCntHashMap) {
+    public List<CommentDto.ReadCommentResponse> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Long, Boolean> commentLikeResultHashMap, HashMap<Long, Long> commentLikeCntHashMap) {
         List<CommentDto.ReadCommentResponse> commentDetailDtoList = new ArrayList<>();
 
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
@@ -83,7 +83,7 @@ public class CommentResponseUtils {
                 Collections.reverse(replyDetailDtoList);
 
                 //댓글 10개 저장 로직
-                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailDtoList, commentLikeResultHashMap.get(comment), commentLikeCntHashMap.get(comment));
+                makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailDtoList, commentLikeResultHashMap.get(comment.getCommentId()), commentLikeCntHashMap.get(comment.getCommentId()));
                 Collections.reverse(commentDetailDtoList);
             }
         }

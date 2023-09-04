@@ -90,7 +90,6 @@ public class ReplyServiceImpl implements ReplyService{
     public void checkReplyAnonymityMember(List<String> anonymityMemberList, Reply reply, ReplyDto.ReadReplyResponse replyDetailDto) {
         if (anonymityMemberList.contains(reply.getMemberId().getEmail())) {
             int replyAnonymityIndex = anonymityMemberList.indexOf(reply.getMemberId().getEmail()) + 1;
-            log.info("{}의 index값은 {}이다", reply.getMemberId().getEmail(), replyAnonymityIndex);
             replyDetailDto.setReplyAnonymityNickname("익명" + replyAnonymityIndex);
         }
     }

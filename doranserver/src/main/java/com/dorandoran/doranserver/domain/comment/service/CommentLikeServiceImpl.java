@@ -22,13 +22,13 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
-    public HashMap<Comment, Long> findCommentLikeCnt(List<Comment> commentList) {
+    public HashMap<Long, Long> findCommentLikeCnt(List<Comment> commentList) {
         List<CommentLike> commentLikeList = commentLikeRepository.findUnDeletedByCommentId(commentList);
-        HashMap<Comment, Long> commntLikeHashMap = new HashMap<>();
+        HashMap<Long, Long> commntLikeHashMap = new HashMap<>();
 
         for (Comment comment : commentList) {
             Long count = commentLikeList.stream().filter(commentLike -> commentLike.getCommentId().equals(comment)).count();
-            commntLikeHashMap.put(comment, count);
+            commntLikeHashMap.put(comment.getCommentId(), count);
         }
         return commntLikeHashMap;
     }
@@ -54,14 +54,14 @@ public class CommentLikeServiceImpl implements CommentLikeService{
     }
 
     @Override
-    public HashMap<Comment, Boolean> findCommentLikeResult(String userEmail, List<Comment> commentList) {
+    public HashMap<Long, Boolean> findCommentLikeResult(String userEmail, List<Comment> commentList) {
         List<CommentLike> commentLikeResultList = commentLikeRepository.findCommentList(userEmail, commentList);
-        HashMap<Comment, Boolean> commentLikeResultHashMap = new HashMap<>();
+        HashMap<Long, Boolean> commentLikeResultHashMap = new HashMap<>();
 
         int position = 0;
         for (Comment comment : commentList) {
             if (commentLikeResultList.isEmpty()){
-                commentLikeResultHashMap.put(comment, Boolean.FALSE);
+                commentLikeResultHashMap.put(comment.getCommentId(), Boolean.FALSE);
                 continue;
             }
 
@@ -70,9 +70,9 @@ public class CommentLikeServiceImpl implements CommentLikeService{
                     position++;
                 }
 
-                commentLikeResultHashMap.put(comment,Boolean.TRUE);
+                commentLikeResultHashMap.put(comment.getCommentId(),Boolean.TRUE);
             }else {
-                commentLikeResultHashMap.put(comment, Boolean.FALSE);
+                commentLikeResultHashMap.put(comment.getCommentId(), Boolean.FALSE);
             }
         }
 
@@ -92,7 +92,6 @@ public class CommentLikeServiceImpl implements CommentLikeService{
                 commentLike.get().restore();
             }else {
                 commentLike.get().delete();
-                log.info("{} 글의 {} 댓글 공감 취소", commentLikeDto.getPostId(), commentLike.get().getCommentId().getCommentId());
             }
         }else {
             CommentLike commentLikeBuild = CommentLike.builder()

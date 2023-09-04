@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.domain.member.service;
 import com.dorandoran.doranserver.domain.member.domain.LockMember;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.repository.LockMemberRepository;
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +18,10 @@ import java.util.Optional;
 @Slf4j
 public class LockMemberServiceImpl implements LockMemberService{
     private final LockMemberRepository lockMemberRepository;
-    @Transactional
+
     @Override
+    @Trace
+    @Transactional
     public void saveLockMember(LockMember lockMember) {
         Optional<LockMember> findLockMember = lockMemberRepository.findLockMemberByMemberId(lockMember.getMemberId());
         Duration duration = lockMember.RetrieveLockDuration(lockMember);
@@ -27,7 +30,6 @@ public class LockMemberServiceImpl implements LockMemberService{
             log.info("{}님의 정지 기한이 {}로 수정되었습니다.", lockMember.getMemberId().getEmail(), lockMember.getLockType());
         }else {
             lockMemberRepository.save(lockMember);
-            log.info("{}님이 {} 정지되었습니다.", lockMember.getMemberId().getEmail(), lockMember.getLockType());
         }
     }
 

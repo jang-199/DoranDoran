@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.controller.aop;
+package com.dorandoran.doranserver.global.util.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

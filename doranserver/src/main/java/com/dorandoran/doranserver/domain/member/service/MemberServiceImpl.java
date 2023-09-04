@@ -36,4 +36,10 @@ public class MemberServiceImpl implements MemberService{
     public void subtractReportCount(Member member) {
         member.subtractReportTime();
     }
+
+    @Override
+    @Transactional
+    public void setNickname(Member member, String nickname) {
+        member.setNickname(nickname);
+    }
 }

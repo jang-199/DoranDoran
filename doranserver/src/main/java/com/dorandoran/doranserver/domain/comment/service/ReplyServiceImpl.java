@@ -71,7 +71,7 @@ public class ReplyServiceImpl implements ReplyService{
 
     @Override
     public List<Reply> findNextReplies(Long commentId, Long replyId) {
-        PageRequest of = PageRequest.of(0, 10);
+        PageRequest of = PageRequest.of(0, 11);
         return replyRepository.findNextReplies(commentId, replyId, of);
     }
 

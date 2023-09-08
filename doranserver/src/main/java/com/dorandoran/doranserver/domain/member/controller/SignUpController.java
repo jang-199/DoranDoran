@@ -42,11 +42,11 @@ public class SignUpController {
 
     @Trace
     @PostMapping("/nickname")
-    ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
+    ResponseEntity<?> checkNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         if (existedNickname(nicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         }
     }
 

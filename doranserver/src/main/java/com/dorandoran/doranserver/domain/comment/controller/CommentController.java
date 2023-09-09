@@ -1,5 +1,7 @@
 package com.dorandoran.doranserver.domain.comment.controller;
 
+import com.dorandoran.doranserver.domain.comment.service.common.CommentCommonService;
+import com.dorandoran.doranserver.domain.comment.service.common.ReplyCommonServiceImpl;
 import com.dorandoran.doranserver.global.util.CommentResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
@@ -23,6 +25,7 @@ import com.dorandoran.doranserver.domain.post.service.AnonymityMemberService;
 import com.dorandoran.doranserver.domain.post.service.PopularPostService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.global.util.BlockMemberFilter;
+import com.google.api.Http;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +59,8 @@ public class CommentController {
     private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
     private final CommentResponseUtils commentResponseUtils;
+    private final CommentCommonService commentCommonService;
+    private final ReplyCommonServiceImpl replyCommonService;
     @Value("${doran.ip.address}")
     String ipAddress;
 
@@ -71,10 +76,15 @@ public class CommentController {
         List<String> anonymityMemberList = anonymityMemberService.findAllUserEmail(post);
 
         List<Comment> comments = commentService.findNextComments(postId, commentId);
+        Boolean isExistNext = commentService.checkExistAndDelete(comments);
 
-        HashMap<Comment, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
-        HashMap<Comment, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
+        HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
+        HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
+        HashMap<String, Object> commentDetailHashMap = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, isExistNext);
+
+        ArrayList<HashMap<String, Object>> commentDetailDtoList = new ArrayList<>();
+        commentDetailDtoList.add(commentDetailHashMap);
+
         return ResponseEntity.ok().body(commentDetailDtoList);
     }
 
@@ -100,21 +110,15 @@ public class CommentController {
         Long nextIndex = anonymityMembers.size() + 1L;
 
         Comment comment = new Comment().toEntity(createCommentDto, post, member);
-        commentService.saveComment(comment);
+
+        List<Comment> commentByPost = commentService.findCommentByPost(post);
+        List<PopularPost> popularPostByPost = popularPostService.findPopularPostByPost(post);
+
+        commentCommonService.saveComment(createCommentDto, comment, commentByPost, popularPostByPost, post, userEmail, nextIndex, anonymityMembers);
 
         if (!post.getMemberId().equals(member) && post.getMemberId().checkNotification()){
             firebaseService.notifyComment(post.getMemberId(), comment);
         }
-
-        Post singlePost = postService.findSinglePost(createCommentDto.getPostId());
-        List<Comment> commentByPost = commentService.findCommentByPost(singlePost);
-        if (commentByPost.size() >= 10 && popularPostService.findPopularPostByPost(singlePost).isEmpty()) {
-            PopularPost build = PopularPost.builder().postId(singlePost).build();
-            popularPostService.savePopularPost(build);
-        }
-
-        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, post, nextIndex);
-        anonymityMemberService.checkAndSave(createCommentDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -168,13 +172,14 @@ public class CommentController {
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
         List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-        List<ReplyDto.ReadReplyResponse> replyDetailDtoList = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        HashMap<String, Object> replyDetailHashMap = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        ArrayList<HashMap<String, Object>> replyDetailDtoList = new ArrayList<>();
+        replyDetailDtoList.add(replyDetailHashMap);
 
         return ResponseEntity.ok().body(replyDetailDtoList);
     }
 
     @Trace
-    @Transactional
     @PostMapping("/reply")
     public ResponseEntity<?> saveReply(@RequestBody ReplyDto.CreateReply replyDto,
                                    @AuthenticationPrincipal UserDetails userDetails) {
@@ -184,19 +189,18 @@ public class CommentController {
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
             if (lockMemberService.checkCurrentLocked(lockMember.get())){
-                return new ResponseEntity<>("정지된 회원은 댓글을 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("정지된 회원은 댓글을 작성할 수 없습니다.");
             }else {
                 lockMemberService.deleteLockMember(lockMember.get());
             }
         }
 
-        comment.setCountReply(comment.getCountReply()+1);
         List<String> anonymityMembers = anonymityMemberService.findAllUserEmail(comment.getPostId());
         Long nextIndex = anonymityMembers.size() + 1L;
-
         Reply buildReply = new Reply().toEntity(replyDto, comment, member);
+        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, comment.getPostId(), nextIndex);
 
-        replyService.saveReply(buildReply);
+        replyCommonService.saveReply(replyDto, comment, buildReply, anonymityMembers, userEmail, anonymityMember);
 
         List<Member> replyMemberList = replyService.findReplyMemberByComment(comment);
         replyMemberList.add(comment.getMemberId());
@@ -205,9 +209,7 @@ public class CommentController {
             firebaseService.notifyReply(fcmMemberList, buildReply);
         }
 
-        AnonymityMember anonymityMember = new AnonymityMember().toEntity(userEmail, comment.getPostId(), nextIndex);
-        anonymityMemberService.checkAndSave(replyDto.getAnonymity(), anonymityMembers, userEmail, anonymityMember);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Trace

@@ -1,24 +1,28 @@
-package com.dorandoran.doranserver.domain.admin.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
-import com.dorandoran.doranserver.domain.admin.dto.InquiryDto;
-import com.dorandoran.doranserver.domain.admin.service.InquiryCommentService;
-import com.dorandoran.doranserver.domain.admin.service.InquiryPostService;
+import com.dorandoran.doranserver.domain.customerservice.annotation.Admin;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.dto.InquiryDto;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryCommentService;
+import com.dorandoran.doranserver.domain.customerservice.service.InquiryPostService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Timed
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class InquiryCommentController {
+public class InquiryAdminCommentController {
     private final InquiryPostService inquiryPostService;
     private final InquiryCommentService inquiryCommentService;
+
+    @Admin
     @GetMapping("/inquiryComment/{inquiryCommentId}")
     public ResponseEntity<?> getInquiryComment(@PathVariable Long inquiryCommentId){
         InquiryComment findinquiryComment = inquiryCommentService.findCommentById(inquiryCommentId);
@@ -31,6 +35,7 @@ public class InquiryCommentController {
         return ResponseEntity.ok().body(inquiryComment);
     }
 
+    @Admin
     @PostMapping("/inquiryComment")
     public ResponseEntity<?> saveInquiryComment(@RequestBody InquiryDto.CreateInquiryComment inquiryCommentDto){
         InquiryPost inquiryPost = inquiryPostService.findInquiryPost(inquiryCommentDto.getInquiryPostId());
@@ -43,6 +48,7 @@ public class InquiryCommentController {
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @PostMapping("/inquiryComment/update")
     public ResponseEntity<?> patchInquiryComment(@RequestBody InquiryDto.UpdateInquiryComment updateInquiryComment){
         InquiryComment inquiryComment = inquiryCommentService.findCommentById(updateInquiryComment.getInquiryCommentId());
@@ -50,9 +56,12 @@ public class InquiryCommentController {
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @DeleteMapping("/inquiryComment/{inquiryCommentId}")
     public ResponseEntity<?> deleteInquiryComment(@PathVariable Long inquiryCommentId){
-        InquiryComment inquiryComment = inquiryCommentService.findCommentById(inquiryCommentId);
+        InquiryComment inquiryComment = inquiryCommentService.findCommentFetchPost(inquiryCommentId);
+        List<InquiryComment> inquiryCommentList = inquiryCommentService.findCommentByPost(inquiryComment.getInquiryPostId());
+        inquiryPostService.setAnsweredType(inquiryComment.getInquiryPostId(), inquiryCommentList);
         inquiryCommentService.deleteInquiryComment(inquiryComment);
         return ResponseEntity.ok().build();
     }

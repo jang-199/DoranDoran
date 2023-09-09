@@ -75,17 +75,13 @@ public class CommentServiceImpl implements CommentService {
         if (!replyList.isEmpty()) {
             for (Reply reply : replyList) {
                 replyService.deleteReply(reply);
-                log.info("{}님의 대댓글 삭제", reply.getMemberId().getNickname());
             }
         }
-        //댓글 공감 삭제
         if (!commentLikeList.isEmpty()) {
             for (CommentLike commentLike : commentLikeList) {
                 commentLikeService.deleteCommentLike(commentLike);
-                log.info("{}님의 댓글 공감 삭제", commentLike.getMemberId().getNickname());
             }
         }
-        //댓글 삭제
         deleteComment(comment.get());
     }
 
@@ -97,13 +93,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> findFirstCommentsFetchMember(Post post) {
-        PageRequest of = PageRequest.of(0, 10);
+        PageRequest of = PageRequest.of(0, 11);
         return commentRepository.findFirstCommentsFetchMember(post, of);
     }
 
     @Override
     public List<Comment> findNextComments(Long postId, Long commentId) {
-        PageRequest of = PageRequest.of(0, 10);
+        PageRequest of = PageRequest.of(0, 11);
         return commentRepository.findNextComments(postId, commentId, of);
     }
 
@@ -122,7 +118,6 @@ public class CommentServiceImpl implements CommentService {
     public void checkCommentAnonymityMember(List<String> anonymityMemberList, Comment comment, CommentDto.ReadCommentResponse commentDetailDto) {
         if (anonymityMemberList.contains(comment.getMemberId().getEmail())) {
             int commentAnonymityIndex = anonymityMemberList.indexOf(comment.getMemberId().getEmail()) + 1;
-            log.info("{}의 index값은 {}이다", comment.getMemberId().getEmail(), commentAnonymityIndex);
             commentDetailDto.setCommentAnonymityNickname("익명" + commentAnonymityIndex);
         }
     }
@@ -154,5 +149,25 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void setCheckDelete(Comment comment) {
         comment.setCheckDelete(Boolean.TRUE);
+    }
+
+    @Override
+    public Boolean checkExistAndDelete(List<Comment> commentList) {
+        int size = commentList.size();
+
+        if (checkCommentSize(commentList)) {
+            deleteLastIndex(commentList);
+        }
+
+        return size == 11 ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    private void deleteLastIndex(List<Comment> commentList) {
+        commentList.remove(commentList.size() - 1);
+    }
+
+
+    private boolean checkCommentSize(List<Comment> commentList) {
+        return commentList.size() == 11;
     }
 }

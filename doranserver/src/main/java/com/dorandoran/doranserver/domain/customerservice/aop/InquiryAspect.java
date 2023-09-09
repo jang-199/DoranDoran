@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.domain.admin.aop;
+package com.dorandoran.doranserver.domain.customerservice.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InquiryAspect {
 
-    @Around("execution(* com.dorandoran.doranserver.domain.admin.controller..*Inquiry*(..))")
+    @Around("@annotation(com.dorandoran.doranserver.domain.customerservice.annotation.Admin)")
     public Object returnErrorLog(ProceedingJoinPoint joinPoint) {
         try {
             log.info("[aop] {}", joinPoint.getSignature());

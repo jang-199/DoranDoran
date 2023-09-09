@@ -1,7 +1,7 @@
-package com.dorandoran.doranserver.domain.admin.domain;
+package com.dorandoran.doranserver.domain.customerservice.domain;
 
 import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
-import com.dorandoran.doranserver.domain.admin.domain.inquirytype.InquiryStatus;
+import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

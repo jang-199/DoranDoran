@@ -1,9 +1,10 @@
-package com.dorandoran.doranserver.domain.admin.service;
+package com.dorandoran.doranserver.domain.customerservice.service;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import com.dorandoran.doranserver.domain.member.domain.Member;
-import com.dorandoran.doranserver.domain.admin.domain.inquirytype.InquiryStatus;
-import com.dorandoran.doranserver.domain.admin.service.repository.InquiryPostRepository;
+import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
+import com.dorandoran.doranserver.domain.customerservice.service.repository.InquiryPostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,11 @@ public class InquiryPostServiceImpl implements InquiryPostService{
     }
 
     @Override
+    public InquiryPost findInquiryPostFetchMember(Long inquiryPostId){
+        return inquiryPostRepository.findFetchMember(inquiryPostId).orElseThrow(() -> new NoSuchElementException("해당 문의 글이 존재하지 않습니다."));
+    }
+
+    @Override
     public List<InquiryPost> findByPostTitle(Integer page, String title) {
         PageRequest of = PageRequest.of(page, 20);
         return inquiryPostRepository.findByTitleContainingOrderByInquiryPostId(title, of);
@@ -78,5 +84,13 @@ public class InquiryPostServiceImpl implements InquiryPostService{
         PageRequest of = PageRequest.of(page, 20);
         InquiryStatus findAnswerType = answerType.equals("NotAnswered") ? InquiryStatus.NotAnswered : InquiryStatus.Answered;
         return inquiryPostRepository.findByInquiryStatusContains(findAnswerType, of);
+    }
+
+    @Override
+    @Transactional
+    public void setAnsweredType(InquiryPost inquiryPost, List<InquiryComment> inquiryCommentList) {
+        if (inquiryPost.getInquiryStatus().equals(InquiryStatus.Answered) && inquiryCommentList.size() == 1) {
+            inquiryPost.setInquiryStatus(InquiryStatus.NotAnswered);
+        }
     }
 }

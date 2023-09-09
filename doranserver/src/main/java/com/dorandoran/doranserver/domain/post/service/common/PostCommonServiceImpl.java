@@ -68,7 +68,6 @@ public class PostCommonServiceImpl implements PostCommonService {
         }
 
         if (post.getSwitchPic().equals(ImgType.UserUpload)){
-            log.info("사용자 pic 삭제중..");
             Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.getImgName());
             Files.deleteIfExists(path);
         }

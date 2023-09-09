@@ -1,6 +1,6 @@
-package com.dorandoran.doranserver.domain.admin.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller;
 
-import com.dorandoran.doranserver.domain.admin.dto.BlockDto;
+import com.dorandoran.doranserver.domain.customerservice.dto.BlockDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
@@ -65,7 +65,6 @@ public class ManageBlockMemberController {
                         .reply(reply)
                         .build())
                 .toList();
-        //todo 쿼리문 많이 나가는 문제 해결
 
         return ResponseEntity.ok().body(responseReply);
     }
@@ -137,9 +136,7 @@ public class ManageBlockMemberController {
 
     @PostMapping("/reply/unBlock/{unBlockReplyId}")
     public ResponseEntity<?> unBlockReply(@PathVariable Long unBlockReplyId){
-        log.info("[replyId] {}", unBlockReplyId);
         Reply reply = replyService.findFetchMember(unBlockReplyId);
-        log.info("[reply] {}", reply);
         unLockedMember(reply.getMemberId().getEmail());
         replyService.setUnLocked(reply);
 

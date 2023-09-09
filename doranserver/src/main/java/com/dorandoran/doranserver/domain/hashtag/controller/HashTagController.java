@@ -57,29 +57,22 @@ public class HashTagController {
     @GetMapping("/hashTag/popular")
     public ResponseEntity<?> popularHashTag(){
         List<HashTag> hashTag = hashTagService.findPopularHashTagTop5();
-        if (hashTag.size() == 0){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            List<HashTagDto.ReadPopularHashTagResponse> hashTagList = hashTag.stream()
-                    .map(h -> new HashTagDto.ReadPopularHashTagResponse(h))
-                    .collect(Collectors.toList());
-            log.info("인기 있는 태그 검색");
-            return ResponseEntity.ok().body(hashTagList);
-        }
+        List<HashTagDto.ReadPopularHashTagResponse> hashTagList = hashTag.stream()
+                .map(HashTagDto.ReadPopularHashTagResponse::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(hashTagList);
     }
 
     @Trace
     @GetMapping("/hashTag/member")
     public ResponseEntity<?> memberHashTag(@AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
+
         List<String> memberHash = memberHashService.findHashByEmail(userEmail);
-        if (memberHash.size() == 0){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            HashTagDto.ReadMemberHashTagResponse hashTagList = HashTagDto.ReadMemberHashTagResponse.builder().hashTagList(memberHash).build();
-            log.info("{}의 관심 있는 태그 검색",userEmail);
-            return ResponseEntity.ok().body(hashTagList);
-        }
+        HashTagDto.ReadMemberHashTagResponse hashTagList = HashTagDto.ReadMemberHashTagResponse.builder().hashTagList(memberHash).build();
+
+        return ResponseEntity.ok().body(hashTagList);
     }
 
     @Trace
@@ -91,7 +84,7 @@ public class HashTagController {
         HashTag hashTag = hashTagService.findByHashTagName(hashTagRequestDto.getHashTag());
         List<String> memberHashes = memberHashService.findHashByEmail(userEmail);
         if (memberHashes.contains(hashTagRequestDto.getHashTag())){
-            log.info("\"{}\" 해시태그는 이미 즐겨찾기 목록에 있습니다.",hashTagRequestDto.getHashTag());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         else {
             MemberHash memberHashBuild = MemberHash.builder()
@@ -99,9 +92,8 @@ public class HashTagController {
                     .hashTagId(hashTag)
                     .build();
             memberHashService.saveMemberHash(memberHashBuild);
-            log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 추가하였습니다.", userEmail, hashTagRequestDto.getHashTag());
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Trace
@@ -111,11 +103,10 @@ public class HashTagController {
         String userEmail = userDetails.getUsername();
         Optional<MemberHash> memberHash = memberHashService.findMemberHashByEmailAndHashTag(userEmail, hashTagRequestDto.getHashTag());
         if (memberHash.isEmpty()) {
-            log.info("즐겨찾기된 해시태그가 없습니다.");
+            return ResponseEntity.notFound().build();
         } else {
             memberHashService.deleteMemberHash(memberHash.get());
-            log.info("{} 사용자가 해시태그 {}를 즐겨찾기에 삭제하였습니다.",userEmail, hashTagRequestDto.getHashTag());
+            return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

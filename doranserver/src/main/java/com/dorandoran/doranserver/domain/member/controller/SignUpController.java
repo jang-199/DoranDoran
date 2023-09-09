@@ -10,6 +10,7 @@ import com.dorandoran.doranserver.domain.member.domain.PolicyTerms;
 import com.dorandoran.doranserver.domain.member.dto.AccountDto;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
+import com.dorandoran.doranserver.global.util.nicknamecleaner.NicknameCleaner;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -34,22 +34,24 @@ import java.util.Optional;
 @RestController
 public class SignUpController {
 
-    private final SignUp signUp;
-    private final PolicyTermsCheck policyTermsCheck;
+    private final SignUp signUpService;
+    private final PolicyTermsCheck policyTermsCheckService;
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
 
 
     @Trace
     @PostMapping("/nickname")
-    ResponseEntity<?> CheckNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
-        log.info("nicknameDto.getNickname: {}", nicknameDto.getNickname());
+    ResponseEntity<?> checkNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        if (!nicknameCleaner.isAvailableNickname(nicknameDto.getNickname())) {
+            return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
+        }
+
         if (existedNickname(nicknameDto.getNickname())) {
-            log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다.");
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
@@ -60,7 +62,6 @@ public class SignUpController {
         try {
             member = memberService.findByEmail(memberDto.getEmail());
         } catch (RuntimeException e) {
-            log.info("{}은 가입되지 않은 회원입니다.",memberDto.getEmail());
             return ResponseEntity.badRequest().build();
         }
 
@@ -80,29 +81,33 @@ public class SignUpController {
     }
 
     @Trace
-    @Transactional
     @PatchMapping("/nickname")
-    public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto, //todo 비속어, 관리자, 운영자 등등은 막을것
+    public ResponseEntity<?> changeNickname(@RequestBody AccountDto.ChangeNickname changeNicknameDto,
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member findMember = memberService.findByEmail(userEmail);
+
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        if (!nicknameCleaner.isAvailableNickname(changeNicknameDto.getNickname())) {
+            return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
+        }
+
         if (existedNickname(changeNicknameDto.getNickname())) {
-            log.info("해당 닉네임을 사용하는 유저가 존재합니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            log.info("해당 닉네임을 사용하는 유저가 존재하지 않습니다. 변경 가능합니다.");
-            findMember.setNickname(changeNicknameDto.getNickname());
-            log.info("{} 사용자가 {}에서 {}로 닉네임을 변경하였습니다.",userEmail, findMember.getNickname(), changeNicknameDto.getNickname());
-            return new ResponseEntity<>(HttpStatus.OK);
+            memberService.setNickname(findMember, changeNicknameDto.getNickname());
+            return ResponseEntity.noContent().build();
         }
     }
-
 
     @Trace
     @PostMapping("/member")
     ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
-        log.info("fireBaseToken: {}", signUp.getFirebaseToken());
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        if (!nicknameCleaner.isAvailableNickname(signUp.getNickname())) {
+            return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
+        }
 
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
@@ -114,13 +119,10 @@ public class SignUpController {
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> response = restTemplate.exchange(KAKAO_USERINFO_REQUEST_URL, HttpMethod.GET, request, String.class);
-            log.info("response : {}", response);
-            log.info("response.getBody() : {}", response.getBody());
             JSONObject jsonObject = new JSONObject(response.getBody());
 
             JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
             String email = kakao_account.getString("email");
-            log.info("email : {}", email);
             if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
 
                 PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
@@ -128,7 +130,7 @@ public class SignUpController {
                         .policy3(true)
                         .build();
 
-                policyTermsCheck.policyTermsSave(policyTerms);
+                policyTermsCheckService.policyTermsSave(policyTerms);
 
 
                 Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
@@ -142,12 +144,10 @@ public class SignUpController {
                 String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6)); //약 6개월 기간의 refreshToken create
 
                 member.setRefreshToken(refreshToken);
-                log.info("refreshToken : {}",refreshToken);
 
-                this.signUp.saveMember(member);
+                signUpService.saveMember(member);
 
                 String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1)); //AccessToken generate
-                log.info("accessToken : {}",accessToken);
 
                 return ResponseEntity.ok().body(
                         AccountDto.SignUpResponse.builder()
@@ -165,7 +165,7 @@ public class SignUpController {
     }
 
     public Boolean existedNickname(String nickname){
-        Optional<Member> member = signUp.findByNickname(nickname);
+        Optional<Member> member = signUpService.findByNickname(nickname);
         return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
     }
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 public class CommentDto {
@@ -43,22 +44,22 @@ public class CommentDto {
         private int countReply;
         private Boolean isWrittenByMember; //내가 쓴 댓글인지 확인
         private LocalDateTime commentTime; //댓글 작성 시간
-        private List<ReplyDto.ReadReplyResponse> replies; //대댓글
+        private HashMap<String, Object> replies; //대댓글
 
-        public ReadCommentResponse toEntity(Comment comment, Boolean commentLikeResult, Long commentLikeCnt, Boolean isCommentWrittenByMember, List<ReplyDto.ReadReplyResponse> replyDetailDtoList){
+        public ReadCommentResponse toEntity(Comment comment, Boolean commentLikeResult, Long commentLikeCnt, Boolean isCommentWrittenByMember, HashMap<String, Object> replies){
             return CommentDto.ReadCommentResponse.builder()
                     .comment(comment)
                     .content(comment.getComment())
                     .commentLikeResult(commentLikeResult)
                     .commentLikeCnt(commentLikeCnt)
                     .isWrittenByMember(isCommentWrittenByMember)
-                    .replies(replyDetailDtoList)
+                    .replies(replies)
                     .build();
         }
 
 
         @Builder
-        public ReadCommentResponse(Comment comment, String content, Long commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, List<ReplyDto.ReadReplyResponse> replies) {
+        public ReadCommentResponse(Comment comment, String content, Long commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, HashMap<String, Object> replies) {
             this.commentId = comment.getCommentId();
             this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
             this.commentLike = commentLikeCnt;

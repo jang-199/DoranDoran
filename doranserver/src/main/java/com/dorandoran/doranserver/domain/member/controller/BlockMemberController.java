@@ -1,7 +1,7 @@
 package com.dorandoran.doranserver.domain.member.controller;
 
 import com.dorandoran.doranserver.global.util.annotation.Trace;
-import com.dorandoran.doranserver.domain.admin.dto.BlockDto;
+import com.dorandoran.doranserver.domain.customerservice.dto.BlockDto;
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
 import com.dorandoran.doranserver.domain.comment.service.ReplyService;
 import com.dorandoran.doranserver.domain.member.domain.Member;

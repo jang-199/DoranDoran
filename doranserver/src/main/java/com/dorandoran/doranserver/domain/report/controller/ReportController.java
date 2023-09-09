@@ -54,14 +54,12 @@ public class ReportController {
         Post post = postService.findSinglePost(reportPostRequestDto.getPostId());
 
         if (reportPostService.existReportPost(post,member)){
-            log.info("이미 신고한 회원입니다.");
-            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
             reportPostService.postBlockLogic(post);
-            log.info("{}님이 {}번 글에 신고를 했습니다.",userEmail, post.getPostId());
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
 
@@ -75,14 +73,12 @@ public class ReportController {
         Comment comment = commentService.findCommentByCommentId(reportCommentRequestDto.getCommentId());
 
         if (reportCommentService.existedReportComment(comment, member)) {
-            log.info("이미 신고한 회원입니다.");
-            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
             reportCommentService.commentBlockLogic(comment);
-            log.info("{}님이 {}번 댓글에 신고를 했습니다.",userEmail,comment.getCommentId());
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
 
@@ -96,14 +92,12 @@ public class ReportController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
         if (reportReplyService.existedReportReply(reply, member)){
-            log.info("이미 신고한 회원입니다.");
-            return new ResponseEntity<>("이미 신고한 회원입니다.", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
             reportReplyService.saveReportReply(reportReply);
             reportReplyService.replyBlockLogic(reply);
-            log.info("{}님이 {}번 대댓글에 신고를 했습니다.", userEmail, reply.getReplyId());
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
 

@@ -1,8 +1,8 @@
-package com.dorandoran.doranserver.domain.admin.dto;
+package com.dorandoran.doranserver.domain.customerservice.dto;
 
-import com.dorandoran.doranserver.domain.admin.domain.InquiryComment;
-import com.dorandoran.doranserver.domain.admin.domain.inquirytype.InquiryStatus;
-import com.dorandoran.doranserver.domain.admin.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +41,13 @@ public class InquiryDto {
         String content;
         String postCreateTime;
         List<ReadInquiryComment> inquiryCommentList;
+
+        public ReadInquiryPost toEntity(InquiryPost inquiryPost, List<ReadInquiryComment> inquiryCommentListDto) {
+            return InquiryDto.ReadInquiryPost.builder()
+                    .inquiryPost(inquiryPost)
+                    .inquiryCommentList(inquiryCommentListDto)
+                    .build();
+        }
 
         @Builder
         public ReadInquiryPost(InquiryPost inquiryPost, List<ReadInquiryComment> inquiryCommentList) {

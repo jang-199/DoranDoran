@@ -1,7 +1,6 @@
 package com.dorandoran.doranserver.domain.post.controller;
 
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
-import com.dorandoran.doranserver.global.util.BlockMemberFilter;
 import com.dorandoran.doranserver.global.util.CommentResponseUtils;
 import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
@@ -62,7 +61,7 @@ public class PostController {
     private final ReplyService replyService;
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
-    private final PostCommonService commonService;
+    private final PostCommonService postCommonService;
     private final MemberBlockListService memberBlockListService;
     private final FirebaseService firebaseService;
     private final CommentResponseUtils commentResponseUtils;
@@ -125,7 +124,7 @@ public class PostController {
         Post post = postService.findFetchMember(postDeleteDto.getPostId());
 
         if (post.getMemberId().getEmail().equals(userDetails.getUsername())) {
-            commonService.deletePost(post);
+            postCommonService.deletePost(post);
         }
         else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("글 작성자만 글을 삭제할 수 있습니다.");
@@ -188,9 +187,11 @@ public class PostController {
         postDetailDto.setLocation(distance);
 
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
+        Boolean isExistNext = commentService.checkExistAndDelete(comments);
+
         HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
-        List<CommentDto.ReadCommentResponse> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap);
+        HashMap<String, Object> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, isExistNext);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 
         List<String> postHashListDto = new ArrayList<>();

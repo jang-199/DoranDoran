@@ -187,7 +187,7 @@ public class BackgroundPicDBInitializer {
                 .email(email)
                 .dateOfBirth(LocalDate.now())
                 .firebaseToken("cekww1BXT4GCJM8cvkw45v:APA91bEJ0Z_iZXwKoIjIxLvb9X4g9AOCBpsLtjujy5jlmRZsboFVx6TM0Av9ChDNivcuY_zhREf_ClAN4BIr2qPXMNQctwqtVmRzpadv6fwbdoHwoNZf7numWEFYzYrltOVHnNmJBUZc")
-                .nickname("nickname")
+                .nickname(nickname)
                 .closureDate(LocalDate.of(2000,12,12))
                 .signUpDate(LocalDateTime.now())
                 .checkNotification(true)

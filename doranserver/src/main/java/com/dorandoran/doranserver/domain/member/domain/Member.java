@@ -26,7 +26,7 @@ public class Member implements UserDetails {
     private Long memberId;
 
     @NotNull
-    @Column(name = "EMAIL")
+    @Column(name = "EMAIL", columnDefinition = "VARBINARY(255) NOT NULL")
     private String email;
 
     @NotNull
@@ -34,7 +34,7 @@ public class Member implements UserDetails {
     private LocalDate dateOfBirth;
 
     @NotNull
-    @Column(name = "NICKNAME")
+    @Column(name = "NICKNAME", columnDefinition = "VARBINARY(255) NOT NULL")
     private String nickname;
 
     @NotNull

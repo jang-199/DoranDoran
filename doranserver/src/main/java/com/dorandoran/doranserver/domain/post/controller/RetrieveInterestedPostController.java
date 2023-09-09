@@ -12,6 +12,7 @@ import com.dorandoran.doranserver.domain.member.domain.MemberHash;
 import com.dorandoran.doranserver.domain.post.service.PostHashService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
 import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class RetrieveInterestedPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/interested")
     ResponseEntity<LinkedList<HashMap<String, RetrieveInterestedDto.ReadInterestedResponse>>>
     retrieveInterestedPost(@AuthenticationPrincipal UserDetails userDetails) {

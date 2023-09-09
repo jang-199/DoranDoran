@@ -44,7 +44,7 @@ public class SignUpController {
     @PostMapping("/nickname")
     ResponseEntity<?> checkNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
         NicknameCleaner nicknameCleaner = new NicknameCleaner();
-        if (nicknameCleaner.isAvailableNickname(nicknameDto.getNickname())) {
+        if (!nicknameCleaner.isAvailableNickname(nicknameDto.getNickname())) {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
@@ -88,7 +88,7 @@ public class SignUpController {
         Member findMember = memberService.findByEmail(userEmail);
 
         NicknameCleaner nicknameCleaner = new NicknameCleaner();
-        if (nicknameCleaner.isAvailableNickname(changeNicknameDto.getNickname())) {
+        if (!nicknameCleaner.isAvailableNickname(changeNicknameDto.getNickname())) {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
@@ -105,7 +105,7 @@ public class SignUpController {
     ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
         NicknameCleaner nicknameCleaner = new NicknameCleaner();
-        if (nicknameCleaner.isAvailableNickname(signUp.getNickname())) {
+        if (!nicknameCleaner.isAvailableNickname(signUp.getNickname())) {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 

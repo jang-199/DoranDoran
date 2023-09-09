@@ -10,6 +10,7 @@ import com.dorandoran.doranserver.domain.member.domain.PolicyTerms;
 import com.dorandoran.doranserver.domain.member.dto.AccountDto;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
+import com.dorandoran.doranserver.global.util.nicknamecleaner.NicknameCleaner;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -34,8 +34,8 @@ import java.util.Optional;
 @RestController
 public class SignUpController {
 
-    private final SignUp signUp;
-    private final PolicyTermsCheck policyTermsCheck;
+    private final SignUp signUpService;
+    private final PolicyTermsCheck policyTermsCheckService;
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
 
@@ -43,6 +43,11 @@ public class SignUpController {
     @Trace
     @PostMapping("/nickname")
     ResponseEntity<?> checkNickname(@RequestBody AccountDto.CheckNickname nicknameDto) {
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        if (nicknameCleaner.isAvailableNickname(nicknameDto.getNickname())) {
+            return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
+        }
+
         if (existedNickname(nicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
@@ -81,6 +86,12 @@ public class SignUpController {
                                      @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member findMember = memberService.findByEmail(userEmail);
+
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        if (nicknameCleaner.isAvailableNickname(changeNicknameDto.getNickname())) {
+            return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
+        }
+
         if (existedNickname(changeNicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
@@ -92,6 +103,12 @@ public class SignUpController {
     @Trace
     @PostMapping("/member")
     ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        if (nicknameCleaner.isAvailableNickname(signUp.getNickname())) {
+            return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
+        }
+
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -113,7 +130,7 @@ public class SignUpController {
                         .policy3(true)
                         .build();
 
-                policyTermsCheck.policyTermsSave(policyTerms);
+                policyTermsCheckService.policyTermsSave(policyTerms);
 
 
                 Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
@@ -128,7 +145,7 @@ public class SignUpController {
 
                 member.setRefreshToken(refreshToken);
 
-                this.signUp.saveMember(member);
+                signUpService.saveMember(member);
 
                 String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1)); //AccessToken generate
 
@@ -148,7 +165,7 @@ public class SignUpController {
     }
 
     public Boolean existedNickname(String nickname){
-        Optional<Member> member = signUp.findByNickname(nickname);
+        Optional<Member> member = signUpService.findByNickname(nickname);
         return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
     }
 }

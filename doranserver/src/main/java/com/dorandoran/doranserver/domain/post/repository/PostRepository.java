@@ -36,19 +36,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findPost(@Param("pos") Long pos,@Param("member") Member member, PageRequest pageRequest);
 
     @Query(value = "select m from Post m " +
-            "where (ST_Distance(:point,m.location)) <= :distance and m.isLocked = false " +
+            "where ((ST_Distance(:point,m.location)) <= :distance) and m.isLocked = false " +
             "order by m.postId desc")
     List<Post> findFirstClosePost(@Param("point") Point point,
                                   @Param("distance") double distance,
                                   PageRequest pageRequest);
 
     @Query("select m from Post m " +
-            "where (ST_Distance(:point,m.location)) <= :distance and m.isLocked = false and m.memberId not in :members " +
+            "where ((ST_Distance(:point,m.location)) <= :distance) and m.isLocked = false and m.memberId not in :members " +
             "order by m.postId desc")
     List<Post> findFirstClosePostWithoutBlockLists(@Param("point") Point point,
                                                    @Param("distance") double distance,
                                                    @Param("members") List<Member> members,
                                                    PageRequest pageRequest);
+
+    @Query("select (ST_Distance(:point,m.location)) from Post m where m.postId = 3 ")
+    Double findDistanceTest(@Param("point") Point point);
 
     @Query("select m from Post m " +
             "where m.postId <= :pos and (ST_Distance(:Point,m.location)) <= :distance and m.isLocked = false " +

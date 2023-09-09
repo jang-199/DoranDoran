@@ -10,11 +10,11 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
-#    properties:
-#      hibernate:
-#        format_sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-#    show-sql: true
+    show-sql: true
     hibernate:
       ddl-auto: create
 
@@ -89,11 +89,15 @@ management:
 #log level
 logging:
   level:
+    :org.springframework.orm.jpa: DEBUG
+    :org.springframework.transaction: DEBUG
     com:
       dorandoran: debug
   slack:
     webhook-uri: https://hooks.slack.com/services/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
     config: classpath:logback-spring.xml
 
+#    org.springframework.orm.jpa: DEBUG
+#    org.springframework.transaction: DEBUG
 
 

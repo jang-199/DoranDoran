@@ -13,6 +13,7 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.service.PostHashService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
 import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class RetrieveHashTagPostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/hashtag")
     ResponseEntity<HashMap<String, Object>> retrievePostByHashTag(@RequestBody RetrieveHashtagDto.ReadHashtag retrieveHashTagPostDto,
                                                                                        @AuthenticationPrincipal UserDetails userDetails) {

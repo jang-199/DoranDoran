@@ -9,6 +9,7 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class RetrievePostController {
     private final MemberBlockListService memberBlockListService;
     private final MemberService memberService;
 
+    @Trace
     @GetMapping("/post")
     ResponseEntity<List<RetrievePostDto.ReadPostResponse>> retrievePost(@RequestParam Long postCnt,
                                                                              @RequestParam(required = false, defaultValue = "") String location,

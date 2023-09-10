@@ -30,7 +30,7 @@ public class NicknameCleaner implements BannedWords {
 
     public boolean isValidLengthNickname(String nickname) {
         nickname = nickname.replace(" ", "");
-        Pattern pattern = Pattern.compile(".{2,8}");
+        Pattern pattern = Pattern.compile(".{2,9}");
         return pattern.matcher(nickname).matches();
     }
 

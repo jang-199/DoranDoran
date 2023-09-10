@@ -9,6 +9,7 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
+import com.dorandoran.doranserver.global.util.annotation.Trace;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class RetrieveClosePostController {
     @Value("${doran.ip.address}")
     String ipAddress;
 
+    @Trace
     @GetMapping("/post/close")
     ResponseEntity<?> retrievePost(@RequestParam Long postCnt,
                                    @RequestParam String location,

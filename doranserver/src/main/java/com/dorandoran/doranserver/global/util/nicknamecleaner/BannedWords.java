@@ -614,7 +614,13 @@ public interface BannedWords {
             "penis",
             "pennis",
             "pussy",
-            "sex"
+            "sex",
+            "Tlqkf",
+            "tlqkf",
+            "띠발",
+            "띱때끼",
+            "띱떼끼",
+
     };
     String[] delimiters = {
             " ",

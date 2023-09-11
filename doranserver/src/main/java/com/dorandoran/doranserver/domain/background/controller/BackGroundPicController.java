@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.background.controller;
 
+import com.dorandoran.doranserver.domain.background.domain.BackgroundPic;
 import com.dorandoran.doranserver.domain.background.dto.Jackson2JsonRedisDto;
 import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
 import com.dorandoran.doranserver.domain.background.service.BackgroundPicService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.MalformedURLException;
+import java.util.Optional;
 
 @Timed
 @Slf4j
@@ -53,10 +55,19 @@ public class BackGroundPicController {
 
     @GetMapping("/pic/default/{picName}")
     public ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
-        Jackson2JsonRedisDto jackson2JsonREdisDto = redisTemplate.opsForValue().get(picName.toString());
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + jackson2JsonREdisDto.getFileName() + "\"")
-                    .body(new ByteArrayResource(jackson2JsonREdisDto.getPic()));
+        Optional<BackgroundPic> backgroundPic = backGroundPicService.getBackgroundPic(picName);
+
+        if (backgroundPic.isPresent()) {
+            UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
+            log.info("{}", backgroundPic.get().getBackgroundPicId());
+            log.info("{}", backgroundPic.get().getImgName());
+            log.info("{}", backgroundPic.get().getServerPath());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"")
+                    .body(urlResource);
+        } else {
+            throw new RuntimeException("해당 사진이 존재하지 않습니다.");
+        }
     }
 
     @GetMapping("/pic/member/{picName}")

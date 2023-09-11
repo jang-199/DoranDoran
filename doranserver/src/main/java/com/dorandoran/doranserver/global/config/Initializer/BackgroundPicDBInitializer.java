@@ -6,7 +6,9 @@ import com.dorandoran.doranserver.domain.background.domain.BackgroundPic;
 import com.dorandoran.doranserver.domain.background.service.BackGroundPicServiceImpl;
 import com.dorandoran.doranserver.domain.background.service.UserUploadPicServiceImpl;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
+import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
+import com.dorandoran.doranserver.domain.comment.service.CommentLikeService;
 import com.dorandoran.doranserver.domain.comment.service.CommentServiceImpl;
 import com.dorandoran.doranserver.domain.comment.service.ReplyService;
 import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
@@ -17,6 +19,9 @@ import com.dorandoran.doranserver.domain.member.domain.PolicyTerms;
 import com.dorandoran.doranserver.domain.member.service.AccountClosureMemberService;
 import com.dorandoran.doranserver.domain.member.service.MemberServiceImpl;
 import com.dorandoran.doranserver.domain.member.service.PolicyTermsCheckImpl;
+import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory;
+import com.dorandoran.doranserver.domain.notification.domain.notificationType.NotificationType;
+import com.dorandoran.doranserver.domain.notification.service.NotificationHistoryService;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
 import com.dorandoran.doranserver.domain.background.dto.Jackson2JsonRedisDto;
@@ -38,7 +43,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Slf4j
@@ -67,12 +74,15 @@ public class BackgroundPicDBInitializer {
     HashTagServiceImpl hashTagService;
     @Autowired
     PostHashServiceImpl postHashService;
-
     @Autowired
     AccountClosureMemberService accountClosureMemberService;
-
+    @Autowired
+    NotificationHistoryService notificationHistoryService;
     @Autowired
     LockMemberRepository lockMemberRepository;
+    @Autowired
+    CommentLikeService commentLikeService;
+
     @Value("${background.cnt}")
     Integer max;
     @Value("${background.Store.path}")
@@ -86,7 +96,7 @@ public class BackgroundPicDBInitializer {
         List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
         setBackgroundPic();//사진 경로 저장
 
-        for (long i = 1L; i <= 50L; i++) {
+        for (long i = 1L; i <= 22L; i++) {
 
             if(i == 1L){ //1번은 테스트용 계정 생성
                 PolicyTerms build3 = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
@@ -103,6 +113,33 @@ public class BackgroundPicDBInitializer {
                         .build();
                 build1.setOsType(OsType.Ios);
                 memberService.saveMember(build1);
+
+                Map<NotificationType, String> message = Map.of(
+                        NotificationType.PostLike,"글 좋아요",
+                        NotificationType.CommentLike, "댓글 좋아요",
+                        NotificationType.Comment, "댓글 생성",
+                        NotificationType.Reply, "대댓글 생성");
+
+                for (Map.Entry<NotificationType, String> notificationTypeStringEntry : message.entrySet()) {
+                    NotificationHistory notificationHistory1 = NotificationHistory.builder()
+                            .message(notificationTypeStringEntry.getValue())
+                            .objectId(1L)
+                            .notificationType(notificationTypeStringEntry.getKey())
+                            .memberId(build1)
+                            .build();
+
+                    NotificationHistory notificationHistory2 = NotificationHistory.builder()
+                            .message(notificationTypeStringEntry.getValue())
+                            .objectId(1L)
+                            .notificationType(notificationTypeStringEntry.getKey())
+                            .memberId(build1)
+                            .build();
+
+                    notificationHistory1.setNotificationReadTime(LocalDateTime.now());
+
+                    notificationHistoryService.saveNotification(notificationHistory1);
+                    notificationHistoryService.saveNotification(notificationHistory2);
+                }
             }
 
             PolicyTerms policyTerms = setPolicyTerms();//권한 동의 저장
@@ -120,15 +157,21 @@ public class BackgroundPicDBInitializer {
             for (long j = 1L; j < i; j++) {
                 setPostLike(post,memberService.findByEmail(j+"@gmail.com"));
                 Comment comment = setComment(post, member, "contents", Boolean.FALSE, Boolean.FALSE);//댓글 생성 후 저장
+
+                if (j == 1L) {
+                    CommentLike commentLike = CommentLike.builder()
+                            .checkDelete(Boolean.FALSE)
+                            .memberId(member)
+                            .commentId(comment)
+                            .build();
+
+                    commentLikeService.saveCommentLike(commentLike);
+                }
+
                 for (long k = 1L; k < i; k++) {
                     Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, Boolean.FALSE);//대댓글 생성 후 저장
                 }
             }
-
-
-
-
-
 
             Random random = new Random();
             for (int j = 0; j <= random.nextInt(2); j++) {

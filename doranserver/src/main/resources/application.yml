@@ -27,7 +27,7 @@ spring:
   cache:
     type: redis
     redis:
-      cache-null-values: true # null 캐싱 여부를 결정
+      cache-null-values: true # null 캐싱 여부
       host: localhost
       port: 6379
 

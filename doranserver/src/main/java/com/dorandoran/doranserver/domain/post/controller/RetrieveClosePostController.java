@@ -48,7 +48,7 @@ public class RetrieveClosePostController {
                                    @RequestParam String location,
                                    @RequestParam Double range,
                                    @AuthenticationPrincipal UserDetails userDetails) {
-        range*=0.1;
+        range*=0.01;
 
         String userEmail = userDetails.getUsername();
 

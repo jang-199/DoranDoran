@@ -1,4 +1,4 @@
-package com.dorandoran.doranserver.domain.customerservice.controller.admin;
+package com.dorandoran.doranserver.domain.customerservice.controller;
 
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;

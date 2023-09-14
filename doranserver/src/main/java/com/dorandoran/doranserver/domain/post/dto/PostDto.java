@@ -152,12 +152,14 @@ public class PostDto {
     public static class ReadAdminPostResponse{
         String content;
         String userEmail;
+        String nickname;
         List<CommentDto.ReadAdminCommentResponse> commentList;
 
         @Builder
         public ReadAdminPostResponse(Post post, List<CommentDto.ReadAdminCommentResponse> commentList) {
             this.content = post.getContent();
             this.userEmail = post.getMemberId().getEmail();
+            this.nickname = post.getMemberId().getNickname();
             this.commentList = commentList;
         }
     }

@@ -106,6 +106,7 @@ public class CommentDto {
     public static class ReadAdminCommentResponse{
         Long commentId;
         String userEmail;
+        String nickname;
         String content;
         List<ReplyDto.ReadAdminReplyResponse> replyList;
 
@@ -113,6 +114,7 @@ public class CommentDto {
         public ReadAdminCommentResponse(Comment comment, List<ReplyDto.ReadAdminReplyResponse> replyList) {
             this.commentId = comment.getCommentId();
             this.userEmail = comment.getMemberId().getEmail();
+            this.nickname = comment.getMemberId().getNickname();
             this.content = comment.getComment();
             this.replyList = replyList;
         }

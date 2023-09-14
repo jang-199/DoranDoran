@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.report.controller;
 
+import com.dorandoran.doranserver.domain.report.domain.ReportType.ReportType;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
@@ -56,7 +57,9 @@ public class ReportController {
         if (reportPostService.existReportPost(post,member)){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            ReportPost reportPost = new ReportPost(post, member, reportPostRequestDto.getReportContent());
+            ReportType reportType = getReportType(reportPostRequestDto.getReportContent());
+
+            ReportPost reportPost = new ReportPost(post, member, reportType, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
             reportPostService.postBlockLogic(post);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -75,7 +78,9 @@ public class ReportController {
         if (reportCommentService.existedReportComment(comment, member)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            ReportComment reportComment = new ReportComment(comment, member, reportCommentRequestDto.getReportContent());
+            ReportType reportType = getReportType(reportCommentRequestDto.getReportContent());
+
+            ReportComment reportComment = new ReportComment(comment, member, reportType, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
             reportCommentService.commentBlockLogic(comment);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -94,7 +99,9 @@ public class ReportController {
         if (reportReplyService.existedReportReply(reply, member)){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            ReportReply reportReply = new ReportReply(reply, member, reportReplyRequestDto.getReportContent());
+            ReportType reportType = getReportType(reportReplyRequestDto.getReportContent());
+
+            ReportReply reportReply = new ReportReply(reply, member, reportType, reportReplyRequestDto.getReportContent());
             reportReplyService.saveReportReply(reportReply);
             reportReplyService.replyBlockLogic(reply);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -112,5 +119,19 @@ public class ReportController {
         }else {
             return new ResponseEntity<>("해당 사용자는 활성화 상태입니다.",HttpStatus.OK);
         }
+    }
+
+    private static ReportType getReportType(String reportContent) {
+        ReportType reportType = null;
+        for (ReportType reportTypeValue : ReportType.values()) {
+            if (reportTypeValue.getMenu().equals(reportContent)){
+                reportType = reportTypeValue;
+            }
+        }
+
+        if (reportType == null){
+            reportType = ReportType.MENU_7;
+        }
+        return reportType;
     }
 }

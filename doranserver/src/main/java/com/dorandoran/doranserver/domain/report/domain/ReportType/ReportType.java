@@ -1,5 +1,8 @@
 package com.dorandoran.doranserver.domain.report.domain.ReportType;
 
+import lombok.Getter;
+
+@Getter
 public enum ReportType {
     MENU_1("선정성"),
     MENU_2("폭력성"),
@@ -9,7 +12,7 @@ public enum ReportType {
     MENU_6("불건전한 닉네임"),
     MENU_7("기타");
 
-    public final String menu;
+    private final String menu;
 
     ReportType(String menu) {
         this.menu = menu;

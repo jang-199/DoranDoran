@@ -57,7 +57,7 @@ public class ReportController {
         if (reportPostService.existReportPost(post,member)){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            ReportType reportType = getReportType(reportPostRequestDto.getReportContent());
+            ReportType reportType = ReportType.getReportType(reportPostRequestDto.getReportContent());
 
             ReportPost reportPost = new ReportPost(post, member, reportType, reportPostRequestDto.getReportContent());
             reportPostService.saveReportPost(reportPost);
@@ -78,7 +78,7 @@ public class ReportController {
         if (reportCommentService.existedReportComment(comment, member)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            ReportType reportType = getReportType(reportCommentRequestDto.getReportContent());
+            ReportType reportType = ReportType.getReportType(reportCommentRequestDto.getReportContent());
 
             ReportComment reportComment = new ReportComment(comment, member, reportType, reportCommentRequestDto.getReportContent());
             reportCommentService.saveReportComment(reportComment);
@@ -99,7 +99,7 @@ public class ReportController {
         if (reportReplyService.existedReportReply(reply, member)){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
-            ReportType reportType = getReportType(reportReplyRequestDto.getReportContent());
+            ReportType reportType = ReportType.getReportType(reportReplyRequestDto.getReportContent());
 
             ReportReply reportReply = new ReportReply(reply, member, reportType, reportReplyRequestDto.getReportContent());
             reportReplyService.saveReportReply(reportReply);

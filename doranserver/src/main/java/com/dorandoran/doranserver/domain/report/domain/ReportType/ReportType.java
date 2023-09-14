@@ -17,4 +17,18 @@ public enum ReportType {
     ReportType(String menu) {
         this.menu = menu;
     }
+
+    public static ReportType getReportType(String reportContent) {
+        ReportType reportType = null;
+        for (ReportType reportTypeValue : ReportType.values()) {
+            if (reportTypeValue.getMenu().equals(reportContent)){
+                reportType = reportTypeValue;
+            }
+        }
+
+        if (reportType == null){
+            reportType = ReportType.MENU_7;
+        }
+        return reportType;
+    }
 }

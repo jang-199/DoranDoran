@@ -120,18 +120,4 @@ public class ReportController {
             return new ResponseEntity<>("해당 사용자는 활성화 상태입니다.",HttpStatus.OK);
         }
     }
-
-    private static ReportType getReportType(String reportContent) {
-        ReportType reportType = null;
-        for (ReportType reportTypeValue : ReportType.values()) {
-            if (reportTypeValue.getMenu().equals(reportContent)){
-                reportType = reportTypeValue;
-            }
-        }
-
-        if (reportType == null){
-            reportType = ReportType.MENU_7;
-        }
-        return reportType;
-    }
 }

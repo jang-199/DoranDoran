@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.domain.report.domain;
 import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
+import com.dorandoran.doranserver.domain.report.domain.ReportType.ReportType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,12 +27,16 @@ public class ReportPost extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
+    @Enumerated(EnumType.STRING)
+    private ReportType reportType;
+
     @Column(name = "REPORT_CONTENT")
     private String reportContent;
 
-    public ReportPost(Post postId, Member memberId, String reportContent) {
+    public ReportPost(Post postId, Member memberId, ReportType reportType, String reportContent) {
         this.postId = postId;
         this.memberId = memberId;
+        this.reportType = reportType;
         this.reportContent = reportContent;
     }
 }

@@ -42,8 +42,6 @@ dependencies {
 
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
 	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
 
 	implementation 'org.hibernate:hibernate-core:6.1.7.Final'

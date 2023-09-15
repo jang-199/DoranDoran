@@ -76,12 +76,14 @@ public class ReplyDto {
     public static class ReadAdminReplyResponse{
         Long replyId;
         String userEmail;
+        String nickname;
         String content;
 
         @Builder
         public ReadAdminReplyResponse(Reply reply) {
             this.replyId = reply.getReplyId();
             this.userEmail = reply.getMemberId().getEmail();
+            this.nickname = reply.getMemberId().getNickname();
             this.content = reply.getReply();
         }
     }

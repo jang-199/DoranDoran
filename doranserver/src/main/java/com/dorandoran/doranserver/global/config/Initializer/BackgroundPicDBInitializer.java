@@ -37,7 +37,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -87,9 +86,6 @@ public class BackgroundPicDBInitializer {
     Integer max;
     @Value("${background.Store.path}")
     String serverPath;
-    @Autowired
-    private RedisTemplate<Integer, Jackson2JsonRedisDto> redisTemplate;
-
 
     @PostConstruct
     public void init() {
@@ -141,10 +137,10 @@ public class BackgroundPicDBInitializer {
                     notificationHistoryService.saveNotification(notificationHistory2);
                 }
             }
-
+            Boolean locked1 = i%2 == 0 ? Boolean.FALSE : Boolean.TRUE;
             PolicyTerms policyTerms = setPolicyTerms();//권한 동의 저장
             Member member = setMember(policyTerms, i + "@gmail.com", "nickname" + i, OsType.Ios);//맴버 생성 후 저장
-            Post post = setPost(i + "번 글입니다.", Boolean.FALSE, member, Boolean.FALSE);//글 생성 후 저장
+            Post post = setPost(i + "번 글입니다.", Boolean.FALSE, member, locked1);//글 생성 후 저장
 
             if (i % 2 == 1) {
                 PostLike postLike = PostLike.builder().postId(post)
@@ -155,8 +151,10 @@ public class BackgroundPicDBInitializer {
             }
 
             for (long j = 1L; j < i; j++) {
+                Boolean locked = j%2 == 0 ? Boolean.FALSE : Boolean.TRUE;
+
                 setPostLike(post,memberService.findByEmail(j+"@gmail.com"));
-                Comment comment = setComment(post, member, "contents", Boolean.FALSE, Boolean.FALSE);//댓글 생성 후 저장
+                Comment comment = setComment(post, member, "contents", Boolean.FALSE, locked);//댓글 생성 후 저장
 
                 if (j == 1L) {
                     CommentLike commentLike = CommentLike.builder()
@@ -169,7 +167,7 @@ public class BackgroundPicDBInitializer {
                 }
 
                 for (long k = 1L; k < i; k++) {
-                    Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, Boolean.FALSE);//대댓글 생성 후 저장
+                    Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, locked);//대댓글 생성 후 저장
                 }
             }
 

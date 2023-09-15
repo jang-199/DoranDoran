@@ -10,11 +10,8 @@ import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-//import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +41,6 @@ public class BackGroundPicController {
     Integer backgroundPicCnt;
     private final BackgroundPicService backGroundPicService;
     private final UserUploadPicService userUploadPicService;
-    private final RedisTemplate<Integer, Jackson2JsonRedisDto> redisTemplate;
 
 
     @GetMapping("/pic/default/count")

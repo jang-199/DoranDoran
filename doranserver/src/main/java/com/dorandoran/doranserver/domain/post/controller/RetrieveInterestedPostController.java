@@ -68,6 +68,7 @@ public class RetrieveInterestedPostController {
                 .ipAddress(ipAddress)
                 .build();
 
+        log.info("post count : {}",postList.size());
         LinkedList<HashMap<String, RetrieveInterestedDto.ReadInterestedResponse>> responseList = retrieveResponseUtils.makeRetrieveInterestedResponseList(postList, lIkeCntList, likeResultByPostList, commentAndReplyCntList, hashTagList);
 
         if (responseList.getFirst().isEmpty()) {

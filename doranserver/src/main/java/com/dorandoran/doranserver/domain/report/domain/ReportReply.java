@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.domain.report.domain;
 import com.dorandoran.doranserver.domain.common.entity.BaseEntity;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.member.domain.Member;
+import com.dorandoran.doranserver.domain.report.domain.ReportType.ReportType;
 import jakarta.persistence.*;
 import lombok.*;
 @Entity
@@ -25,13 +26,17 @@ public class ReportReply extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member memberId;
 
+    @Enumerated(EnumType.STRING)
+    private ReportType reportType;
+
     @Column(name = "REPORT_CONTENT")
     private String reportContent;
 
     @Builder
-    public ReportReply(Reply replyId, Member memberId, String reportContent) {
+    public ReportReply(Reply replyId, Member memberId, ReportType reportType, String reportContent) {
         this.replyId = replyId;
         this.memberId = memberId;
+        this.reportType = reportType;
         this.reportContent = reportContent;
     }
 }

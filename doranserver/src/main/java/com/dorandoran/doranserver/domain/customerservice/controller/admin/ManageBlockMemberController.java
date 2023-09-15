@@ -1,5 +1,6 @@
-package com.dorandoran.doranserver.domain.customerservice.controller;
+package com.dorandoran.doranserver.domain.customerservice.controller.admin;
 
+import com.dorandoran.doranserver.domain.customerservice.annotation.Admin;
 import com.dorandoran.doranserver.domain.customerservice.dto.BlockDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
@@ -33,6 +34,8 @@ public class ManageBlockMemberController {
     public final ReplyService replyService;
     public final MemberService memberService;
     public final LockMemberService lockMemberService;
+
+    @Admin
     @GetMapping("/post/block/{page}")
     public ResponseEntity<List<BlockDto.BlockPostResponse>> getBlockedPostList(@PathVariable Integer page){
         List<Post> blockedPost = postService.findBlockedPost(page);
@@ -45,6 +48,7 @@ public class ManageBlockMemberController {
         return ResponseEntity.ok().body(responsePost);
     }
 
+    @Admin
     @GetMapping("/comment/block/{page}")
     public ResponseEntity<List<BlockDto.BlockCommentResponse>> getBlockedCommentList(@PathVariable Integer page){
         List<Comment> blockedComment = commentService.findBlockedComment(page);
@@ -57,6 +61,7 @@ public class ManageBlockMemberController {
         return ResponseEntity.ok().body(responseComment);
     }
 
+    @Admin
     @GetMapping("/reply/block/{page}")
     public ResponseEntity<List<BlockDto.BlockReplyResponse>> getBlockedReplyList(@PathVariable Integer page){
         List<Reply> blockedReply = replyService.findBlockedReply(page);
@@ -69,6 +74,7 @@ public class ManageBlockMemberController {
         return ResponseEntity.ok().body(responseReply);
     }
 
+    @Admin
     @GetMapping("/post/block/read/{blockPostId}")
     public ResponseEntity<?> getBlockPostDetail(@PathVariable Long blockPostId){
         Post post = postService.findSinglePost(blockPostId);
@@ -79,6 +85,7 @@ public class ManageBlockMemberController {
         return ResponseEntity.ok().body(responsePost);
     }
 
+    @Admin
     @GetMapping("/reply/block/read/{blockReplyId}")
     public ResponseEntity<?> getBlockReplyDetail(@PathVariable Long blockReplyId){
         Reply replyByReplyId = replyService.findReplyByReplyId(blockReplyId)
@@ -116,6 +123,7 @@ public class ManageBlockMemberController {
                 .build();
     }
 
+    @Admin
     @PostMapping("/post/unBlock/{unBlockPostId}")
     public ResponseEntity<?> unBlockPost(@PathVariable Long unBlockPostId){
         Post post = postService.findFetchMember(unBlockPostId);
@@ -125,6 +133,7 @@ public class ManageBlockMemberController {
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @PostMapping("/comment/unBlock/{unBlockCommentId}")
     public ResponseEntity<?> unBlockComment(@PathVariable Long unBlockCommentId){
         Comment comment = commentService.findFetchMember(unBlockCommentId);
@@ -134,6 +143,7 @@ public class ManageBlockMemberController {
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @PostMapping("/reply/unBlock/{unBlockReplyId}")
     public ResponseEntity<?> unBlockReply(@PathVariable Long unBlockReplyId){
         Reply reply = replyService.findFetchMember(unBlockReplyId);

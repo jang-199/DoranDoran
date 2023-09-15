@@ -17,19 +17,31 @@ public interface PostHashRepository extends JpaRepository<PostHash,Long> {
     @Query("select ph from PostHash ph join fetch ph.hashTagId where ph.postId = :post")
     List<PostHash> findPostHashByPostId(Post post);
 
-    @Query("select ph.postId " +
-            "from PostHash ph " +
-            "where ((ph.postId.memberId = :member and ph.postId.forMe = true) or (ph.postId.forMe = false)) and ph.postId.memberId not in :blockMembers and ph.postId.isLocked = false and ph.hashTagId in :hashTag and ph.postId.postId in " +
-            "   (select max(phi.postId.postId) " +
-            "   from PostHash phi " +
-            "   group by phi.hashTagId)")
+    @Query("select p.postId " +
+            "from PostHash p " +
+            "where p.postId.postId in (" +
+            "    select max(ph.postId.postId) " +
+            "    from PostHash ph" +
+            "    where ph.postId in (" +
+            "       select ph.postId" +
+            "       from PostHash ph" +
+            "       where ph.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false)) and ph.postId.memberId not in :blockMembers" +
+            "   )" +
+            "    group by ph.hashTagId" +
+            ")")
     List<Post> findTopByHashTagWithoutBlockLists(@Param("hashTag") List<HashTag> hashTag, @Param("member") Member member, @Param("blockMembers") List<Member> members);
-    @Query("select ph.postId " +
-            "from PostHash ph " +
-            "where ((ph.postId.memberId = :member and ph.postId.forMe = true) or (ph.postId.forMe = false)) and ph.postId.isLocked = false and ph.hashTagId in :hashTag and ph.postId.postId in " +
-            "   (select max(phi.postId.postId) " +
-            "   from PostHash phi " +
-            "   group by phi.hashTagId)")
+    @Query("select p.postId " +
+            "from PostHash p " +
+            "where p.postId.postId in (" +
+            "    select max(ph.postId.postId) " +
+            "    from PostHash ph" +
+            "    where ph.postId in (" +
+            "       select ph.postId" +
+            "       from PostHash ph" +
+            "       where ph.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false))" +
+            "   )" +
+            "    group by ph.hashTagId" +
+            ")")
     List<Post> findTopByHashTag(@Param("hashTag") List<HashTag> hashTag, @Param("member") Member member);
     @Query("select p.postId " +
             "from PostHash p " +

@@ -19,17 +19,30 @@ public interface PostHashRepository extends JpaRepository<PostHash,Long> {
 
     @Query("select p.postId " +
             "from PostHash p " +
-            "where p.hashTagId in :hashTag and p.postId.memberId not in :blockMembers and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false)) " +
-            "order by p.poshHashId desc " +
-            "limit 1")
+            "where p.postId.postId in (" +
+            "    select max(ph.postId.postId) " +
+            "    from PostHash ph" +
+            "    where ph.postId in (" +
+            "       select ph.postId" +
+            "       from PostHash ph" +
+            "       where ph.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false)) and ph.postId.memberId not in :blockMembers" +
+            "   )" +
+            "    group by ph.hashTagId" +
+            ")")
     List<Post> findTopByHashTagWithoutBlockLists(@Param("hashTag") List<HashTag> hashTag, @Param("member") Member member, @Param("blockMembers") List<Member> members);
     @Query("select p.postId " +
             "from PostHash p " +
-            "where p.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false)) " +
-            "order by p.poshHashId desc " +
-            "limit 1")
+            "where p.postId.postId in (" +
+            "    select max(ph.postId.postId) " +
+            "    from PostHash ph" +
+            "    where ph.postId in (" +
+            "       select ph.postId" +
+            "       from PostHash ph" +
+            "       where ph.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false))" +
+            "   )" +
+            "    group by ph.hashTagId" +
+            ")")
     List<Post> findTopByHashTag(@Param("hashTag") List<HashTag> hashTag, @Param("member") Member member);
-
     @Query("select p.postId " +
             "from PostHash p " +
             "join fetch p.postId.memberId " +

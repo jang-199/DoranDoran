@@ -144,6 +144,12 @@ public class ReplyServiceImpl implements ReplyService{
         return size == 11 ? Boolean.TRUE : Boolean.FALSE;
     }
 
+    @Override
+    public List<Reply> findRankRepliesByComments(List<Comment> comments) {
+        List<Long> commentIdList = comments.stream().map(Comment::getCommentId).toList();
+        return replyRepository.findRankRepliesByComments(commentIdList);
+    }
+
     private void deleteLastIndex(List<Reply> replyList) {
         replyList.remove(replyList.size() - 1);
     }

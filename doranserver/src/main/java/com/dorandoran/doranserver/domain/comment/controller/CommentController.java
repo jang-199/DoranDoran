@@ -77,10 +77,13 @@ public class CommentController {
 
         List<Comment> comments = commentService.findNextComments(postId, commentId);
         Boolean isExistNext = commentService.checkExistAndDelete(comments);
+        List<Reply> replies = replyService.findRankRepliesByComments(comments);
 
         HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
-        HashMap<String, Object> commentDetailHashMap = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, isExistNext);
+
+        HashMap<String, Object> commentDetailHashMap =
+                commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, replies, isExistNext);
 
         ArrayList<HashMap<String, Object>> commentDetailDtoList = new ArrayList<>();
         commentDetailDtoList.add(commentDetailHashMap);
@@ -170,9 +173,8 @@ public class CommentController {
         Member member = memberService.findByEmail(userEmail);
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
-        List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
 
-        HashMap<String, Object> replyDetailHashMap = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, replyList);
+        HashMap<String, Object> replyDetailHashMap = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, memberBlockListByBlockingMember, replies);
         ArrayList<HashMap<String, Object>> replyDetailDtoList = new ArrayList<>();
         replyDetailDtoList.add(replyDetailHashMap);
 

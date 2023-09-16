@@ -169,6 +169,7 @@ public class PostController {
         Boolean likeResult = postLikeService.findLikeResult(userEmail, post);
 
         List<Comment> commentList = commentService.findCommentByPost(post);
+
         List<Reply> replyList = replyService.findReplyByCommentList(commentList);
         Integer commentCnt = commentService.findCommentAndReplyCntByPostId(commentList, replyList);
         Boolean checkWrite = postService.isCommentReplyAuthor(commentList, replyList, member);
@@ -188,10 +189,12 @@ public class PostController {
 
         List<Comment> comments = commentService.findFirstCommentsFetchMember(post);
         Boolean isExistNext = commentService.checkExistAndDelete(comments);
+        List<Reply> replies = replyService.findRankRepliesByComments(comments);
 
         HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
-        HashMap<String, Object> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, isExistNext);
+
+        HashMap<String, Object> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, replies, isExistNext);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 
         List<String> postHashListDto = new ArrayList<>();

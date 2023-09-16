@@ -50,12 +50,15 @@ public class CommentResponseUtils {
     public HashMap<String, Object> makeReplyList(String userEmail,
                                                           Post post,
                                                           List<String> anonymityMemberList,
+                                                          List<Member> memberBlockListByBlockingMember,
                                                           List<Reply> replies) {
+        List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
+
         LinkedList<ReplyDto.ReadReplyResponse> replyDetailDtoList = new LinkedList<>();
 
-        Boolean isExistNextReply = replyService.checkExistAndDelete(replies);
+        Boolean isExistNextReply = replyService.checkExistAndDelete(replyList);
 
-        for (Reply reply : replies) {
+        for (Reply reply : replyList) {
             Boolean isReplyWrittenByUser = Boolean.FALSE;
             if (MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)) {
                 isReplyWrittenByUser = Boolean.TRUE;
@@ -71,33 +74,38 @@ public class CommentResponseUtils {
         }
         Collections.reverse(replyDetailDtoList);
 
-        HashMap<String, Object> replyDetailHashMap = new HashMap<>();
-        replyDetailHashMap.put("replyData", replyDetailDtoList);
+        LinkedHashMap<String, Object> replyDetailHashMap = new LinkedHashMap<>();
         replyDetailHashMap.put("isExistNextReply", isExistNextReply);
+        replyDetailHashMap.put("replyData", replyDetailDtoList);
 
         return replyDetailHashMap;
     }
 
-    public HashMap<String,Object> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Long, Boolean> commentLikeResultHashMap, HashMap<Long, Long> commentLikeCntHashMap, Boolean isExistNextComment) {
+    public HashMap<String,Object> makeCommentAndReplyList(String userEmail, Post post, List<String> anonymityMemberList, List<Comment> comments, List<Member> memberBlockListByBlockingMember, HashMap<Long, Boolean> commentLikeResultHashMap, HashMap<Long, Long> commentLikeCntHashMap, List<Reply> replies, Boolean isExistNextComment) {
         LinkedList<CommentDto.ReadCommentResponse> commentDetailDtoList = new LinkedList<>();
 
         List<Comment> commentList = blockMemberFilter.commentFilter(comments, memberBlockListByBlockingMember);
         if (!comments.isEmpty()) {
             for (Comment comment : commentList) {
-                List<Reply> replies = replyService.findFirstRepliesFetchMember(comment);
-                List<Reply> replyList = blockMemberFilter.replyFilter(replies, memberBlockListByBlockingMember);
+                List<Reply> replyList = groupRepliesByComments(replies, comment);
 
-                HashMap<String, Object> replyDetailHashMap = makeReplyList(userEmail, post, anonymityMemberList, replyList);
+                HashMap<String, Object> replyDetailHashMap = makeReplyList(userEmail, post, anonymityMemberList, memberBlockListByBlockingMember, replyList);
 
                 makeCommentList(userEmail, post, anonymityMemberList, commentDetailDtoList, comment, replyDetailHashMap, commentLikeResultHashMap.get(comment.getCommentId()), commentLikeCntHashMap.get(comment.getCommentId()));
             }
         }
         Collections.reverse(commentDetailDtoList);
 
-        HashMap<String, Object> commentDetailHashMap = new HashMap<>();
-        commentDetailHashMap.put("commentData",commentDetailDtoList);
+        HashMap<String, Object> commentDetailHashMap = new LinkedHashMap<>();
         commentDetailHashMap.put("isExistNextComment", isExistNextComment);
+        commentDetailHashMap.put("commentData",commentDetailDtoList);
 
         return commentDetailHashMap;
+    }
+
+    public List<Reply> groupRepliesByComments(List<Reply> replies, Comment comment){
+        return replies.stream()
+                .filter(reply -> reply.getCommentId().equals(comment))
+                .toList();
     }
 }

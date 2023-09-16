@@ -31,4 +31,5 @@ public interface ReplyService {
     List<Reply> findTest(List<Comment> commentList);
     void setCheckDelete(Reply reply);
     Boolean checkExistAndDelete(List<Reply> replyList);
+    List<Reply> findRankRepliesByComments(List<Comment> comments);
 }

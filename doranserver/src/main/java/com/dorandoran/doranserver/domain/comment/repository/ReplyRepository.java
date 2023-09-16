@@ -58,4 +58,10 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
 
     @Query("select r from Reply r where r.commentId in :commentList")
     List<Reply> findCommentListTest(@Param("commentList") List<Comment> commentList);
+
+    @Query(value = "select * from (" +
+            "   select *, rank() over (partition by comment_id order by reply_id desc) as rn " +
+            "   from reply) as ranking " +
+            "where ranking.rn <= 11 and ranking.comment_id in :comments",nativeQuery = true)
+    List<Reply> findRankRepliesByComments(@Param("comments") List<Long> comments);
 }

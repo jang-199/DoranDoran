@@ -86,13 +86,12 @@ public class RetrieveResponseUtils {
                                                                                                                            List<Integer> likeCntList,
                                                                                                                            List<Boolean> likeResultList,
                                                                                                                            List<Integer> commentAndReplyCnt,
-                                                                                                                           List<HashTag> hashTagList) {
+                                                                                                                           LinkedHashMap<Post, String> StringPostHashMap) {
             HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
             LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> mapLinkedList = new LinkedList<>();
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
             Iterator<Boolean> likeResultByPostListIter = likeResultList.iterator();
             Iterator<Integer> commentAndReplyCntListIter = commentAndReplyCnt.iterator();
-            Iterator<HashTag> hashTagIterator = hashTagList.iterator();
             for (Post post : postList) {
                 String[] splitImgName = post.getImgName().split("[.]");
                 String imgName = splitImgName[0];
@@ -111,7 +110,7 @@ public class RetrieveResponseUtils {
                         .fontBold(post.getFontBold())
                         .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                         .build();
-                stringPostResponseDtoHashMap.put(hashTagIterator.next().getHashTagName(),postResponse);
+                stringPostResponseDtoHashMap.put(StringPostHashMap.get(post),postResponse);
             }
             mapLinkedList.add(stringPostResponseDtoHashMap);
             return mapLinkedList;

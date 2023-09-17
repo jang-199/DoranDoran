@@ -14,35 +14,31 @@ import java.util.Optional;
 
 public interface PostHashRepository extends JpaRepository<PostHash,Long> {
 
+    @Query("select ph from PostHash ph join fetch ph.hashTagId where ph.postId in :postId")
+    List<PostHash> findAllByPostId(@Param("postId") List<Post> postId);
+
     @Query("select ph from PostHash ph join fetch ph.hashTagId where ph.postId = :post")
     List<PostHash> findPostHashByPostId(@Param("post") Post post);
 
-    @Query("select p.postId " +
-            "from PostHash p " +
-            "where p.postId.postId in (" +
-            "    select max(ph.postId.postId) " +
-            "    from PostHash ph" +
-            "    where ph.postId in (" +
-            "       select ph.postId" +
-            "       from PostHash ph" +
-            "       where ph.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false)) and ph.postId.memberId not in :blockMembers" +
-            "   )" +
-            "    group by ph.hashTagId" +
-            ")")
-    List<Post> findTopByHashTagWithoutBlockLists(@Param("hashTag") List<HashTag> hashTag, @Param("member") Member member, @Param("blockMembers") List<Member> members);
-    @Query("select p.postId " +
-            "from PostHash p " +
-            "where p.postId.postId in (" +
-            "    select max(ph.postId.postId) " +
-            "    from PostHash ph" +
-            "    where ph.postId in (" +
-            "       select ph.postId" +
-            "       from PostHash ph" +
-            "       where ph.hashTagId in :hashTag and p.postId.isLocked = false and ((p.postId.memberId = :member and p.postId.forMe = true) or (p.postId.forMe = false))" +
-            "   )" +
-            "    group by ph.hashTagId" +
-            ")")
-    List<Post> findTopByHashTag(@Param("hashTag") List<HashTag> hashTag, @Param("member") Member member);
+
+    @Query(value = "SELECT ranking.post_id " +
+            "FROM ( " +
+            "    SELECT ph.*, RANK() OVER (PARTITION BY ph.hash_tag ORDER BY ph.post_hash_id DESC) AS rn " +
+            "    FROM post_hash AS ph " +
+            "    JOIN post AS p ON ph.post_id = p.post_id " +
+            "    WHERE ph.hash_tag IN :hashTagId AND p.is_locked = FALSE AND ((p.member_id = :memberId and p.for_me = true) or (p.for_me = false)) and p.member_id not in :blockMembers" +
+            ") AS ranking " +
+            "WHERE ranking.rn <= 1",nativeQuery = true)
+    List<Long> findTopByHashTagWithoutBlockLists(@Param("hashTagId") List<Long> hashTagId, @Param("memberId") Long memberId, @Param("blockMembers") List<Long> members);
+    @Query(value = "SELECT * " +
+            "FROM ( " +
+            "    SELECT ph.*, RANK() OVER (PARTITION BY ph.hash_tag ORDER BY ph.post_hash_id DESC) AS rn " +
+            "    FROM post_hash AS ph " +
+            "    JOIN post AS p ON ph.post_id = p.post_id " +
+            "    WHERE ph.hash_tag IN :hashTagId AND p.is_locked = FALSE AND ((p.member_id = :memberId and p.for_me = true) or (p.for_me = false)) " +
+            ") AS ranking " +
+            "WHERE ranking.rn <= 1",nativeQuery = true)
+    List<Long> findTopByHashTag(@Param("hashTagId") List<Long> hashTagId, @Param("memberId") Long memberId);
     @Query("select p.postId " +
             "from PostHash p " +
             "join fetch p.postId.memberId " +

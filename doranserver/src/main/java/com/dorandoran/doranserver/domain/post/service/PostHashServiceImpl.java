@@ -90,13 +90,9 @@ public class PostHashServiceImpl implements PostHashService {
 
         List<PostHash> postHashList = postHashRepository.findAllByPostId(postList,hashTagList);
         for (PostHash postHash : postHashList) {
-            log.info("postHashList : {}", postHash);
-        }
-        for (PostHash postHash : postHashList) {
             String hashTagName = postHash.getHashTagId().getHashTagName();
             Post post = postHash.getPostId();
             stringPostLinkedHashMap.add(post, hashTagName);
-            log.info("stringPostLinkedHashMap.size : {}",stringPostLinkedHashMap.size());
         }
         return stringPostLinkedHashMap;
     }

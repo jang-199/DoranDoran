@@ -88,7 +88,7 @@ public class PostHashServiceImpl implements PostHashService {
     public LinkedMultiValueMap<Post, String> makeStringPostHashMap(List<Post> postList, List<HashTag> hashTagList) {
         LinkedMultiValueMap<Post, String> stringPostLinkedHashMap = new LinkedMultiValueMap<>();
 
-        List<PostHash> postHashList = postHashRepository.findAllByPostId(postList);
+        List<PostHash> postHashList = postHashRepository.findAllByPostId(postList,hashTagList);
         for (PostHash postHash : postHashList) {
             log.info("postHashList : {}", postHash);
         }

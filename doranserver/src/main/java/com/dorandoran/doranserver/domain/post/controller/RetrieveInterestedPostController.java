@@ -59,7 +59,7 @@ public class RetrieveInterestedPostController {
 
         List<Post> postList = postHashService.findTopOfPostHash(hashTagList, member, memberBlockListByBlockingMember);
 
-        LinkedMultiValueMap<Post, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList, hashTagList);
+        LinkedMultiValueMap<Long, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList, hashTagList);
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
 

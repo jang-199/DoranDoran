@@ -30,7 +30,7 @@ public interface PostHashRepository extends JpaRepository<PostHash,Long> {
             ") AS ranking " +
             "WHERE ranking.rn <= 1",nativeQuery = true)
     List<Long> findTopByHashTagWithoutBlockLists(@Param("hashTagId") List<Long> hashTagId, @Param("memberId") Long memberId, @Param("blockMembers") List<Long> members);
-    @Query(value = "SELECT * " +
+    @Query(value = "SELECT ranking.post_id " +
             "FROM ( " +
             "    SELECT ph.*, RANK() OVER (PARTITION BY ph.hash_tag ORDER BY ph.post_hash_id DESC) AS rn " +
             "    FROM post_hash AS ph " +

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,13 +85,18 @@ public class PostHashServiceImpl implements PostHashService {
     }
 
     @Override
-    public LinkedHashMap<Post, String> makeStringPostHashMap(List<Post> postList) {
-        LinkedHashMap<Post, String> stringPostLinkedHashMap = new LinkedHashMap<>();
+    public LinkedMultiValueMap<Post, String> makeStringPostHashMap(List<Post> postList, List<HashTag> hashTagList) {
+        LinkedMultiValueMap<Post, String> stringPostLinkedHashMap = new LinkedMultiValueMap<>();
+
         List<PostHash> postHashList = postHashRepository.findAllByPostId(postList);
+        for (PostHash postHash : postHashList) {
+            log.info("postHashList : {}", postHash);
+        }
         for (PostHash postHash : postHashList) {
             String hashTagName = postHash.getHashTagId().getHashTagName();
             Post post = postHash.getPostId();
-            stringPostLinkedHashMap.put(post, hashTagName);
+            stringPostLinkedHashMap.add(post, hashTagName);
+            log.info("stringPostLinkedHashMap.size : {}",stringPostLinkedHashMap.size());
         }
         return stringPostLinkedHashMap;
     }

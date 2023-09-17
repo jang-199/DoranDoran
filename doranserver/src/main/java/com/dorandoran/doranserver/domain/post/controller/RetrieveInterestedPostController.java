@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,14 +57,18 @@ public class RetrieveInterestedPostController {
                 .map(MemberHash::getHashTagId)
                 .toList();
         log.info("hashTag size: {}",hashTagList.size());
-        log.info("hashTag detail: {}",hashTagList);
+        for (HashTag hashTag : hashTagList) {
+            log.info("hashtagid : {}",hashTag.getHashTagId());
+        }
 
         List<Post> postList = postHashService.findTopOfPostHash(hashTagList, member, memberBlockListByBlockingMember);
-        log.info("postList size: {}",postList.size());
+        for (Post post : postList) {
+            log.info("postId : {}",post.getPostId());
+        }
 
-        LinkedHashMap<Post, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList);
-        for (Map.Entry<Post, String> post : stringPostLinkedHashMap.entrySet()) {
-            log.info("LinkedHashMap: {} , {}",post.getKey().getPostId(),post.getValue());
+        LinkedMultiValueMap<Post, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList, hashTagList);
+        for (Map.Entry<Post, List<String>> postListEntry : stringPostLinkedHashMap.entrySet()) {
+            log.info("LinkedHashMap: {} , {}",postListEntry.getKey().getPostId(),postListEntry.getValue());
         }
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);

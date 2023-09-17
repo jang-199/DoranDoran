@@ -14,8 +14,8 @@ import java.util.Optional;
 
 public interface PostHashRepository extends JpaRepository<PostHash,Long> {
 
-    @Query("select ph from PostHash ph join fetch ph.hashTagId where ph.postId in :postId")
-    List<PostHash> findAllByPostId(@Param("postId") List<Post> postId);
+    @Query("select ph from PostHash ph join fetch ph.hashTagId where ph.postId in :postId and ph.hashTagId in :hashTagList")
+    List<PostHash> findAllByPostId(@Param("postId") List<Post> postId, @Param("hashTagList") List<HashTag> hashTagList);
 
     @Query("select ph from PostHash ph join fetch ph.hashTagId where ph.postId = :post")
     List<PostHash> findPostHashByPostId(@Param("post") Post post);

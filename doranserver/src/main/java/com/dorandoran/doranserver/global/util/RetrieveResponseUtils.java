@@ -87,7 +87,7 @@ public class RetrieveResponseUtils {
                                                                                                                            List<Integer> likeCntList,
                                                                                                                            List<Boolean> likeResultList,
                                                                                                                            List<Integer> commentAndReplyCnt,
-                                                                                                                           LinkedMultiValueMap<Post, String> stringPostHashMap) {
+                                                                                                                           LinkedMultiValueMap<Long, String> stringPostHashMap) {
             HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
             LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> mapLinkedList = new LinkedList<>();
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
@@ -111,13 +111,13 @@ public class RetrieveResponseUtils {
                         .fontBold(post.getFontBold())
                         .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                         .build();
-                if (Objects.requireNonNull(stringPostHashMap.get(post)).size() > 1) {
-                    List<String> strings = stringPostHashMap.get(post);
+                if (Objects.requireNonNull(stringPostHashMap.get(post.getPostId())).size() > 1) {
+                    List<String> strings = stringPostHashMap.get(post.getPostId());
                     for (String string : Objects.requireNonNull(strings)) {
                         stringPostResponseDtoHashMap.put(string,postResponse);
                     }
                 }else {
-                    stringPostResponseDtoHashMap.put(Objects.requireNonNull(stringPostHashMap.get(post)).get(0),postResponse);
+                    stringPostResponseDtoHashMap.put(Objects.requireNonNull(stringPostHashMap.get(post.getPostId())).get(0),postResponse);
                 }
 
             }

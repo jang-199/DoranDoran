@@ -5,19 +5,21 @@ import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.hashtag.domain.PostHash;
 import com.dorandoran.doranserver.domain.post.repository.PostHashRepository;
+import com.dorandoran.doranserver.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class PostHashServiceImpl implements PostHashService {
     private final PostHashRepository postHashRepository;
+    private final PostRepository postRepository;
 
     @Override
     public void savePostHash(PostHash postHash) {
@@ -41,11 +43,15 @@ public class PostHashServiceImpl implements PostHashService {
 
     @Override
     public List<Post> findTopOfPostHash(List<HashTag> hashTag, Member member, List<Member> memberBlockListByBlockingMember) {
-//        List<Member> list = members.stream().map(MemberBlockList::getBlockedMember).toList();
+        List<Long> hashTagIdList = hashTag.stream().map(HashTag::getHashTagId).toList();
+        Long memberId = member.getMemberId();
+        List<Long> memberBlockListIdList = memberBlockListByBlockingMember.stream().map(Member::getMemberId).toList();
         if (memberBlockListByBlockingMember.isEmpty()) {
-            return postHashRepository.findTopByHashTag(hashTag, member);
+            List<Long> topByHashTag = postHashRepository.findTopByHashTag(hashTagIdList, memberId);
+            return postRepository.findAllById(topByHashTag);
         }
-        return postHashRepository.findTopByHashTagWithoutBlockLists(hashTag, member, memberBlockListByBlockingMember);
+        List<Long> topByHashTagWithoutBlockLists = postHashRepository.findTopByHashTagWithoutBlockLists(hashTagIdList, memberId, memberBlockListIdList);
+        return postRepository.findAllById(topByHashTagWithoutBlockLists);
     }
 
     @Override
@@ -75,5 +81,17 @@ public class PostHashServiceImpl implements PostHashService {
                 postHashListDto.add(hashTagName);
             }
         }
+    }
+
+    @Override
+    public LinkedHashMap<Post, String> makeStringPostHashMap(List<Post> postList) {
+        LinkedHashMap<Post, String> stringPostLinkedHashMap = new LinkedHashMap<>();
+        List<PostHash> postHashList = postHashRepository.findAllByPostId(postList);
+        for (PostHash postHash : postHashList) {
+            String hashTagName = postHash.getHashTagId().getHashTagName();
+            Post post = postHash.getPostId();
+            stringPostLinkedHashMap.put(post, hashTagName);
+        }
+        return stringPostLinkedHashMap;
     }
 }

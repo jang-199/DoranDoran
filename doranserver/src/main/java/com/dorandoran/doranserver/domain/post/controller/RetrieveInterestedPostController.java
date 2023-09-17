@@ -54,21 +54,32 @@ public class RetrieveInterestedPostController {
         List<HashTag> hashTagList = memberHashService.findHashByMember(member).stream()
                 .map(MemberHash::getHashTagId)
                 .toList();
+        log.info("hashTag size: {}",hashTagList.size());
+        log.info("hashTag detail: {}",hashTagList);
 
         List<Post> postList = postHashService.findTopOfPostHash(hashTagList, member, memberBlockListByBlockingMember);
+        log.info("postList size: {}",postList.size());
+
+        LinkedHashMap<Post, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList);
+        for (Map.Entry<Post, String> post : stringPostLinkedHashMap.entrySet()) {
+            log.info("LinkedHashMap: {} , {}",post.getKey().getPostId(),post.getValue());
+        }
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
+        log.info("lIkeCntList size: {}",lIkeCntList.size());
 
         List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
+        log.info("likeResultByPostList size: {}",likeResultByPostList.size());
 
         List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
+        log.info("commentAndReplyCntList size: {}",commentAndReplyCntList.size());
 
         RetrieveResponseUtils.InterestedPostResponse retrieveResponseUtils = RetrieveResponseUtils.InterestedPostResponse.builder()
                 .userEmail(userEmail)
                 .ipAddress(ipAddress)
                 .build();
 
-        LinkedList<HashMap<String, RetrieveInterestedDto.ReadInterestedResponse>> responseList = retrieveResponseUtils.makeRetrieveInterestedResponseList(postList, lIkeCntList, likeResultByPostList, commentAndReplyCntList, hashTagList);
+        LinkedList<HashMap<String, RetrieveInterestedDto.ReadInterestedResponse>> responseList = retrieveResponseUtils.makeRetrieveInterestedResponseList(postList, lIkeCntList, likeResultByPostList, commentAndReplyCntList, stringPostLinkedHashMap);
 
         if (responseList.getFirst().isEmpty()) {
             return ResponseEntity.noContent().build();

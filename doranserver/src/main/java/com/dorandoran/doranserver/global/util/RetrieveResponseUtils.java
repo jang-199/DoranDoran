@@ -7,6 +7,7 @@ import com.dorandoran.doranserver.domain.post.dto.*;
 import com.dorandoran.doranserver.global.util.distance.DistanceUtil;
 import lombok.Builder;
 import org.locationtech.jts.geom.Point;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 
@@ -86,7 +87,7 @@ public class RetrieveResponseUtils {
                                                                                                                            List<Integer> likeCntList,
                                                                                                                            List<Boolean> likeResultList,
                                                                                                                            List<Integer> commentAndReplyCnt,
-                                                                                                                           LinkedHashMap<Post, String> StringPostHashMap) {
+                                                                                                                           LinkedMultiValueMap<Long, String> stringPostHashMap) {
             HashMap<String, RetrieveInterestedDto.ReadInterestedResponse> stringPostResponseDtoHashMap = new LinkedHashMap<>();
             LinkedList<HashMap<String,RetrieveInterestedDto.ReadInterestedResponse>> mapLinkedList = new LinkedList<>();
             Iterator<Integer> likeCntListIter = likeCntList.iterator();
@@ -110,7 +111,15 @@ public class RetrieveResponseUtils {
                         .fontBold(post.getFontBold())
                         .isWrittenByMember(post.getMemberId().getEmail().equals(userEmail) ? Boolean.TRUE : Boolean.FALSE)
                         .build();
-                stringPostResponseDtoHashMap.put(StringPostHashMap.get(post),postResponse);
+                if (Objects.requireNonNull(stringPostHashMap.get(post.getPostId())).size() > 1) {
+                    List<String> strings = stringPostHashMap.get(post.getPostId());
+                    for (String string : Objects.requireNonNull(strings)) {
+                        stringPostResponseDtoHashMap.put(string,postResponse);
+                    }
+                }else {
+                    stringPostResponseDtoHashMap.put(Objects.requireNonNull(stringPostHashMap.get(post.getPostId())).get(0),postResponse);
+                }
+
             }
             mapLinkedList.add(stringPostResponseDtoHashMap);
             return mapLinkedList;

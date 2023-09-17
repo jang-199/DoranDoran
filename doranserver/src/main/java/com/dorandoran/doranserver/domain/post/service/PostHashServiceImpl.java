@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,10 +49,10 @@ public class PostHashServiceImpl implements PostHashService {
         List<Long> memberBlockListIdList = memberBlockListByBlockingMember.stream().map(Member::getMemberId).toList();
         if (memberBlockListByBlockingMember.isEmpty()) {
             List<Long> topByHashTag = postHashRepository.findTopByHashTag(hashTagIdList, memberId);
-            return postRepository.findAllById(topByHashTag);
+            return postRepository.findAllByIdFetchMember(topByHashTag);
         }
         List<Long> topByHashTagWithoutBlockLists = postHashRepository.findTopByHashTagWithoutBlockLists(hashTagIdList, memberId, memberBlockListIdList);
-        return postRepository.findAllById(topByHashTagWithoutBlockLists);
+        return postRepository.findAllByIdFetchMember(topByHashTagWithoutBlockLists);
     }
 
     @Override
@@ -84,13 +85,13 @@ public class PostHashServiceImpl implements PostHashService {
     }
 
     @Override
-    public LinkedHashMap<Post, String> makeStringPostHashMap(List<Post> postList) {
-        LinkedHashMap<Post, String> stringPostLinkedHashMap = new LinkedHashMap<>();
-        List<PostHash> postHashList = postHashRepository.findAllByPostId(postList);
+    public LinkedMultiValueMap<Long, String> makeStringPostHashMap(List<Post> postList, List<HashTag> hashTagList) {
+        LinkedMultiValueMap<Long, String> stringPostLinkedHashMap = new LinkedMultiValueMap<>();
+        List<PostHash> postHashList = postHashRepository.findAllByPostId(postList,hashTagList);
         for (PostHash postHash : postHashList) {
             String hashTagName = postHash.getHashTagId().getHashTagName();
-            Post post = postHash.getPostId();
-            stringPostLinkedHashMap.put(post, hashTagName);
+            Long post = postHash.getPostId().getPostId();
+            stringPostLinkedHashMap.add(post, hashTagName);
         }
         return stringPostLinkedHashMap;
     }

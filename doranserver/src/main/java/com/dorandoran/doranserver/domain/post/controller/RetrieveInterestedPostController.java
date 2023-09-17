@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,25 +56,16 @@ public class RetrieveInterestedPostController {
         List<HashTag> hashTagList = memberHashService.findHashByMember(member).stream()
                 .map(MemberHash::getHashTagId)
                 .toList();
-        log.info("hashTag size: {}",hashTagList.size());
-        log.info("hashTag detail: {}",hashTagList);
 
         List<Post> postList = postHashService.findTopOfPostHash(hashTagList, member, memberBlockListByBlockingMember);
-        log.info("postList size: {}",postList.size());
 
-        LinkedHashMap<Post, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList);
-        for (Map.Entry<Post, String> post : stringPostLinkedHashMap.entrySet()) {
-            log.info("LinkedHashMap: {} , {}",post.getKey().getPostId(),post.getValue());
-        }
+        LinkedMultiValueMap<Long, String> stringPostLinkedHashMap = postHashService.makeStringPostHashMap(postList, hashTagList);
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);
-        log.info("lIkeCntList size: {}",lIkeCntList.size());
 
         List<Boolean> likeResultByPostList = postLikeService.findLikeResultByPostList(userEmail, postList);
-        log.info("likeResultByPostList size: {}",likeResultByPostList.size());
 
         List<Integer> commentAndReplyCntList = commentService.findCommentAndReplyCntByPostIdByList(postList);
-        log.info("commentAndReplyCntList size: {}",commentAndReplyCntList.size());
 
         RetrieveResponseUtils.InterestedPostResponse retrieveResponseUtils = RetrieveResponseUtils.InterestedPostResponse.builder()
                 .userEmail(userEmail)

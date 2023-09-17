@@ -4,9 +4,9 @@ import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.hashtag.domain.PostHash;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface PostHashService {
     public void savePostHash(PostHash postHash);
@@ -19,4 +19,5 @@ public interface PostHashService {
     List<Post> inquiryFirstPostHash(HashTag hashTag, Member member, List<Member> memberBlockListByBlockingMember);
     List<Post> inquiryPostHash(HashTag hashTag, Long postCnt,Member member, List<Member> memberBlockListByBlockingMember);
     void makePostHashList(List<PostHash> postHashList, List<String> postHashListDto);
+    LinkedMultiValueMap<Post, String> makeStringPostHashMap(List<Post> postList, List<HashTag> hashTagList);
 }

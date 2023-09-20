@@ -35,39 +35,39 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 "order by m.postId desc ")
     List<Post> findPost(@Param("pos") Long pos,@Param("member") Member member, PageRequest pageRequest);
 
-    @Query(value = "select m from Post m " +
-            "where ((ST_Distance(:point,m.location)) <= :distance) and m.isLocked = false " +
-            "order by m.postId desc")
+    @Query(value = "select p from Post p " +
+            "where ((ST_Distance(:point,p.location)) <= :distance) and p.isLocked = false and ((p.memberId = :member and p.forMe = true ) or (p.forMe = false)) " +
+            "order by p.postId desc")
     List<Post> findFirstClosePost(@Param("point") Point point,
                                   @Param("distance") double distance,
+                                  @Param("member") Member member,
                                   PageRequest pageRequest);
 
-    @Query("select m from Post m " +
-            "where ((ST_Distance(:point,m.location)) <= :distance) and m.isLocked = false and m.memberId not in :members " +
-            "order by m.postId desc")
+    @Query("select p from Post p " +
+            "where ((ST_Distance(:point,p.location)) <= :distance) and p.isLocked = false and p.memberId not in :members and ((p.memberId = :member and p.forMe = true ) or (p.forMe = false)) " +
+            "order by p.postId desc")
     List<Post> findFirstClosePostWithoutBlockLists(@Param("point") Point point,
                                                    @Param("distance") double distance,
                                                    @Param("members") List<Member> members,
+                                                   @Param("member") Member member,
                                                    PageRequest pageRequest);
-
-    @Query("select (ST_Distance(:point,m.location)) from Post m where m.postId = 3 ")
-    Double findDistanceTest(@Param("point") Point point);
-
-    @Query("select m from Post m " +
-            "where m.postId <= :pos and (ST_Distance(:Point,m.location)) <= :distance and m.isLocked = false " +
-            "order by m.postId desc ")
-    List<Post> findClosePostV2(@Param("pos") Long pos,
-                               @Param("Point") Point point,
-                               @Param("distance") double distance,
+    @Query("select p from Post p " +
+            "where p.postId <= :pos and (ST_Distance(:Point,p.location)) <= :distance and p.isLocked = false and ((p.memberId = :member and p.forMe = true ) or (p.forMe = false)) " +
+            "order by p.postId desc ")
+    List<Post> findClosePost(@Param("pos") Long pos,
+                             @Param("Point") Point point,
+                             @Param("distance") double distance,
+                             @Param("member") Member member,
                              PageRequest pageRequest);
-    @Query("select m from Post m " +
-            "where m.postId <= :pos  and (ST_Distance(:point,m.location)) <= :distance and m.isLocked = false and m.memberId not in :members " +
-            "order by m.postId desc ")
-    List<Post> findClosePostWithoutBlockListsV2(@Param("pos") Long pos,
-                                                @Param("point") Point point,
-                                                @Param("distance") double distance,
-                                                @Param("members") List<Member> members,
-                                                PageRequest pageRequest);
+    @Query("select p from Post p " +
+            "where p.postId <= :pos  and (ST_Distance(:point,p.location)) <= :distance and p.isLocked = false and p.memberId not in :members and ((p.memberId = :member and p.forMe = true ) or (p.forMe = false)) " +
+            "order by p.postId desc ")
+    List<Post> findClosePostWithoutBlockLists(@Param("pos") Long pos,
+                                              @Param("point") Point point,
+                                              @Param("distance") double distance,
+                                              @Param("members") List<Member> members,
+                                              @Param("member") Member member,
+                                              PageRequest pageRequest);
     @Query("select m from Post m " +
             "where m.memberId = :member " +
             "order by m.postId desc ")

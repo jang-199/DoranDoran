@@ -34,24 +34,24 @@ public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
     List<PostLike> findLikeResultByPostList(@Param("email") String email, @Param("postList") List<Post> postList);
 
     @Query("select p.postId from PostLike p " +
-            "where p.memberId.email = :email and p.checkDelete = false " +
+            "where p.memberId.email = :email and p.checkDelete = false and p.postId.isLocked = false and ((p.postId.memberId.email = :email and p.postId.forMe = true ) or (p.postId.forMe = false))" +
             "order by p.postLikeId desc ")
     List<Post> findFirstMyLikedPosts(@Param("email") String email, PageRequest pageRequest);
     @Query("select p.postId from PostLike p " +
-            "where p.memberId.email = :email and p.checkDelete = false and p.memberId not in :members " +
+            "where p.memberId.email = :email and p.checkDelete = false and p.memberId not in :members and p.postId.isLocked = false and ((p.postId.memberId.email = :email and p.postId.forMe = true ) or (p.postId.forMe = false)) " +
             "order by p.postLikeId desc ")
     List<Post> findFirstMyLikedPostsWithoutBlockLists(@Param("email") String email,
                                                           @Param("members") List<Member> members,
                                                           PageRequest pageRequest);
 
     @Query("select p.postId from PostLike p " +
-            "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false " +
+            "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false and p.postId.isLocked = false and ((p.postId.memberId.email = :email and p.postId.forMe = true ) or (p.postId.forMe = false)) " +
             "order by p.postLikeId desc ")
     List<Post> findMyLikedPosts(@Param("email") String email,
                                     @Param("pos") Long position,
                                     PageRequest pageRequest);
     @Query("select p.postId from PostLike p " +
-            "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false and p.memberId not in :members " +
+            "where p.memberId.email = :email and p.postLikeId <= :pos and p.checkDelete = false and p.memberId not in :members and p.postId.isLocked = false and ((p.postId.memberId.email = :email and p.postId.forMe = true ) or (p.postId.forMe = false)) " +
             "order by p.postLikeId desc ")
     List<Post> findMyLikedPostsWithoutBlockLists(@Param("email") String email,
                                                      @Param("pos") Long position,

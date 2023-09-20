@@ -15,8 +15,8 @@ spring:
 #        format_sql: true
 
 #    show-sql: true
-    hibernate:
-      ddl-auto: create
+#    hibernate:
+#      ddl-auto: create
 
   servlet:
     multipart:

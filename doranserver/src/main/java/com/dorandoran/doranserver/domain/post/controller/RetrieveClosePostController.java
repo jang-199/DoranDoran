@@ -65,9 +65,9 @@ public class RetrieveClosePostController {
 
         List<Post> postList;
         if (postCnt == 0) {
-            postList = postService.findFirstClosePost(clientPoint, range,memberBlockListByBlockingMember);
+            postList = postService.findFirstClosePost(clientPoint, range,memberBlockListByBlockingMember, member);
         }else {
-            postList = postService.findClosePost(clientPoint, range,postCnt,memberBlockListByBlockingMember);
+            postList = postService.findClosePost(clientPoint, range,postCnt,memberBlockListByBlockingMember, member);
         }
 
         List<Integer> lIkeCntList = postLikeService.findLIkeCntByPostList(postList);

@@ -15,6 +15,7 @@ import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.comment.dto.ReplyDto;
 import com.dorandoran.doranserver.domain.post.service.PostService;
+import com.dorandoran.doranserver.global.util.exception.customexception.reply.NotFoundReplyException;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,8 +89,7 @@ public class ManageBlockMemberController {
     @Admin
     @GetMapping("/reply/block/read/{blockReplyId}")
     public ResponseEntity<?> getBlockReplyDetail(@PathVariable Long blockReplyId){
-        Reply replyByReplyId = replyService.findReplyByReplyId(blockReplyId)
-                .orElseThrow(() -> new NoSuchElementException("해당 대댓글이 없습니다."));
+        Reply replyByReplyId = replyService.findReplyByReplyId(blockReplyId);
         Post post = postService.findSinglePost(replyByReplyId.getCommentId().getPostId().getPostId());
 
         ArrayList<CommentDto.ReadAdminCommentResponse> responseCommentList = new ArrayList<>();

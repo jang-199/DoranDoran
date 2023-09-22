@@ -17,7 +17,7 @@ public interface ReplyService {
     List<Reply> findReplyList(Comment comment);
     void deleteReply(Reply reply);
     void saveReply(Reply reply);
-    Optional<Reply> findReplyByReplyId(Long replyId);
+    Reply findReplyByReplyId(Long replyId);
     List<Reply> findFirstReplies(Comment comment);
     List<Reply> findFirstRepliesFetchMember(Comment comment);
     List<Reply> findNextReplies(Long commentId, Long replyId);

@@ -7,6 +7,7 @@ import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.post.exception.UnsupportedImageExtensionException;
+import com.dorandoran.doranserver.global.util.exception.customexception.post.NotFoundPostException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -66,7 +67,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post findSinglePost(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+        return postRepository.findById(postId).orElseThrow(() -> new NotFoundPostException("해당 글이 존재하지 않습니다."));
     }
 
     @Override
@@ -113,7 +114,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post findFetchMember(Long postId){
         return postRepository.findFetchMember(postId)
-                .orElseThrow(() -> new NoSuchElementException("해당 글이 없습니다."));
+                .orElseThrow(() -> new NotFoundPostException("해당 글이 없습니다."));
     }
 
     @Override

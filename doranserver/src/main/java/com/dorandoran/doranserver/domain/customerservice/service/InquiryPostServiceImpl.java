@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.domain.customerservice.service;
 
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
 import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.exception.NotFoundInquiryPostException;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.customerservice.domain.inquirytype.InquiryStatus;
 import com.dorandoran.doranserver.domain.customerservice.service.repository.InquiryPostRepository;
@@ -45,12 +46,12 @@ public class InquiryPostServiceImpl implements InquiryPostService{
 
     @Override
     public InquiryPost findInquiryPost(Long inquiryPostId) {
-        return inquiryPostRepository.findById(inquiryPostId).orElseThrow(() -> new NoSuchElementException("해당 문의 글이 존재하지 않습니다."));
+        return inquiryPostRepository.findById(inquiryPostId).orElseThrow(() -> new NotFoundInquiryPostException("해당 문의 글이 존재하지 않습니다."));
     }
 
     @Override
     public InquiryPost findInquiryPostFetchMember(Long inquiryPostId){
-        return inquiryPostRepository.findFetchMember(inquiryPostId).orElseThrow(() -> new NoSuchElementException("해당 문의 글이 존재하지 않습니다."));
+        return inquiryPostRepository.findFetchMember(inquiryPostId).orElseThrow(() -> new NotFoundInquiryPostException("해당 문의 글이 존재하지 않습니다."));
     }
 
     @Override

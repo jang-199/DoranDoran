@@ -49,7 +49,7 @@ public class BlockMemberController {
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
             }
             case reply -> {
-                Member blockedMember = replyService.findReplyByReplyId(blockMemberDto.getId()).orElseThrow().getMemberId();
+                Member blockedMember = replyService.findReplyByReplyId(blockMemberDto.getId()).getMemberId();
                 memberBlockListService.addBlockList(blockingMember,blockedMember);
             }
         }

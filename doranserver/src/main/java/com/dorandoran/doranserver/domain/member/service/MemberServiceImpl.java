@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.domain.member.service;
 
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.repository.MemberRepository;
+import com.dorandoran.doranserver.global.util.exception.customexception.member.NotFoundMemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,7 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public Member findByEmail(String email) {
-        return memberRepository.findByEmail(email).orElseThrow(()->new RuntimeException("이메일로 사용자를 찾을 수 없습니다."));
+        return memberRepository.findByEmail(email).orElseThrow(()->new NotFoundMemberException("이메일로 사용자를 찾을 수 없습니다."));
     }
 
     @Override

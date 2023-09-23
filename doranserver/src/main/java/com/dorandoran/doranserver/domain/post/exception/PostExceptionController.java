@@ -2,24 +2,18 @@ package com.dorandoran.doranserver.domain.post.exception;
 
 import com.dorandoran.doranserver.domain.post.controller.PostController;
 import com.dorandoran.doranserver.domain.post.controller.RetrieveClosePostController;
-import com.dorandoran.doranserver.domain.post.service.PostService;
-import com.dorandoran.doranserver.domain.post.service.PostServiceImpl;
 import com.dorandoran.doranserver.global.util.domain.ErrorReport;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
 @Slf4j
-public class ExceptionController {
+public class PostExceptionController {
 
     @RestControllerAdvice(assignableTypes = PostController.class)
     public static class MaxUploadSizeExceededExceptionHandler {

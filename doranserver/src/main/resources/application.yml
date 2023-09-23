@@ -36,6 +36,9 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+
+    max-keep-alive-requests: 1
+
   servlet:
     encoding:
       force: true
@@ -89,6 +92,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+  server:
+    port: 8079
 
 
 #log level

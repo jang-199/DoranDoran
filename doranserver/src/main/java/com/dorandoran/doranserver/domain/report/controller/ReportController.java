@@ -93,8 +93,7 @@ public class ReportController {
                                                @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
-        Reply reply = replyService.findReplyByReplyId(reportReplyRequestDto.getReplyId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+        Reply reply = replyService.findReplyByReplyId(reportReplyRequestDto.getReplyId());
 
         if (reportReplyService.existedReportReply(reply, member)){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();

@@ -38,24 +38,25 @@ public class ReplyDto {
         Boolean replyCheckDelete;
         Boolean isWrittenByMember;
         LocalDateTime replyTime;
+        Boolean isLocked;
 
         public ReadReplyResponse toEntity(Reply reply, Boolean isReplyWrittenByUser){
             return ReplyDto.ReadReplyResponse.builder()
                     .reply(reply)
-                    .content(reply.getReply())
                     .isWrittenByMember(isReplyWrittenByUser)
                     .build();
         }
 
         @Builder
-        public ReadReplyResponse(Reply reply, String content, Boolean isWrittenByMember) {
+        public ReadReplyResponse(Reply reply, Boolean isWrittenByMember) {
             this.replyId = reply.getReplyId();
             this.replyNickname = reply.getMemberId().getNickname();
-            this.reply = reply.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
+            this.reply = changeReplyByDeletedAndLocked(reply);
             this.replyAnonymityNickname = null;
             this.replyCheckDelete = reply.getCheckDelete();
             this.replyTime = reply.getCreatedTime();
             this.isWrittenByMember = isWrittenByMember;
+            this.isLocked = reply.getIsLocked();
         }
     }
     @Getter
@@ -86,5 +87,19 @@ public class ReplyDto {
             this.nickname = reply.getMemberId().getNickname();
             this.content = reply.getReply();
         }
+    }
+
+    private static String changeReplyByDeletedAndLocked(Reply reply){
+        String replyContent = reply.getReply();
+
+        if (reply.getIsLocked()){
+            replyContent = "신고된 댓글입니다.";
+        }
+
+        if (reply.getCheckDelete()){
+            replyContent = "삭제된 댓글입니다.";
+        }
+
+        return replyContent;
     }
 }

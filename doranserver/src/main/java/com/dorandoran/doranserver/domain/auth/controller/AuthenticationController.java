@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.Optional;
 
 @Timed
@@ -38,9 +39,15 @@ public class AuthenticationController {
 
         if (!tokenProvider.validToken(tokenDto.getAccessToken()) && tokenProvider.validToken(tokenDto.getRefreshToken())) { //Access 유효 x & Refresh 유효
             if (tokenProvider.isExpired(tokenDto.getAccessToken())) { //Access 만료
-                String newAccessToken = tokenService.createNewAccessToken(tokenDto.getRefreshToken()); //AccessToken 발급
+                String newAccessToken;
+                if (tokenService.hasRejectTimeInClaim(tokenDto.getAccessToken())) {
+                    Date rejectTime = tokenProvider.getRejectTime(tokenDto.getAccessToken());
+                    newAccessToken = tokenService.createNewAccessTokenWithRejectTime(tokenDto.getRefreshToken(), rejectTime);
+                } else {
+                    newAccessToken = tokenService.createNewAccessToken(tokenDto.getRefreshToken()); //AccessToken 발급
+
+                }
                 builder.accessToken(newAccessToken);
-//                responseTokenDto.setAccessToken(newAccessToken);
 
                 //refresh token expired check
                 if (tokenProvider.getExpiryDuration(tokenDto.getRefreshToken()).compareTo(Duration.ofDays(21)) < 0) { //21일 보다 만료 기간이 작음
@@ -59,11 +66,11 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PatchMapping("/test/token")
-    ResponseEntity<?> tokenCheckTest(@RequestBody AuthenticationDto.TokenTest tokenDto) {
-
-        Optional<Member> byRefreshToken = memberRepository.findByRefreshToken(tokenDto.getRefreshToken());
-        String s = tokenProvider.generateAccessToken(byRefreshToken.get(), Duration.ofMillis(Long.parseLong(tokenDto.getLimitTime())));
-        return ResponseEntity.ok().body(s);
-    }
+//    @PatchMapping("/test/token")
+//    ResponseEntity<?> tokenCheckTest(@RequestBody AuthenticationDto.TokenTest tokenDto) {
+//
+//        Optional<Member> byRefreshToken = memberRepository.findByRefreshToken(tokenDto.getRefreshToken());
+//        String s = tokenProvider.generateAccessToken(byRefreshToken.get(), Duration.ofMillis(Long.parseLong(tokenDto.getLimitTime())));
+//        return ResponseEntity.ok().body(s);
+//    }
 }

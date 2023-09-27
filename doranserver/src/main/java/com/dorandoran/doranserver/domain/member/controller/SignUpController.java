@@ -65,7 +65,7 @@ public class SignUpController {
             return ResponseEntity.badRequest().build();
         }
 
-        String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1));
+        String accessToken = tokenProvider.generateAccessToken(member);
         String refreshToken = member.getRefreshToken();
         member.setRefreshToken(refreshToken);
         member.setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
@@ -141,13 +141,13 @@ public class SignUpController {
                         .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
                         .refreshToken("Dummy").build();
 
-                String refreshToken = tokenProvider.generateRefreshToken(member, Period.ofMonths(6)); //약 6개월 기간의 refreshToken create
+                String refreshToken = tokenProvider.generateRefreshToken(member); //약 6개월 기간의 refreshToken create
 
                 member.setRefreshToken(refreshToken);
 
                 signUpService.saveMember(member);
 
-                String accessToken = tokenProvider.generateAccessToken(member, Duration.ofDays(1)); //AccessToken generate
+                String accessToken = tokenProvider.generateAccessToken(member); //AccessToken generate
 
                 return ResponseEntity.ok().body(
                         AccountDto.SignUpResponse.builder()

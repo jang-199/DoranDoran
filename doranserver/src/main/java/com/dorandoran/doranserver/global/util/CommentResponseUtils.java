@@ -36,7 +36,6 @@ public class CommentResponseUtils {
 
         CommentDto.ReadCommentResponse commentDetailDto = CommentDto.ReadCommentResponse.builder()
                 .comment(comment)
-                .content(comment.getComment())
                 .commentLikeResult(commentLikeResult)
                 .commentLikeCnt(commentLikeCnt)
                 .isWrittenByMember(isCommentWrittenByMember)
@@ -65,7 +64,6 @@ public class CommentResponseUtils {
             }
             ReplyDto.ReadReplyResponse replyDetailDto = ReplyDto.ReadReplyResponse.builder()
                     .reply(reply)
-                    .content(reply.getReply())
                     .isWrittenByMember(isReplyWrittenByUser)
                     .build();
             replyService.checkSecretReply(replyDetailDto, post, reply, userEmail);

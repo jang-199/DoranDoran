@@ -23,15 +23,15 @@ public class AuthenticationDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class TokenTest{
 
         private String refreshToken;
-        private String limitTime;
+
 
         @Builder
-        public TokenTest(String refreshToken, String limitTime) {
+        public TokenTest(String refreshToken) {
             this.refreshToken = refreshToken;
-            this.limitTime = limitTime;
         }
     }
 }

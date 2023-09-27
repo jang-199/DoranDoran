@@ -60,7 +60,7 @@ public class AuthenticationController {
         AuthenticationDto.TokenResponse response = builder.build();
 
         if (response.getAccessToken() == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.noContent().build();
         }
 
         return ResponseEntity.ok().body(response);

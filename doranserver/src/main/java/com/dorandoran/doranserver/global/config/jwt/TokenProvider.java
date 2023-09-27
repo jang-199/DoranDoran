@@ -25,10 +25,25 @@ import java.util.Set;
 public class TokenProvider {
     private final JwtProperties jwtProperties;
 
+    public String generateNotificationRejectUserAccessToken(Member user,Date rejectExpireAt) {
+        return makeNotificationRejectUserToken(user.getEmail(), new Date(new Date().getTime() + Duration.ofDays(1).toMillis()), rejectExpireAt);
+    }
 
+    private String makeNotificationRejectUserToken(String userEmail, Date expiry, Date rejectExpiry) {
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE,Header.JWT_TYPE)
+                .setIssuer(jwtProperties.getIssuer())
+                .setIssuedAt(new Date())
+                .setExpiration(expiry)
+                .setSubject(userEmail)
+                .claim("ROLE","ROLE_USER")
+                .claim("rejectTime",rejectExpiry)
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
+                .compact();
+    }
 
-    public String generateAccessToken(Member user, Duration expireAt) {
-        return makeToken(new Date(new Date().getTime() + expireAt.toMillis()), user);
+    public String generateAccessToken(Member user) {
+        return makeToken(new Date(new Date().getTime() + Duration.ofDays(1).toMillis()), user);
     }
 
     /**
@@ -37,8 +52,8 @@ public class TokenProvider {
      * @param expireAt 주기를 받아 밀리초로 변환하여 Date객체 생성 후 밀리초로 변환
      * @return
      */
-    public String generateRefreshToken(Member user, Period expireAt) {
-        return makeToken(new Date(new Date().getTime() + expireAt.toTotalMonths()*Duration.ofDays(30).toMillis()), user);
+    public String generateRefreshToken(Member user) {
+        return makeToken(new Date(new Date().getTime() + Period.ofMonths(6).toTotalMonths()*Duration.ofDays(30).toMillis()), user);
     }
 
     private String makeToken(Date expiry, Member user) {
@@ -120,6 +135,11 @@ public class TokenProvider {
     public String getUserEmail(String token) {
         Claims claims = getClaims(token);
         return claims.get("email", String.class);
+    }
+
+    public Date getRejectTime(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("rejectTime",Date.class);
     }
 
     public Duration getExpiryDuration(String token) {

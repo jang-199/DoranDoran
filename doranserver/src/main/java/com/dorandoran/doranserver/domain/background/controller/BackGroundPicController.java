@@ -55,9 +55,6 @@ public class BackGroundPicController {
 
         if (backgroundPic.isPresent()) {
             UrlResource urlResource = new UrlResource("file:" + backgroundPic.get().getServerPath());
-            log.info("{}", backgroundPic.get().getBackgroundPicId());
-            log.info("{}", backgroundPic.get().getImgName());
-            log.info("{}", backgroundPic.get().getServerPath());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic.get().getImgName() + "\"")
                     .body(urlResource);

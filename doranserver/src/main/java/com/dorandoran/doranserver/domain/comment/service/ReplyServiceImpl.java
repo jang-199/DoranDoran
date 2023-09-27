@@ -8,6 +8,7 @@ import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
 import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
+import com.dorandoran.doranserver.global.util.exception.customexception.reply.NotFoundReplyException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -53,8 +54,8 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
-    public Optional<Reply> findReplyByReplyId(Long replyId) {
-        return replyRepository.findById(replyId);
+    public Reply findReplyByReplyId(Long replyId) {
+        return replyRepository.findById(replyId).orElseThrow(() -> new NotFoundReplyException("해당 대댓글이 없습니다."));
     }
 
     @Override
@@ -119,7 +120,7 @@ public class ReplyServiceImpl implements ReplyService{
     @Override
     public Reply findFetchMember(Long replyId) {
         return replyRepository.findFetchMember(replyId)
-                .orElseThrow(() -> new NoSuchElementException("해당 대댓글이 없습니다."));
+                .orElseThrow(() -> new NotFoundReplyException("해당 대댓글이 없습니다."));
     }
 
     @Override

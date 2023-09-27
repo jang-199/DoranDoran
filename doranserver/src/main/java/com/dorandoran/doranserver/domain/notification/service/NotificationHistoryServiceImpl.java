@@ -8,14 +8,13 @@ import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.notification.repository.NotificationHistoryRepository;
-import com.dorandoran.doranserver.domain.notification.domain.notificationType.NotificationType;
+import com.dorandoran.doranserver.global.util.exception.customexception.notification.NotFoundNotificationHistoryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Service
@@ -54,7 +53,7 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
     @Override
     public NotificationHistory findNotificationById(Long notificationId) {
         return notificationHistoryRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 알람 기록이 없습니다."));
+                .orElseThrow(() -> new NotFoundNotificationHistoryException("해당 알람 기록이 없습니다."));
     }
 
     @Override
@@ -84,8 +83,7 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
     }
 
     private NotificationDto.notificationReadResponse makeReplyNotification(NotificationHistory notificationHistory) {
-        Reply reply = replyService.findReplyByReplyId(notificationHistory.getObjectId())
-                .orElseThrow(() -> new NoSuchElementException("해당 대댓글이 존재하지 않습니다."));
+        Reply reply = replyService.findReplyByReplyId(notificationHistory.getObjectId());
         return NotificationDto.notificationReadResponse.builder()
                 .notificationHistory(notificationHistory)
                 .postId(reply.getCommentId().getPostId().getPostId())

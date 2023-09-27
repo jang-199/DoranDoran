@@ -1,6 +1,7 @@
 package com.dorandoran.doranserver.domain.comment.dto;
 
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
+import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,12 +45,12 @@ public class CommentDto {
         private int countReply;
         private Boolean isWrittenByMember; //내가 쓴 댓글인지 확인
         private LocalDateTime commentTime; //댓글 작성 시간
+        private Boolean isLocked;
         private HashMap<String, Object> replies; //대댓글
 
         public ReadCommentResponse toEntity(Comment comment, Boolean commentLikeResult, Long commentLikeCnt, Boolean isCommentWrittenByMember, HashMap<String, Object> replies){
             return CommentDto.ReadCommentResponse.builder()
                     .comment(comment)
-                    .content(comment.getComment())
                     .commentLikeResult(commentLikeResult)
                     .commentLikeCnt(commentLikeCnt)
                     .isWrittenByMember(isCommentWrittenByMember)
@@ -59,9 +60,9 @@ public class CommentDto {
 
 
         @Builder
-        public ReadCommentResponse(Comment comment, String content, Long commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, HashMap<String, Object> replies) {
+        public ReadCommentResponse(Comment comment, Long commentLikeCnt, Boolean commentLikeResult, Boolean isWrittenByMember, HashMap<String, Object> replies) {
             this.commentId = comment.getCommentId();
-            this.comment = comment.getIsLocked().equals(Boolean.TRUE) ? "신고된 댓글입니다." : content;
+            this.comment = changeCommentByDeletedAndLocked(comment);
             this.commentLike = commentLikeCnt;
             this.commentLikeResult = commentLikeResult;
             this.commentNickname = comment.getMemberId().getNickname();
@@ -70,6 +71,7 @@ public class CommentDto {
             this.countReply = comment.getCountReply();
             this.isWrittenByMember = isWrittenByMember;
             this.commentTime = comment.getCreatedTime();
+            this.isLocked = comment.getIsLocked();
             this.replies = replies;
         }
     }
@@ -118,5 +120,19 @@ public class CommentDto {
             this.content = comment.getComment();
             this.replyList = replyList;
         }
+    }
+
+    private static String changeCommentByDeletedAndLocked(Comment comment){
+        String commentContent = comment.getComment();
+
+        if (comment.getIsLocked()){
+            commentContent = "신고된 댓글입니다.";
+        }
+
+        if (comment.getCheckDelete()){
+            commentContent = "삭제된 댓글입니다.";
+        }
+
+        return commentContent;
     }
 }

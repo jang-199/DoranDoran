@@ -218,7 +218,7 @@ public class CommentController {
     @DeleteMapping("/reply")
     public ResponseEntity<?> replyDelete(@RequestBody ReplyDto.DeleteReply replyDeleteDto,
                                          @AuthenticationPrincipal UserDetails userDetails){
-        Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId()).orElseThrow(() -> new NoSuchElementException("에러 발생"));
+        Reply reply = replyService.findReplyByReplyId(replyDeleteDto.getReplyId());
         if (reply.getMemberId().getEmail().equals(userDetails.getUsername())){
             replyService.setCheckDelete(reply);
             return ResponseEntity.noContent().build();

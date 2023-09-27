@@ -8,6 +8,7 @@ import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
 import com.dorandoran.doranserver.global.util.MemberMatcherUtil;
+import com.dorandoran.doranserver.global.util.exception.customexception.comment.NotFoundCommentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -41,9 +42,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Integer> findCommentAndReplyCntByPostIdByList(List<Post> postList) {
 
-        List<Comment> commentByPostList = commentRepository.findCommentByPostList(postList);//글에 해당하는 댓글 리스트
+        List<Comment> commentByPostList = commentRepository.findCommentByPostList(postList);
 
-        List<Reply> replyCntByCommentList = replyRepository.findReplyCntByCommentList(commentByPostList);//댓글에 달린 대댓글 개수 리스트
+        List<Reply> replyCntByCommentList = replyRepository.findReplyCntByCommentList(commentByPostList);
 
         ArrayList<Integer> commentAndReplyCntList = new ArrayList<>();
         for (Post post :
@@ -62,7 +63,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment findCommentByCommentId(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(NoSuchElementException::new);
+        return commentRepository.findById(commentId).orElseThrow(() -> new NotFoundCommentException("해당 댓글이 존재하지 않습니다."));
     }
 
     @Override
@@ -142,7 +143,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment findFetchMember(Long commentId) {
         return commentRepository.findFetchMember(commentId)
-                .orElseThrow(() -> new NoSuchElementException("해당 댓글이 없습니다."));
+                .orElseThrow(() -> new NotFoundCommentException("해당 댓글이 없습니다."));
     }
 
     @Override

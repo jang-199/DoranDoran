@@ -36,6 +36,9 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+
+    max-keep-alive-requests: 1
+
   servlet:
     encoding:
       force: true
@@ -43,23 +46,23 @@ server:
 #linux server path
 background:
   Store:
-        path: ENC(9QEeqickxWCf+Y92WqaPrsgC1Js2Jm1vL73jNTghzN/D41hISXlJIoFU8Ohh06TMG9PkAdCyEOQ=)
-#    path: ENC(9Xseiaavj5QVtzIt0QHYz0XknoYy5RtvtGdLk/18jp4HTAxnDAV/brvdNAtYOg6BeYFYTcXasYU=)
+#        path: ENC(9QEeqickxWCf+Y92WqaPrsgC1Js2Jm1vL73jNTghzN/D41hISXlJIoFU8Ohh06TMG9PkAdCyEOQ=)
+    path: ENC(j8XH8sd8zNSI1/ErDS+ZtyB8zehJjU1Likf0cZMZjHgkcRw/XrEUGtFRDf5LtRsAxs0dLPrT4I4=)
 
   cnt: 100
 
 userUpload:
   Store:
-    path: ENC(JJQ2tG4BK3GI7HbgLiRCWrbTVBWwg4gujQlV1jb//1ngnOJ4KHP+NaSNrLtJpxyXAPx+5le56F4=)
-#    path: ENC(EQccS4VA27C5aFaZETGEO1gUdn4WQClxmOpwyz0QsFhbz75DtjgIfCUFIqKjRq7+WSDoDPl+5ps=)
+#    path: ENC(JJQ2tG4BK3GI7HbgLiRCWrbTVBWwg4gujQlV1jb//1ngnOJ4KHP+NaSNrLtJpxyXAPx+5le56F4=)
+    path: ENC(m7Iwcgs8PSaRROCO1mjBujx8eZ9CwGZTERbfHK4FNn2axv3F785G9wEfdpcmi+52upZ7wFyY2Cw=)
 
 
 
 #IP Adress
 doran:
   ip:
-    address: ENC(xBptybqPuMrjKGjysoZ4hmVqKrZXHzmw)
-#    address: ENC(LDVBP221M7WuHBE9SADZP4VGgsYHwAWH)
+#    address: ENC(xBptybqPuMrjKGjysoZ4hmVqKrZXHzmw)
+    address: ENC(LDVBP221M7WuHBE9SADZP4VGgsYHwAWH)
 
 #Jasypt
 jasypt:
@@ -89,6 +92,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+  server:
+    port: 8079
 
 
 #log level

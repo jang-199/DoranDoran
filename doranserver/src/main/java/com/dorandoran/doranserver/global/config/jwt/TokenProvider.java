@@ -43,15 +43,9 @@ public class TokenProvider {
     }
 
     public String generateAccessToken(Member user) {
-        return makeToken(new Date(new Date().getTime() + Duration.ofDays(1).toMillis()), user);
+        return makeToken(new Date(new Date().getTime() + Duration.ofMinutes(2).toMillis()), user);
     }
 
-    /**
-     *
-     * @param user
-     * @param expireAt 주기를 받아 밀리초로 변환하여 Date객체 생성 후 밀리초로 변환
-     * @return
-     */
     public String generateRefreshToken(Member user) {
         return makeToken(new Date(new Date().getTime() + Period.ofMonths(6).toTotalMonths()*Duration.ofDays(30).toMillis()), user);
     }
@@ -138,7 +132,7 @@ public class TokenProvider {
     }
 
     public Date getRejectTime(String token) {
-        Claims claims = getClaims(token);
+        Claims claims = getRejectTimeClaims(token);
         return claims.get("rejectTime",Date.class);
     }
 
@@ -163,5 +157,19 @@ public class TokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    private Claims getRejectTimeClaims(String token) {
+
+
+        try {
+            return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 }

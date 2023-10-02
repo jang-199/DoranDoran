@@ -5,12 +5,13 @@ build/generated/
 build/resources/
 build/tmp/
 !build/libs/doranserver-0.0.1-SNAPSHOT.jar
-doranserver/build/reports/
-doranserver/build/test-results/
+build/reports/
+build/test-results/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-**/src/test/
+!/src/test/
+/src/test/resources/
 ### STS ###
 .apt_generated
 .classpath
@@ -28,7 +29,7 @@ src/main/resources/dorandoran-374312-firebase-adminsdk-1efcc-88b663b5a1.json
 src/main/resources/dorandoran-374312-firebase-adminsdk-1efcc-31bcc99fe9.json
 resources/dorandoran-374312-firebase-adminsdk-1efcc-31bcc99fe9.json
 
-**/src/test
+#**/src/test
 
 ### IntelliJ IDEA ###
 .idea

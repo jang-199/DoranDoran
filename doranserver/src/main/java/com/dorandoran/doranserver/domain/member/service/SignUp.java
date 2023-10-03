@@ -14,4 +14,6 @@ public interface SignUp {
 
     //이용 약관
     Boolean checkPolicyTerms(PolicyTerms policyTerms);
+
+    Boolean existedNickname(String nickname);
 }

@@ -48,7 +48,7 @@ public class SignUpController {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
-        if (existedNickname(nicknameDto.getNickname())) {
+        if (signUpService.existedNickname(nicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             return ResponseEntity.noContent().build();
@@ -92,7 +92,7 @@ public class SignUpController {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
-        if (existedNickname(changeNicknameDto.getNickname())) {
+        if (signUpService.existedNickname(changeNicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             memberService.setNickname(findMember, changeNicknameDto.getNickname());
@@ -162,10 +162,5 @@ public class SignUpController {
             log.error("access token err : {}", e.getMessage());
         }
         return ResponseEntity.badRequest().build();
-    }
-
-    public Boolean existedNickname(String nickname){
-        Optional<Member> member = signUpService.findByNickname(nickname);
-        return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
     }
 }

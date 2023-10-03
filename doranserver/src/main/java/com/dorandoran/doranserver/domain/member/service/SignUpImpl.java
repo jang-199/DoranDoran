@@ -34,4 +34,10 @@ public class SignUpImpl implements SignUp{
     public Boolean checkPolicyTerms(PolicyTerms policyTerms) {
         return null;
     }
+
+    @Override
+    public Boolean existedNickname(String nickname){
+        Optional<Member> member = findByNickname(nickname);
+        return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
+    }
 }

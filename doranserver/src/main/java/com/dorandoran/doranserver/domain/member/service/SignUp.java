@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.domain.member.service;
 
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.domain.PolicyTerms;
+import com.dorandoran.doranserver.domain.member.exception.KakaoResourceServerException;
 
 import java.util.Optional;
 
@@ -16,4 +17,5 @@ public interface SignUp {
     Boolean checkPolicyTerms(PolicyTerms policyTerms);
 
     Boolean existedNickname(String nickname);
+    String getEmailByKakaoResourceServer(String kakaoAccessToken) throws KakaoResourceServerException;
 }

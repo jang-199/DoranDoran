@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.member.controller;
 
+import com.dorandoran.doranserver.domain.member.exception.KakaoResourceServerException;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.member.service.PolicyTermsCheck;
@@ -14,18 +15,10 @@ import com.dorandoran.doranserver.global.util.nicknamecleaner.NicknameCleaner;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
-import java.time.Period;
-import java.util.Optional;
 
 @Timed
 @Slf4j
@@ -102,65 +95,56 @@ public class SignUpController {
 
     @Trace
     @PostMapping("/member")
-    ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+    ResponseEntity<?> SignUp(@RequestBody AccountDto.SignUp signUp)  { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
 
         NicknameCleaner nicknameCleaner = new NicknameCleaner();
         if (!nicknameCleaner.isAvailableNickname(signUp.getNickname())) {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
-        String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + signUp.getKakaoAccessToken());
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(httpHeaders);
-
-        RestTemplate restTemplate = new RestTemplate();
+        String email;
         try {
-            ResponseEntity<String> response = restTemplate.exchange(KAKAO_USERINFO_REQUEST_URL, HttpMethod.GET, request, String.class);
-            JSONObject jsonObject = new JSONObject(response.getBody());
-
-            JSONObject kakao_account = jsonObject.getJSONObject("kakao_account");
-            String email = kakao_account.getString("email");
-            if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
-
-                PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
-                        .policy2(true)
-                        .policy3(true)
-                        .build();
-
-                policyTermsCheckService.policyTermsSave(policyTerms);
-
-
-                Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
-                        .firebaseToken(signUp.getFirebaseToken())
-                        .nickname(signUp.getNickname())
-                        .policyTermsId(policyTerms)
-                        .email(email)
-                        .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
-                        .refreshToken("Dummy").build();
-
-                String refreshToken = tokenProvider.generateRefreshToken(member); //약 6개월 기간의 refreshToken create
-
-                member.setRefreshToken(refreshToken);
-
-                signUpService.saveMember(member);
-
-                String accessToken = tokenProvider.generateAccessToken(member); //AccessToken generate
-
-                return ResponseEntity.ok().body(
-                        AccountDto.SignUpResponse.builder()
-                        .email(member.getEmail())
-                        .nickname(member.getNickname())
-                        .tokenDto(AuthenticationDto.TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build())
-                        .build()
-                );
-            }
-
-        } catch (HttpClientErrorException e) {
-            log.error("access token err : {}", e.getMessage());
+            email = signUpService.getEmailByKakaoResourceServer(signUp.getKakaoAccessToken());
+        } catch (KakaoResourceServerException e) {
+            log.error("kakaoAccess token err : {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Kakao 서버에서 사용자 정보를 받을 수 없습니다.");
         }
-        return ResponseEntity.badRequest().build();
+
+
+        if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
+
+            PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
+                    .policy2(true)
+                    .policy3(true)
+                    .build();
+
+            policyTermsCheckService.policyTermsSave(policyTerms);
+
+
+            Member member = Member.builder().dateOfBirth(signUp.getDateOfBirth())
+                    .firebaseToken(signUp.getFirebaseToken())
+                    .nickname(signUp.getNickname())
+                    .policyTermsId(policyTerms)
+                    .email(email)
+                    .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
+                    .refreshToken("Dummy").build();
+
+            String refreshToken = tokenProvider.generateRefreshToken(member); //약 6개월 기간의 refreshToken create
+
+            member.setRefreshToken(refreshToken);
+
+            signUpService.saveMember(member);
+
+            String accessToken = tokenProvider.generateAccessToken(member); //AccessToken generate
+
+            return ResponseEntity.ok().body(
+                    AccountDto.SignUpResponse.builder()
+                            .email(member.getEmail())
+                            .nickname(member.getNickname())
+                            .tokenDto(AuthenticationDto.TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build())
+                            .build()
+            );
+        }
+        return ResponseEntity.unprocessableEntity().body("이미 존재하는 email 입니다.");
     }
 }

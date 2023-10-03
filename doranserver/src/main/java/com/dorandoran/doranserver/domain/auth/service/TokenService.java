@@ -1,5 +1,6 @@
 package com.dorandoran.doranserver.domain.auth.service;
 
+import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.member.service.MemberServiceImpl;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
 import com.dorandoran.doranserver.domain.member.domain.Member;
@@ -16,7 +17,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class TokenService {
     private final TokenProvider tokenProvider;
-    private final MemberServiceImpl memberService;
+    private final MemberService memberService;
 
     public String createNewAccessTokenWithRejectTime(String refreshToken, Date rejectExpiryDate) {
         if (!tokenProvider.validToken(refreshToken)) {

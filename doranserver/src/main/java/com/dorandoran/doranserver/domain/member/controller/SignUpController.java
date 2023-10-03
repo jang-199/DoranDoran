@@ -115,7 +115,7 @@ public class SignUpController {
             email = signUpService.getEmailByKakaoResourceServer(signUp.getKakaoAccessToken());
         } catch (KakaoResourceServerException e) {
             log.error("kakaoAccess token err : {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Kakao 서버에서 사용자 정보를 받을 수 없습니다.");
         }
 
 
@@ -153,7 +153,7 @@ public class SignUpController {
                             .build()
             );
         }
-
+        return ResponseEntity.unprocessableEntity().body("이미 존재하는 email 입니다.");
     }
 
 

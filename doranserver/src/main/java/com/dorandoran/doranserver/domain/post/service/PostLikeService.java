@@ -21,5 +21,5 @@ public interface PostLikeService {
     List<Post> findFirstMyLikedPosts(String email, List<Member> memberBlockListByBlockingMember);
     List<Post> findMyLikedPosts(String email, Long position, List<Member> memberBlockListByBlockingMember);
     Optional<PostLike> findLikeOne(String email, Post post);
-    void checkPostLike(PostDto.LikePost postLikeDto, UserDetails userDetails, Post post, Member member, Optional<PostLike> postLike);
+    void checkPostLike(Post post, Member member, Optional<PostLike> postLike);
 }

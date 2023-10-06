@@ -43,7 +43,7 @@ public class TokenProvider {
     }
 
     public String generateAccessToken(Member user) {
-        return makeToken(new Date(new Date().getTime() + Duration.ofMinutes(2).toMillis()), user);
+        return makeToken(new Date(new Date().getTime() + Duration.ofDays(1).toMillis()), user);
     }
 
     public String generateRefreshToken(Member user) {

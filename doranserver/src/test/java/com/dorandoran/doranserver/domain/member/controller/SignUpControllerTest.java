@@ -12,12 +12,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,6 +31,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Slf4j
@@ -156,7 +160,8 @@ class SignUpControllerTest {
                 .nickname("nickname")
                 .osType(OsType.Ios)
                 .build();
-        Mockito.when(memberService.findByEmail("test@gmail.com")).thenThrow(new RuntimeException()).thenReturn(member);
+//        Mockito.when(memberService.findByEmail("test@gmail.com")).thenThrow(new RuntimeException()).thenReturn(member);
+        BDDMockito.given(memberService.findByEmail("test@gmail.com")).willThrow(new RuntimeException()).willReturn(member);
 
         //when
         ResultActions notFoundMemberExceptionResult = mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -227,7 +232,9 @@ class SignUpControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        Mockito.when(signUpService.getEmailByKakaoResourceServer(Mockito.anyString())).thenReturn("test@gmail.com");
+//        Mockito.when(signUpService.getEmailByKakaoResourceServer(Mockito.anyString())).thenReturn("test@gmail.com");
+        BDDMockito.given(signUpService.getEmailByKakaoResourceServer(Mockito.anyString())).willReturn("test1133@gmail.com");
+        BDDMockito.given(memberService.findByEmilIsEmpty("test1133@gmail.com")).willReturn(true);
         AccountDto.SignUp signUp = AccountDto.SignUp.builder()
                 .dateOfBirth(LocalDate.now())
                 .nickname("TestNick")
@@ -243,7 +250,7 @@ class SignUpControllerTest {
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$['email']").value("test@gmail.com"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$['email']").value("test1133@gmail.com"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$['nickname']").value("TestNick"));
     }
 }

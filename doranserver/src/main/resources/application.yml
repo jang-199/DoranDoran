@@ -1,5 +1,12 @@
-#DataBase url
 spring:
+  profiles:
+    active: local
+---
+#profile and DataBase
+spring:
+  config:
+    activate:
+      on-profile: local
   datasource:
     url: ENC(prmDG7wmy6YZGHAMr+IQiqQRYKOQ/fvy2XiIz7endPsJ1ywly3YUxRkMlt3tatuvMJYrFvdjBK50XSY0vXui8iLE6lambM2Pis9fiqZbrnR5zF57Y6AccOX42hAk9VA2)
     username: ENC(Xh/N3MbBIY77cqVSWycSkA==)

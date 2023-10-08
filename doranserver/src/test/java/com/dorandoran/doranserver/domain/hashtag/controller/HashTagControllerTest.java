@@ -4,6 +4,7 @@ import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
 import com.dorandoran.doranserver.domain.hashtag.dto.HashTagDto;
 import com.dorandoran.doranserver.domain.hashtag.service.HashTagService;
 import com.dorandoran.doranserver.domain.member.domain.Member;
+import com.dorandoran.doranserver.domain.member.domain.MemberHash;
 import com.dorandoran.doranserver.domain.member.service.MemberHashService;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -147,6 +149,38 @@ class HashTagControllerTest {
 
     @Test
     void deleteHashTag() throws Exception{
+        //given
+        Member member = setMember();
+        HashTag hashTag = setHashTag("테스트");
+        MemberHash memberHash = MemberHash.builder().member(member).hashTagId(hashTag).build();
+        BDDMockito.given(memberHashService.findMemberHashByEmailAndHashTag(BDDMockito.any(), BDDMockito.any()))
+                .willReturn(Optional.empty())
+                .willReturn(Optional.of(memberHash));
+        BDDMockito.doNothing().when(memberHashService).deleteMemberHash(BDDMockito.any());
+        HashTagDto.DeleteHashTag hashTagDto = HashTagDto.DeleteHashTag.builder().hashTag("테스트").build();
+        String content = new ObjectMapper().writeValueAsString(hashTagDto);
+
+        //when
+        ResultActions failResultActions = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete("/api/hashTag/member")
+                        .header("Authorization", refreshToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+        );
+
+        ResultActions successResultActions = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete("/api/hashTag/member")
+                        .header("Authorization", refreshToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+        );
+
+        //then
+        failResultActions.andExpect(MockMvcResultMatchers.status().isNotFound());
+        successResultActions.andExpect(MockMvcResultMatchers.status().isNoContent());
+
     }
 
     private static Member setMember() {

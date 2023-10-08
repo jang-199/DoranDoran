@@ -22,7 +22,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 public class AuthenticationController {
-    private final MemberRepository memberRepository;
 
     private final TokenProvider tokenProvider;
     private final TokenService tokenService;

@@ -3,31 +3,26 @@
 package com.dorandoran.doranserver.global.config.Initializer;
 
 import com.dorandoran.doranserver.domain.background.domain.BackgroundPic;
-import com.dorandoran.doranserver.domain.background.service.BackGroundPicServiceImpl;
-import com.dorandoran.doranserver.domain.background.service.UserUploadPicServiceImpl;
+import com.dorandoran.doranserver.domain.background.service.BackgroundPicService;
+import com.dorandoran.doranserver.domain.background.service.UserUploadPicService;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.service.CommentLikeService;
-import com.dorandoran.doranserver.domain.comment.service.CommentServiceImpl;
+import com.dorandoran.doranserver.domain.comment.service.CommentService;
 import com.dorandoran.doranserver.domain.comment.service.ReplyService;
 import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
 import com.dorandoran.doranserver.domain.hashtag.domain.PostHash;
-import com.dorandoran.doranserver.domain.hashtag.service.HashTagServiceImpl;
+import com.dorandoran.doranserver.domain.hashtag.service.HashTagService;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.domain.PolicyTerms;
-import com.dorandoran.doranserver.domain.member.service.AccountClosureMemberService;
-import com.dorandoran.doranserver.domain.member.service.MemberServiceImpl;
-import com.dorandoran.doranserver.domain.member.service.PolicyTermsCheckImpl;
+import com.dorandoran.doranserver.domain.member.service.*;
 import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory;
 import com.dorandoran.doranserver.domain.notification.domain.notificationType.NotificationType;
 import com.dorandoran.doranserver.domain.notification.service.NotificationHistoryService;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
-import com.dorandoran.doranserver.domain.background.dto.Jackson2JsonRedisDto;
-import com.dorandoran.doranserver.domain.post.service.PostHashServiceImpl;
-import com.dorandoran.doranserver.domain.post.service.PostLikeServiceImpl;
-import com.dorandoran.doranserver.domain.post.service.PostServiceImpl;
+import com.dorandoran.doranserver.domain.post.service.*;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 import com.dorandoran.doranserver.domain.member.repository.LockMemberRepository;
@@ -37,42 +32,44 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 @Slf4j
+@Profile("local")
 @Component
 public class BackgroundPicDBInitializer {
 
     @Autowired
-    BackGroundPicServiceImpl backGroundPicService;
+    BackgroundPicService backGroundPicService;
     @Autowired
-    PostServiceImpl postService;
+    PostService postService;
     @Autowired
-    MemberServiceImpl memberService;
+    MemberService memberService;
     @Autowired
-    PolicyTermsCheckImpl policyTermsCheck;
+    PolicyTermsCheck policyTermsCheck;
     @Autowired
-    PostLikeServiceImpl postLikeService;
+    PostLikeService postLikeService;
 
     @Autowired
-    UserUploadPicServiceImpl userUploadPicService;
+    UserUploadPicService userUploadPicService;
     @Autowired
     ReplyService replyService;
 
     @Autowired
-    CommentServiceImpl commentService;
+    CommentService commentService;
     @Autowired
-    HashTagServiceImpl hashTagService;
+    HashTagService hashTagService;
     @Autowired
-    PostHashServiceImpl postHashService;
+    PostHashService postHashService;
     @Autowired
     AccountClosureMemberService accountClosureMemberService;
     @Autowired
@@ -89,6 +86,7 @@ public class BackgroundPicDBInitializer {
 
     @PostConstruct
     public void init() {
+        log.info("initinit");
         List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
         setBackgroundPic();//사진 경로 저장
 

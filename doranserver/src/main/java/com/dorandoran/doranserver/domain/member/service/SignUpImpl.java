@@ -45,6 +45,12 @@ public class SignUpImpl implements SignUp{
     }
 
     @Override
+    public Boolean existedNickname(String nickname) {
+        Optional<Member> member = findByNickname(nickname);
+        return member.isPresent() ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    @Override
     public String getEmailByKakaoResourceServer(String kakaoAccessToken) throws KakaoResourceServerException {
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 

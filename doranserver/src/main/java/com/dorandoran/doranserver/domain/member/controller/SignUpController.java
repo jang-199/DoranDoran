@@ -15,18 +15,10 @@ import com.dorandoran.doranserver.global.util.nicknamecleaner.NicknameCleaner;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
-import java.time.Period;
-import java.util.Optional;
 
 @Timed
 @Slf4j
@@ -49,7 +41,7 @@ public class SignUpController {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
-        if (existedNickname(nicknameDto.getNickname())) {
+        if (signUpService.existedNickname(nicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             return ResponseEntity.noContent().build();
@@ -93,7 +85,7 @@ public class SignUpController {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
-        if (existedNickname(changeNicknameDto.getNickname())) {
+        if (signUpService.existedNickname(changeNicknameDto.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }else {
             memberService.setNickname(findMember, changeNicknameDto.getNickname());
@@ -154,12 +146,5 @@ public class SignUpController {
             );
         }
         return ResponseEntity.unprocessableEntity().body("이미 존재하는 email 입니다.");
-    }
-
-
-
-    public Boolean existedNickname(String nickname){
-        Optional<Member> member = signUpService.findByNickname(nickname);
-        return member.isPresent()  ? Boolean.TRUE : Boolean.FALSE;
     }
 }

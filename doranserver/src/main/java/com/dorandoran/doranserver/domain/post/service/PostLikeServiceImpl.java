@@ -131,7 +131,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     @Transactional
-    public void checkPostLike(PostDto.LikePost postLikeDto, UserDetails userDetails, Post post, Member member, Optional<PostLike> postLike) {
+    public void checkPostLike(Post post, Member member, Optional<PostLike> postLike) {
         if (postLike.isPresent()){
             if (postLike.get().getCheckDelete().equals(Boolean.TRUE)){
                 postLike.get().restore();

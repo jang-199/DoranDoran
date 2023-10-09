@@ -145,7 +145,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("자신의 글에 추천은 불가능합니다.");
         }
 
-        postLikeService.checkPostLike(postLikeDto, userDetails, post, member, postLike);
+        postLikeService.checkPostLike(post, member, postLike);
 
         if (postLike.isEmpty() && post.getMemberId().checkNotification()) {
             firebaseService.notifyPostLike(post.getMemberId(), post);

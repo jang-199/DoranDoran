@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
-
 public interface UserUploadPicRepository extends JpaRepository<UserUploadPic, Long> {
     Optional<UserUploadPic> findByImgNameLike(String imgName);
     @Query("select m from UserUploadPic m where m.imgName like :imgName%")

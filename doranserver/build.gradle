@@ -42,7 +42,7 @@ dependencies {
 
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 
-	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
+//	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
 
 	implementation 'org.hibernate:hibernate-core:6.1.7.Final'
 	implementation 'org.hibernate:hibernate-spatial:6.1.7.Final'

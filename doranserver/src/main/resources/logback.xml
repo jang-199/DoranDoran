@@ -51,28 +51,10 @@
         </rollingPolicy>
     </appender>
 
-
-    <springProfile name="local">
-        <logger name="com.spring.sample.aop.LoggingAspect" level="INFO">
-            <appender-ref ref="Console" />
-            <appender-ref ref="InfoLogFile" />
-            <appender-ref ref="ErrorLogFile" />
-        </logger>
-
-        <root level = "INFO">
-            <appender-ref ref="Console" />
-            <appender-ref ref="InfoLogFile" />
-            <appender-ref ref="ErrorLogFile" />
-        </root>
-    </springProfile>
-
-    <springProfile name="test">
-        <logger name="com.spring.sample.aop.LoggingAspect" level="INFO">
-            <appender-ref ref="Console" />
-        </logger>
-        <root level = "INFO">
-            <appender-ref ref="Console" />
-        </root>
-    </springProfile>
+    <root level = "INFO">
+        <appender-ref ref="Console" />
+        <appender-ref ref="InfoLogFile" />
+        <appender-ref ref="ErrorLogFile" />
+    </root>
 
 </configuration>

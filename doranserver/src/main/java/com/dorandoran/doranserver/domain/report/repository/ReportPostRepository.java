@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface ReportPostRepository extends JpaRepository<ReportPost, Long> {
     Optional<ReportPost> findReportPostByPostIdAndMemberId(Post post, Member member);
 
-    List<ReportPost> findAllByPostId(Post post);
+    List<ReportPost> findAllByMemberId(Member member);
 }

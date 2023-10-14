@@ -12,6 +12,7 @@ build/test-results/
 !**/src/test/**/build/
 !/src/test/
 /src/test/resources/
+/logs
 ### STS ###
 .apt_generated
 .classpath

@@ -6,26 +6,30 @@ import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentLikeRepository;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
 import com.dorandoran.doranserver.domain.comment.repository.ReplyRepository;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryComment;
+import com.dorandoran.doranserver.domain.customerservice.domain.InquiryPost;
+import com.dorandoran.doranserver.domain.customerservice.service.repository.InquiryCommentRepository;
+import com.dorandoran.doranserver.domain.customerservice.service.repository.InquiryPostRepository;
 import com.dorandoran.doranserver.domain.hashtag.domain.HashTag;
 import com.dorandoran.doranserver.domain.hashtag.domain.PostHash;
 import com.dorandoran.doranserver.domain.hashtag.repository.HashTagRepository;
-import com.dorandoran.doranserver.domain.member.domain.AccountClosureMember;
-import com.dorandoran.doranserver.domain.member.domain.Member;
-import com.dorandoran.doranserver.domain.member.domain.MemberHash;
-import com.dorandoran.doranserver.domain.member.domain.PolicyTerms;
-import com.dorandoran.doranserver.domain.member.repository.AccountClosureMemberRepository;
-import com.dorandoran.doranserver.domain.member.repository.MemberHashRepository;
-import com.dorandoran.doranserver.domain.member.repository.MemberRepository;
-import com.dorandoran.doranserver.domain.member.repository.PolicyTermsRepository;
+import com.dorandoran.doranserver.domain.member.domain.*;
+import com.dorandoran.doranserver.domain.member.repository.*;
+import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory;
+import com.dorandoran.doranserver.domain.notification.repository.NotificationHistoryRepository;
 import com.dorandoran.doranserver.domain.post.domain.AnonymityMember;
 import com.dorandoran.doranserver.domain.post.domain.PopularPost;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
 import com.dorandoran.doranserver.domain.post.repository.*;
+import com.dorandoran.doranserver.domain.report.domain.ReportComment;
 import com.dorandoran.doranserver.domain.report.domain.ReportPost;
+import com.dorandoran.doranserver.domain.report.domain.ReportReply;
+import com.dorandoran.doranserver.domain.report.repository.ReportCommentRepository;
 import com.dorandoran.doranserver.domain.report.repository.ReportPostRepository;
 import com.dorandoran.doranserver.domain.hashtag.service.HashTagService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
+import com.dorandoran.doranserver.domain.report.repository.ReportReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,6 +67,12 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
     private final AnonymityMemberRepository anonymityMemberRepository;
     private final MemberRepository memberRepository;
     private final ReportPostRepository reportPostRepository;
+    private final ReportCommentRepository reportCommentRepository;
+    private final ReportReplyRepository reportReplyRepository;
+    private final MemberBlockListRepository memberBlockListRepository;
+    private final NotificationHistoryRepository notificationHistoryRepository;
+    private final InquiryCommentRepository inquiryCommentRepository;
+    private final InquiryPostRepository inquiryPostRepository;
 
     @Override
     public Optional<AccountClosureMember> findClosureMemberByEmail(String email) {
@@ -83,10 +93,22 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
         LocalDate now = LocalDate.now();
 
         accountClosureMemberRepository.findAll().stream()
-                .filter(ac->ac.getClosureMemberId().getClosureDate().plusDays(7).isBefore(now))
+                .filter(ac->ac.getClosureMemberId().getClosureDate().isBefore(now))//.plusDays(7)
                 .forEach(ac-> {
 
                     Member member = ac.getClosureMemberId();
+
+                    List<InquiryPost> allByMemberId3 = inquiryPostRepository.findAllByMemberId(member);
+                    List<InquiryComment> allByInquiryPostId = inquiryCommentRepository.findAllByInquiryPostId(allByMemberId3);
+                    inquiryCommentRepository.deleteAllInBatch(allByInquiryPostId);
+                    inquiryPostRepository.deleteAllInBatch(allByMemberId3);
+
+
+                    List<NotificationHistory> allByMemberId2 = notificationHistoryRepository.findAllByMemberId(member);
+                    notificationHistoryRepository.deleteAllInBatch(allByMemberId2);
+
+                    List<MemberBlockList> allByMemberId1 = memberBlockListRepository.findAllByBlockingMember(member);
+                    memberBlockListRepository.deleteAllInBatch(allByMemberId1);
 
                     List<MemberHash> memberHashList = memberHashService.findHashByMember(member);
                     memberHashRepository.deleteAllInBatch(memberHashList);
@@ -143,9 +165,16 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                         List<Comment> commentListByPost = commentRepository.findAllByPost(post);
 
+                        List<ReportComment> allByMember = reportCommentRepository.findAllByMemberId(member);
+                        List<ReportReply> allByMemberId = reportReplyRepository.findAllByMemberId(member);
+                        List<ReportPost> allByPostId = reportPostRepository.findAllByMemberId(member);
+                        reportCommentRepository.deleteAllInBatch(allByMember);
+                        reportReplyRepository.deleteAllInBatch(allByMemberId);
+                        reportPostRepository.deleteAllInBatch(allByPostId);
 
 
                         commentListByPost.forEach(comment -> {
+
                             List<Reply> replyListByComment = replyRepository.findAllByComment(comment);
                             replyRepository.deleteAllInBatch(replyListByComment);
                             List<CommentLike> commentLikeListByComment = commentLikeRepository.findAllByComment(comment);
@@ -160,9 +189,6 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                         List<AnonymityMember> anonymityMemberList = anonymityMemberRepository.findAllByPost(post);
                         anonymityMemberRepository.deleteAllInBatch(anonymityMemberList);
-
-                        List<ReportPost> allByPostId = reportPostRepository.findAllByPostId(post);
-                        reportPostRepository.deleteAllInBatch(allByPostId);
                     });
                     postRepository.deleteAllInBatch(postList);
 

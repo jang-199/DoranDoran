@@ -2,7 +2,11 @@ package com.dorandoran.doranserver.domain.auth.controller;
 
 import com.dorandoran.doranserver.domain.auth.dto.AuthenticationDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
+import com.dorandoran.doranserver.domain.member.service.MemberService;
+import com.dorandoran.doranserver.global.config.jwt.JwtProperties;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,10 +21,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,45 +46,135 @@ class AuthenticationControllerTest {
     MockMvc mockMvc;
     @Autowired
     TokenProvider tokenProvider;
+    @MockBean
+    MemberService memberService;
+    @MockBean
+    JwtProperties jwtProperties;
 
-    @BeforeEach
-    void setUp() {
+    @Test
+    @DisplayName("/api/token")
+    void tokenCheck() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        LocalDateTime pastAn1hourLater = LocalDateTime.now().minusHours(1);
+        LocalDateTime futureInAn1hour = LocalDateTime.now().plusHours(1);
+        LocalDateTime futureInAnSomeMonth = LocalDateTime.now().plusMonths(6);
+
+        Date past = Date.from(pastAn1hourLater.atZone(ZoneId.systemDefault()).toInstant());
+        Date future = Date.from(futureInAn1hour.atZone(ZoneId.systemDefault()).toInstant());
+        Date longFuture = Date.from(futureInAnSomeMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+        String pastToken = Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setIssuer("asdf")
+                .setIssuedAt(past)
+                .setExpiration(past)
+                .setSubject("asdf")
+                .claim("ROLE", "ROLE_USER")
+                .claim("email", "asdf")
+                .signWith(Keys.hmacShaKeyFor("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .compact();
+
+        String futureToken = Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setIssuer("asdf")
+                .setIssuedAt(new Date())
+                .setExpiration(future)
+                .setSubject("asdf")
+                .claim("ROLE", "ROLE_USER")
+                .claim("email", "asdf")
+                .signWith(Keys.hmacShaKeyFor("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .compact();
+        String longFutureToken = Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setIssuer("asdf")
+                .setIssuedAt(new Date())
+                .setExpiration(longFuture)
+                .setSubject("asdf")
+                .claim("ROLE", "ROLE_USER")
+                .claim("email", "asdf")
+                .signWith(Keys.hmacShaKeyFor("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .compact();
+
+        //given
+        BDDMockito.given(memberService.findByRefreshToken(BDDMockito.anyString())).willReturn(Member.builder().email("asdf").build());
+        BDDMockito.given(jwtProperties.getSecretKey()).willReturn("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf");
+        AuthenticationDto.TokenResponse accessFutureRefreshLongFuture = AuthenticationDto.TokenResponse.builder()
+                .accessToken(futureToken)
+                .refreshToken(longFutureToken)
+                .build();
+
+        AuthenticationDto.TokenResponse accessFutureRefreshFuture = AuthenticationDto.TokenResponse.builder()
+                .accessToken(futureToken)
+                .refreshToken(futureToken)
+                .build();
+
+        AuthenticationDto.TokenResponse accessFutureRefreshPast = AuthenticationDto.TokenResponse.builder()
+                .accessToken(futureToken)
+                .refreshToken(pastToken)
+                .build();
+
+        AuthenticationDto.TokenResponse accessPastRefreshLongFuture = AuthenticationDto.TokenResponse.builder()
+                .accessToken(pastToken)
+                .refreshToken(longFutureToken)
+                .build();
+
+        AuthenticationDto.TokenResponse accessPastRefreshFuture = AuthenticationDto.TokenResponse.builder()
+                .accessToken(pastToken)
+                .refreshToken(futureToken)
+                .build();
+
+        AuthenticationDto.TokenResponse accessPastTokenRefreshPastToken = AuthenticationDto.TokenResponse.builder()
+                .accessToken(pastToken)
+                .refreshToken(pastToken)
+                .build();
+
+        //when
+        ResultActions accessFutureRefreshLongFutureResults = mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accessFutureRefreshLongFuture))
+        );
+
+        ResultActions accessFutureRefreshFutureResults = mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accessFutureRefreshFuture))
+        );
+
+        ResultActions accessFutureRefreshPastResults = mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accessFutureRefreshPast))
+        );
+
+        ResultActions accessPastRefreshLongFutureResults = mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accessPastRefreshLongFuture))
+        );
+
+        ResultActions accessPastRefreshFutureResults = mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accessPastRefreshFuture))
+        );
+
+        ResultActions accessPastTokenRefreshPastTokenResults = mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accessPastTokenRefreshPastToken))
+        );
+
+        //then accessToken
+
+        accessFutureRefreshLongFutureResults.andExpect(MockMvcResultMatchers.status().isNoContent());
+        accessFutureRefreshFutureResults.andExpect(MockMvcResultMatchers.status().isNoContent());
+        accessFutureRefreshPastResults.andExpect(MockMvcResultMatchers.status().isNoContent());
+        accessPastRefreshLongFutureResults.andExpect(MockMvcResultMatchers.jsonPath("$['refreshToken']").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$['accessToken']").exists());
+        accessPastRefreshFutureResults.andExpect(MockMvcResultMatchers.jsonPath("$['refreshToken']").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$['accessToken']").exists());
+        accessPastTokenRefreshPastTokenResults.andExpect(MockMvcResultMatchers.status().isForbidden());
+
     }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-//    @Test
-//    @DisplayName("/api/token")
-//    void tokenCheck() {
-//        Jwts.builder()
-//                .setHeaderParam(Header.TYPE,Header.JWT_TYPE)
-//                .setIssuer("tester")
-//                .setIssuedAt(new Date())
-//                .setExpiration(expiry)
-//                .setSubject(user.getNickname())
-//                .claim("ROLE","ROLE_USER")
-//                .claim("email",user.getEmail())
-//                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
-//                .compact();
-//        //given
-//        AuthenticationDto.TokenResponse tokenResponse = AuthenticationDto.TokenResponse.builder()
-//                .accessToken("acc")
-//                .refreshToken("ref")
-//                .build();
-//        Member member = Member.builder().email("test@email.com").build();
-//        //todo 엑세스 리프레시 모든 경우의 수
-//        //a 0, r 0
-//        String acc = tokenProvider.generateAccessToken(member);
-//        BDDMockito.given(tokenProvider)
-//        //a 0, r 0 만료직전
-//        //a 0, r x
-//        //a x, r 0
-//        //a x, r x
-//
-//        //when
-//
-//        //then
-//    }
 }

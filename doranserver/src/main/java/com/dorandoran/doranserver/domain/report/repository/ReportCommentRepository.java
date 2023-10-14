@@ -5,8 +5,12 @@ import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.report.domain.ReportComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReportCommentRepository extends JpaRepository<ReportComment, Long> {
     Optional<ReportComment> findByCommentIdAndMemberId(Comment comment, Member member);
+
+    List<ReportComment> findAllByMemberId(Member member);
+
 }

@@ -22,4 +22,6 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
     List<NotificationHistory> findNotByMemberId(@Param("member") Member member,
                                                 @Param("notCnt") Long notCnt,
                                                 PageRequest pageRequest);
+
+    List<NotificationHistory> findAllByMemberId(Member member);
 }

@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.domain.auth.controller;
 import com.dorandoran.doranserver.domain.auth.dto.AuthenticationDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
+import com.dorandoran.doranserver.global.config.jwt.JwtProperties;
 import com.dorandoran.doranserver.global.config.jwt.TokenProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,14 +48,8 @@ class AuthenticationControllerTest {
     TokenProvider tokenProvider;
     @MockBean
     MemberService memberService;
-
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
+    @MockBean
+    JwtProperties jwtProperties;
 
     @Test
     @DisplayName("/api/token")
@@ -70,38 +65,39 @@ class AuthenticationControllerTest {
 
         String pastToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer("jw1010110@gmail.com")
+                .setIssuer("asdf")
                 .setIssuedAt(past)
                 .setExpiration(past)
-                .setSubject("9643us@naver.com")
+                .setSubject("asdf")
                 .claim("ROLE", "ROLE_USER")
-                .claim("email", "9643us@naver.com")
-                .signWith(Keys.hmacShaKeyFor("hjsdoran2023hjsdoran2023hjsdoran2023hjsdoran2023hjsdoran2023".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .claim("email", "asdf")
+                .signWith(Keys.hmacShaKeyFor("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
 
         String futureToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer("jw1010110@gmail.com")
+                .setIssuer("asdf")
                 .setIssuedAt(new Date())
                 .setExpiration(future)
-                .setSubject("9643us@naver.com")
+                .setSubject("asdf")
                 .claim("ROLE", "ROLE_USER")
-                .claim("email", "9643us@naver.com")
-                .signWith(Keys.hmacShaKeyFor("hjsdoran2023hjsdoran2023hjsdoran2023hjsdoran2023hjsdoran2023".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .claim("email", "asdf")
+                .signWith(Keys.hmacShaKeyFor("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
         String longFutureToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer("jw1010110@gmail.com")
+                .setIssuer("asdf")
                 .setIssuedAt(new Date())
                 .setExpiration(longFuture)
-                .setSubject("9643us@naver.com")
+                .setSubject("asdf")
                 .claim("ROLE", "ROLE_USER")
-                .claim("email", "9643us@naver.com")
-                .signWith(Keys.hmacShaKeyFor("hjsdoran2023hjsdoran2023hjsdoran2023hjsdoran2023hjsdoran2023".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .claim("email", "asdf")
+                .signWith(Keys.hmacShaKeyFor("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf".getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
 
         //given
-        BDDMockito.given(memberService.findByRefreshToken(BDDMockito.anyString())).willReturn(Member.builder().email("test@gmail.com").build());
+        BDDMockito.given(memberService.findByRefreshToken(BDDMockito.anyString())).willReturn(Member.builder().email("asdf").build());
+        BDDMockito.given(jwtProperties.getSecretKey()).willReturn("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsaf");
         AuthenticationDto.TokenResponse accessFutureRefreshLongFuture = AuthenticationDto.TokenResponse.builder()
                 .accessToken(futureToken)
                 .refreshToken(longFutureToken)
@@ -131,10 +127,6 @@ class AuthenticationControllerTest {
                 .accessToken(pastToken)
                 .refreshToken(pastToken)
                 .build();
-
-
-
-
 
         //when
         ResultActions accessFutureRefreshLongFutureResults = mockMvc.perform(

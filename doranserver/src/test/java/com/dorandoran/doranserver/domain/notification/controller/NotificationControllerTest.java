@@ -103,13 +103,13 @@ class NotificationControllerTest {
         //when
         ResultActions deleteEntireMemberHistoryResultActions = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .delete("api/notification/{notificationId}", 0)
+                        .delete("/api/notification/{notificationId}", 0)
                         .header(HEADER_AUTHORIZATION, REFRESH_TOKEN)
         );
 
         ResultActions deleteHistoryByIdResultActions = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .delete("api/notification/{notificationId}", 1L)
+                        .delete("/api/notification/{notificationId}", 1L)
                         .header(HEADER_AUTHORIZATION, REFRESH_TOKEN)
         );
 

@@ -139,7 +139,7 @@ public class TokenProvider {
     public Duration getExpiryDuration(String token) {
         Claims claims = getClaims(token);
         Date expiration = claims.getExpiration();
-        return Duration.ofDays(expiration.getTime() - System.currentTimeMillis());
+        return Duration.ofMillis(expiration.getTime() - System.currentTimeMillis());
     }
 
     /**

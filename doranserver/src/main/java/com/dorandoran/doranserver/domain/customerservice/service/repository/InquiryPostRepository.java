@@ -27,4 +27,6 @@ public interface InquiryPostRepository extends JpaRepository<InquiryPost, Long> 
 
     @Query("select ip from InquiryPost ip join fetch ip.memberId where ip.inquiryPostId = :inquiryPostId")
     Optional<InquiryPost> findFetchMember(@Param("inquiryPostId") Long inquiryPostId);
+
+    List<InquiryPost> findAllByMemberId(Member member);
 }

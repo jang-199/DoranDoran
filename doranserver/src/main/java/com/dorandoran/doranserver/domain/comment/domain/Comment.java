@@ -69,7 +69,8 @@ public class Comment extends BaseEntity {
                 .build();
     }
     @Builder
-    public Comment(String comment, Boolean anonymity, Boolean checkDelete, Boolean secretMode, int countReply, int reportCount, Boolean isLocked, Post postId, Member memberId) {
+    public Comment(String comment, Boolean anonymity, Boolean checkDelete, Boolean secretMode, int countReply, int reportCount, Boolean isLocked, Post postId, Member memberId, Long commentId) {
+        this.commentId = commentId;
         this.comment = comment;
         this.anonymity = anonymity;
         this.checkDelete = checkDelete;

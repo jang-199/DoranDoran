@@ -114,9 +114,9 @@ public class ReportController {
         Member member = memberService.findByEmail(userEmail);
         Optional<LockMember> lockMember = lockMemberService.findLockMember(member);
         if (lockMember.isPresent()){
-            return new ResponseEntity<>("해당 계정은 현재 정지되었습니다.",HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("해당 계정은 현재 정지되었습니다.");
         }else {
-            return new ResponseEntity<>("해당 사용자는 활성화 상태입니다.",HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("해당 사용자는 활성화 상태입니다.");
         }
     }
 }

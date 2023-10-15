@@ -26,6 +26,8 @@ import com.dorandoran.doranserver.domain.post.service.PostLikeService;
 import com.dorandoran.doranserver.domain.post.service.PostService;
 import com.dorandoran.doranserver.domain.post.service.common.PostCommonService;
 import com.dorandoran.doranserver.global.util.CommentResponseUtils;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -35,19 +37,25 @@ import org.locationtech.jts.geom.Point;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.restdocs.RestDocsMockMvcBuilderCustomizer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -98,8 +106,9 @@ class PostControllerTest {
         Member member = setMember1();
         Optional<LockMember> lockMember = Optional.of(new LockMember(member, LocalDateTime.now(), LocalDateTime.now().plusDays(1L), LockType.Day1));
         String backgroundPicContent = new ObjectMapper().writeValueAsString(setBackgroundPicPostDto());
-        String userUploadPicContent = new ObjectMapper().writeValueAsString(setUserUploadPicPostDto());
-        //todo multipartfile은 어케 직렬화하누..
+        FileInputStream fileInputStream = new FileInputStream("/Users/hw0603/DoranDoranPic/BackgroundPic/1.jpg");
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("1", "1.jpg", "jpg", fileInputStream);
+
         Post post = setPost(setLocation(), member);
 
         BDDMockito.given(memberService.findByEmail(BDDMockito.any())).willReturn(member);
@@ -119,10 +128,19 @@ class PostControllerTest {
 
         ResultActions successByUserUploadPicResult = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .post("/api/post")
+                        .multipart("/api/post")
+                        .file(mockMultipartFile)
+                        .param("content", "test")
+                        .param("location", "35.12,13.32")
+                        .param("forMe", "false")
+                        .param("backgroundImgName", "")
+                        .param("hashTagName", "입니다")
+                        .param("anonymity", "false")
+                        .param("font", "Jua")
+                        .param("fontColor", "black")
+                        .param("fontSize", "40")
+                        .param("fontBold", "400")
                         .header("Authorization", refreshToken)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .content(userUploadPicContent)
         );
 
         ResultActions lockMemberCannotCreatePostResult = mockMvc.perform(
@@ -343,22 +361,6 @@ class PostControllerTest {
                 .build();
     }
 
-    private static PostDto.CreatePost setUserUploadPicPostDto() throws IOException {
-        MultipartFile file = new MockMultipartFile("1", "1.jpg", "image/jpeg", new FileInputStream("/Users/hw0603/DoranDoranPic/BackgroundPic/2.jpg"));
-        return PostDto.CreatePost.builder()
-                .content("테스트입니다.")
-                .forMe(false)
-                .location("35.123,12.454")
-                .backgroundImgName("")
-                .file(file)
-                .hashTagName(List.of("테스트", "입니다"))
-                .anonymity(false)
-                .font("Jua")
-                .fontColor("black")
-                .fontSize(40)
-                .fontBold(400)
-                .build();
-    }
     private static Member setMember1() {
         return Member.builder()
                 .email("9643us@naver.com")

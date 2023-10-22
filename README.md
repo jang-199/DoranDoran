@@ -26,4 +26,11 @@
     <img src="https://img.shields.io/badge/githubactions-2088FF?style=flat-square&logo=githubactions&logoColor=white"/>
 </div>
 
-<br/>
+## 🙇🏻 Members
+
+### Frontend
+
+|정우|호왕|
+|:-:|:--:|
+|<img src="https://avatars.githubusercontent.com/u/68003036?v=4" alt="beucol" width="100" height="100">|<img src="https://avatars.githubusercontent.com/u/114158271?v=4" alt="chris" width="100" height="100">|
+|[jang-199](https://github.com/jang-199)|[LeeKing2017](https://github.com/LeeKing2017https://github.com/LeeKing2017)|

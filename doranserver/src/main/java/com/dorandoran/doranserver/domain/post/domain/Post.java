@@ -24,7 +24,7 @@ public class Post extends BaseEntity {
     private Long postId;
 
     @NotNull
-    @Column(name = "CONTENT",length = 1000)
+    @Column(name = "CONTENT",length = 3000)
     private String content;
 
     @NotNull

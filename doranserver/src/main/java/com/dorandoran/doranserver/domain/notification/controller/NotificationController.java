@@ -66,4 +66,16 @@ public class NotificationController {
         }
         return ResponseEntity.noContent().build();
     }
+
+    @Trace
+    @GetMapping("/notification/count")
+    public ResponseEntity<?> retrieveRemainNotificationCount(@AuthenticationPrincipal UserDetails userDetails){
+        String userEmail = userDetails.getUsername();
+        Member member = memberService.findByEmail(userEmail);
+        Long remainHistoryCount = notificationHistoryService.findRemainMemberNotificationHistoryCount(member);
+        NotificationDto.notificationRemainCountResponse countResponseDto =
+                new NotificationDto.notificationRemainCountResponse().toEntity(remainHistoryCount);
+
+        return ResponseEntity.ok().body(countResponseDto);
+    }
 }

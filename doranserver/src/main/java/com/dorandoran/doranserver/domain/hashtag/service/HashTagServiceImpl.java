@@ -23,6 +23,7 @@ public class HashTagServiceImpl implements HashTagService{
     @Override
     @Transactional
     public void saveHashtagList(List<String> hashTagList){
+        //todo 최적화 필요
         for (String hashTag : hashTagList) {
             if (duplicateCheckHashTag(hashTag)) {
                 HashTag buildHashTag = HashTag.builder()

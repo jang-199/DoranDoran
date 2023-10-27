@@ -24,4 +24,7 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
                                                 PageRequest pageRequest);
 
     List<NotificationHistory> findAllByMemberId(Member member);
+
+    @Query("select count(not) from NotificationHistory not where not.memberId = :member and not.notificationReadTime = null")
+    Long findRemainNotificationMemberHistoryCount(@Param("member") Member member);
 }

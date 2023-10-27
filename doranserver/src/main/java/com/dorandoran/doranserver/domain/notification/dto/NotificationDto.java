@@ -53,4 +53,23 @@ public class NotificationDto {
             this.notificationType = notificationHistory.getNotificationType();
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class notificationRemainCountResponse {
+        Long remainCount;
+
+        public notificationRemainCountResponse toEntity(Long remainCount){
+            return NotificationDto.notificationRemainCountResponse.builder().
+                    remainCount(remainCount).
+                    build();
+        }
+
+        @Builder
+        public notificationRemainCountResponse(Long remainCount) {
+            this.remainCount = remainCount;
+        }
+    }
+
 }

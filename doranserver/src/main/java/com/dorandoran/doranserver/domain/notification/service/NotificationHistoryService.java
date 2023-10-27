@@ -17,4 +17,6 @@ public interface NotificationHistoryService {
 
     NotificationHistory findNotificationById(Long notificationId);
     NotificationDto.notificationReadResponse readNotification(NotificationHistory notificationHistory);
+
+    Long findRemainMemberNotificationHistoryCount(Member member);
 }

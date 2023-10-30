@@ -7,8 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,28 +22,42 @@ public class HashTagServiceImpl implements HashTagService{
 
     @Override
     @Transactional
-    public void saveHashtagList(List<String> hashTagList){
-        //todo 최적화 필요
-        for (String hashTag : hashTagList) {
-            if (duplicateCheckHashTag(hashTag)) {
-                HashTag buildHashTag = HashTag.builder()
-                        .hashTagName(hashTag)
-                        .hashTagCount(1L)
-                        .build();
-                saveHashTag(buildHashTag);
-            } else {
-                HashTag byHashTagName = findByHashTagName(hashTag);
-                Long hashTagCount = byHashTagName.getHashTagCount();
-                byHashTagName.setHashTagCount(hashTagCount + 1);
+    public void updateHashtagCountOrSaveHashtagList(List<String> hashTagNameList) {
+        List<HashTag> isExistHashtagList = findHashtagList(hashTagNameList);
+        updateHashtagCount(isExistHashtagList);
+
+        List<String> isNotExistHashTagNameList = findNotExistHashTagNameList(hashTagNameList, isExistHashtagList);
+        saveHashtagListByName(isNotExistHashTagNameList);
+    }
+
+    private void updateHashtagCount(List<HashTag> isExistHashtagNameList) {
+        isExistHashtagNameList.iterator().forEachRemaining(HashTag::addHashtagCount);
+    }
+
+
+    private List<String> findNotExistHashTagNameList(List<String> hashTagNameList, List<HashTag> isExistHashtagList) {
+        ArrayList<String> isNotExistHashTagList = new ArrayList<>();
+        List<String> isExistHashtagNameList = isExistHashtagList.stream().map(HashTag::getHashTagName).toList();
+
+        for (String hashTagName : hashTagNameList) {
+            if (!isExistHashtagNameList.contains(hashTagName)){
+                isNotExistHashTagList.add(hashTagName);
             }
         }
+
+        return isNotExistHashTagList;
     }
 
     @Override
-    public Boolean duplicateCheckHashTag(String hashTag) {
-        Optional<HashTag> findByHashTag = hashTagRepository.findByHashTagName(hashTag);
-        return findByHashTag.isEmpty();
+    @Transactional
+    public void saveHashtagListByName(List<String> hashTagNameList) {
+        for (String hashTag : hashTagNameList) {
+            HashTag saveHashtag = new HashTag(hashTag);
+
+            saveHashTag(saveHashtag);
+        }
     }
+
 
     @Override
     public HashTag findByHashTagName(String hashTag) {

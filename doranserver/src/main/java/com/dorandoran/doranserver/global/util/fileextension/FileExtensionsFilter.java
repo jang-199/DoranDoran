@@ -4,15 +4,16 @@ import com.dorandoran.doranserver.domain.post.exception.UnsupportedImageExtensio
 
 import java.util.Arrays;
 
-public class FileExtensionFilter implements AllowedFileExtension{
+public class FileExtensionsFilter implements AllowedFileExtensions {
     public void isAvailableFileExtension(String fileExtension){
-        if ()){
+        String fileExtensionToLowerCase = fileExtension.toLowerCase();
+
+        if (isNotExistedInAllowedFileExtension(fileExtensionToLowerCase)){
             throw new UnsupportedImageExtensionException("지원하지 않는 확장자입니다.");
         }
-
     }
 
     private boolean isNotExistedInAllowedFileExtension(String fileExtension){
-        return Arrays.stream(allowedFileExtension).noneMatch((fileExtensions) -> fileExtensions.equals(fileExtension);
+        return Arrays.stream(allowedFileExtensions).noneMatch((allowedFileExtension) -> allowedFileExtension.equals(fileExtension));
     }
 }

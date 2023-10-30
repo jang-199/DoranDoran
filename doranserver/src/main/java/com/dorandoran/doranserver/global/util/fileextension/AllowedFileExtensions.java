@@ -1,7 +1,7 @@
 package com.dorandoran.doranserver.global.util.fileextension;
 
-public interface AllowedFileExtension {
-    String[] allowedFileExtension = {
+public interface AllowedFileExtensions {
+    String[] allowedFileExtensions = {
             "jpg",
             "jpeg",
             "png",

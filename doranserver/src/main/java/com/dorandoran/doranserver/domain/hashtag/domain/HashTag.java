@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class HashTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,4 +25,14 @@ public class HashTag {
     @NotNull
     @Column(name = "HASH_TAG_COUNT")
     private Long hashTagCount;
+
+    public void addHashtagCount(){
+        this.hashTagCount += 1;
+    }
+
+    @Builder
+    public HashTag(String hashTagName) {
+        this.hashTagName = hashTagName;
+        this.hashTagCount = 1L;
+    }
 }

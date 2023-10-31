@@ -8,6 +8,7 @@ import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.post.exception.UnsupportedImageExtensionException;
 import com.dorandoran.doranserver.global.util.exception.customexception.post.NotFoundPostException;
+import com.dorandoran.doranserver.global.util.fileextension.FileExtensionsFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -126,11 +127,12 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void setPostPic(PostDto.CreatePost postDto, Post post) throws IOException {
+        FileExtensionsFilter fileExtensionsFilter = new FileExtensionsFilter();
         if (postDto.getBackgroundImgName().isBlank()) {
             String fileName = postDto.getFile().getOriginalFilename();
             String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-            checkFileExtension(fileNameSubstring);
+            fileExtensionsFilter.isAvailableFileExtension(fileNameSubstring);
 
             String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
             postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
@@ -163,7 +165,10 @@ public class PostServiceImpl implements PostService {
     private void setPostLocation(PostDto.CreatePost postDto, Post post) {
         Point distance;
         if (!postDto.getLocation().isBlank()) {
+            log.info("[location]: {}", postDto.getLocation());
             String[] splitLocation = postDto.getLocation().split(",");
+            log.info("[splitLocation 0]: {}", splitLocation[0]);
+            log.info("[splitLocation 1]: {}", splitLocation[1]);
             String latitude = splitLocation[0];
             String longitude = splitLocation[1];
             GeometryFactory geometryFactory = new GeometryFactory();
@@ -174,13 +179,5 @@ public class PostServiceImpl implements PostService {
             distance = null;
         }
         post.setLocation(distance);
-    }
-
-    private void checkFileExtension(String fileExtension){
-        List<String> forbiddenList = new ArrayList<>();
-        Collections.addAll(forbiddenList, "gif", "apng");
-        if (forbiddenList.contains(fileExtension)){
-            throw new UnsupportedImageExtensionException("지원하지 않는 확장자입니다.");
-        }
     }
 }

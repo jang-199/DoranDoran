@@ -58,10 +58,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -99,6 +96,10 @@ class PostControllerTest {
     private PostCommonService postCommonService;
     @MockBean
     private MemberBlockListService memberBlockListService;
+    @MockBean
+    private CommentLikeService commentLikeService;
+    @MockBean
+    private FirebaseService firebaseService;
 
     @Test
     void savePost() throws Exception {
@@ -210,6 +211,7 @@ class PostControllerTest {
                 .willReturn(Optional.empty())
                 .willReturn(Optional.of(isLivedPostLike))
                 .willReturn(Optional.of(isDeletedPostLike));
+        BDDMockito.doNothing().when(firebaseService).notifyPostLike(BDDMockito.any(), BDDMockito.any());
 
         //when
         ResultActions forbiddenResult = mockMvc.perform(
@@ -265,6 +267,8 @@ class PostControllerTest {
         List<Reply> replyList = setReplyList(requestMember, postMember, member3, commentList);
         PostDto.ReadPost postDto = new PostDto.ReadPost(1L, "35.123,15.553");
         HashTag hashtag = setHashTag("테스트");
+        HashMap<Long, Long> commentLikeCnt = setCommentLikeCnt(commentList);
+        HashMap<Long, Boolean> commentLikeResult = setCommentLikeResult(commentList);
         PostHash postHash = PostHash.builder().postId(post).hashTagId(hashtag).build();
         String content = new ObjectMapper().writeValueAsString(postDto);
 
@@ -281,6 +285,14 @@ class PostControllerTest {
         BDDMockito.given(commentService.findFirstCommentsFetchMember(BDDMockito.any())).willReturn(commentList);
         BDDMockito.given(commentService.checkExistAndDelete(BDDMockito.any())).willReturn(Boolean.TRUE);
         BDDMockito.given(replyService.findRankRepliesByComments(BDDMockito.any())).willReturn(replyList);
+        BDDMockito.given(commentLikeService.findCommentLikeCnt(BDDMockito.any())).willReturn(commentLikeCnt);
+        BDDMockito.given(commentLikeService.findCommentLikeResult(BDDMockito.any(),BDDMockito.any())).willReturn(commentLikeResult);
+
+        BDDMockito.given(replyService.checkExistAndDelete(BDDMockito.any())).willReturn(Boolean.FALSE);
+        BDDMockito.doNothing().when(replyService).checkSecretReply(BDDMockito.any(),BDDMockito.any(),BDDMockito.any(),BDDMockito.any());
+        BDDMockito.doNothing().when(replyService).checkReplyAnonymityMember(BDDMockito.any(),BDDMockito.any(),BDDMockito.any());
+        BDDMockito.doNothing().when(commentService).checkSecretComment(BDDMockito.any(),BDDMockito.any(),BDDMockito.any(),BDDMockito.any());
+        BDDMockito.doNothing().when(commentService).checkCommentAnonymityMember(BDDMockito.any(),BDDMockito.any(),BDDMockito.any());
         BDDMockito.given(postHashService.findPostHash(BDDMockito.any())).willReturn(List.of(postHash));
 
         //when
@@ -434,4 +446,27 @@ class PostControllerTest {
                 .checkDelete(checkDelete)
                 .build();
     }
+
+    private static HashMap<Long, Long> setCommentLikeCnt(List<Comment> commentList){
+        HashMap<Long, Long> commntLikeHashMap = new HashMap<>();
+        List<Long> comments = commentList.stream().map(Comment::getCommentId).toList();
+
+        for (Long commentId : comments) {
+            commntLikeHashMap.put(commentId, commentId);
+        }
+
+        return commntLikeHashMap;
+    }
+
+    private static HashMap<Long, Boolean> setCommentLikeResult(List<Comment> commentList){
+        HashMap<Long, Boolean> commntLikeResultHashMap = new HashMap<>();
+        List<Long> comments = commentList.stream().map(Comment::getCommentId).toList();
+
+        for (Long commentId : comments) {
+            commntLikeResultHashMap.put(commentId, Boolean.FALSE);
+        }
+
+        return commntLikeResultHashMap;
+    }
+
 }

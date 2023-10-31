@@ -207,7 +207,7 @@ public class BackgroundPicDBInitializer {
 
     private List<String> setHashtag() {
         List<String> hashtagList = List.of("고민", "연애", "10대", "20대", "30대", "40대", "50대", "친구", "남사친", "여사친", "일상", "대화", "짝사랑", "학교", "출근", "ootd");
-        hashtagList.iterator().forEachRemaining(t->hashTagService.saveHashTag(HashTag.builder().hashTagName(t).hashTagCount(0L).build()));
+        hashtagList.iterator().forEachRemaining(t->hashTagService.saveHashTag(HashTag.builder().hashTagName(t).build()));
         return hashtagList;
     }
 

@@ -165,10 +165,7 @@ public class PostServiceImpl implements PostService {
     private void setPostLocation(PostDto.CreatePost postDto, Post post) {
         Point distance;
         if (!postDto.getLocation().isBlank()) {
-            log.info("[location]: {}", postDto.getLocation());
             String[] splitLocation = postDto.getLocation().split(",");
-            log.info("[splitLocation 0]: {}", splitLocation[0]);
-            log.info("[splitLocation 1]: {}", splitLocation[1]);
             String latitude = splitLocation[0];
             String longitude = splitLocation[1];
             GeometryFactory geometryFactory = new GeometryFactory();

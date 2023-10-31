@@ -1,5 +1,8 @@
 package com.dorandoran.doranserver.domain.member.service;
 
+import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
+import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
+import com.dorandoran.doranserver.domain.background.service.repository.UserUploadPicRepository;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
@@ -73,6 +76,7 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
     private final NotificationHistoryRepository notificationHistoryRepository;
     private final InquiryCommentRepository inquiryCommentRepository;
     private final InquiryPostRepository inquiryPostRepository;
+    private final UserUploadPicRepository userUploadPicRepository;
 
     @Override
     public Optional<AccountClosureMember> findClosureMemberByEmail(String email) {
@@ -151,16 +155,21 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                         List<PopularPost> popularPostList = popularPostRepository.findByPostId(post);
                         popularPostRepository.deleteAllInBatch(popularPostList);
 
-                        File userUploadPIc = new File(userUploadPicServerPath + post.getImgName());
-                        if(userUploadPIc.exists()){
-                            if(userUploadPIc.delete()){
-                                log.info(post.getImgName() + " 삭제 성공");
+                        if (post.getSwitchPic().equals(ImgType.UserUpload)) {
+                            File userUploadPIc = new File(userUploadPicServerPath + post.getImgName());
+                            if(userUploadPIc.exists()){
+                                if(userUploadPIc.delete()){
+                                    log.info(post.getImgName() + " 삭제 성공");
+                                    UserUploadPic userPicByName = userUploadPicRepository.findUserPicByName(post.getImgName()).orElseThrow(()->new RuntimeException(post.getImgName()+"을 삭제 했지만 경로를 찾을 수 없습니다."));
+                                    userUploadPicRepository.delete(userPicByName);
+                                }else{
+                                    log.info(post.getImgName() + " 삭제 실패");
+                                }
                             }else{
-                                log.info(post.getImgName() + " 삭제 실패");
+                                log.info(post.getImgName() + "이 존재하지 않습니다.");
                             }
-                        }else{
-                            log.info(post.getImgName() + "이 존재하지 않습니다.");
                         }
+
 
 
                         List<Comment> commentListByPost = commentRepository.findAllByPost(post);

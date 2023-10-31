@@ -20,6 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @Timed
 @Slf4j
 @RequiredArgsConstructor
@@ -126,8 +128,10 @@ public class SignUpController {
                     .nickname(signUp.getNickname())
                     .policyTermsId(policyTerms)
                     .email(email)
+                    .signUpDate(LocalDateTime.now())
                     .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
-                    .refreshToken("Dummy").build();
+                    .refreshToken("Dummy")
+                    .checkNotification(true).build();
 
             String refreshToken = tokenProvider.generateRefreshToken(member); //약 6개월 기간의 refreshToken create
 

@@ -59,6 +59,7 @@ public class Member implements UserDetails {
     @Column(name = "TOTAL_REPORT_COUNT")
     private int totalReportCount;
 
+    @NotNull
     @Column(name = "CHECK_NOTIFICATION")
     private Boolean checkNotification;
 

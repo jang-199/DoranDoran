@@ -198,14 +198,14 @@ class HashTagControllerTest {
     }
 
     private static HashTag setHashTag(String hashtagName) {
-        return HashTag.builder().hashTagName(hashtagName).hashTagCount(1L).build();
+        return HashTag.builder().hashTagName(hashtagName).build();
     }
 
     private static List<HashTag> setHashTagList(List<String> hashtagNameList) {
         ArrayList<HashTag> hashtagList = new ArrayList<>();
 
         for (String hashtagName : hashtagNameList) {
-            HashTag hashTag = HashTag.builder().hashTagName(hashtagName).hashTagCount(1L).build();
+            HashTag hashTag = HashTag.builder().hashTagName(hashtagName).build();
             hashtagList.add(hashTag);
         }
 

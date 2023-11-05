@@ -311,7 +311,7 @@ class PostControllerTest {
     }
 
     private static HashTag setHashTag(String hashtagName) {
-        return HashTag.builder().hashTagName(hashtagName).hashTagCount(1L).build();
+        return HashTag.builder().hashTagName(hashtagName).build();
     }
 
     private List<Reply> setReplyList(Member member1, Member member2, Member member3, List<Comment> commentList) {

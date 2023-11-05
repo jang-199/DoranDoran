@@ -16,20 +16,34 @@ import java.io.IOException;
 import java.text.ParseException;
 
 @Slf4j
-@WebFilter
+@WebFilter(urlPatterns = {"*/hashTag",
+        "*/comment",
+        "*/comment/like",
+        "*/reply",
+        "*/post",
+        "*/post/detail",
+        "*/post/like",
+        "*/post/close",
+        "*/post/popular",
+        "*/post/hashTag",
+        "*/post/report",
+        "*/reply/report",
+        "*/comment/report",
+        "*/token",
+        "*/member",
+        "*/nickname",
+        "*/registered",
+        "*/member/block",
+        "*/inquiryPost"})
 @Component
 @RequiredArgsConstructor
 public class RsaEncoderFilter implements Filter {
     private final RsaProperties rsaProperties;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        try {
-            RequestDecryptWrapper requestDecryptWrapper = new RequestDecryptWrapper((HttpServletRequest) request, rsaProperties.getPRIVATE_KEY());
-            chain.doFilter(requestDecryptWrapper,response);
+        RequestDecryptWrapper requestDecryptWrapper = new RequestDecryptWrapper((HttpServletRequest) request, rsaProperties);
+        chain.doFilter(requestDecryptWrapper,response);
 
-        } catch (ParseException | JOSEException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

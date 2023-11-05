@@ -19,7 +19,6 @@ import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.notification.service.FirebaseService;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
-import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.post.dto.PostDto;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.post.service.*;
@@ -95,7 +94,7 @@ public class PostController {
         postService.saveMemberPost(post, postDto);
 
         if (postDto.getHashTagName() != null) {
-            hashTagService.saveHashtagList(postDto.getHashTagName());
+            hashTagService.updateHashtagCountOrSaveHashtagList(postDto.getHashTagName());
         }
 
         Post hashTagPost = postService.findSinglePost(post.getPostId());

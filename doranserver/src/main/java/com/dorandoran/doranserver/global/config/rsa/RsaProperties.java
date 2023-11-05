@@ -30,7 +30,6 @@ public class RsaProperties {
         PUBLIC_KEY = publicKey;
         PRIVATE_KEY = privateKey;
 
-        log.info("pub: {}",Base64.getEncoder().encodeToString(publicKey.getEncoded()));
         rsaService.saveKey(publicKey,privateKey);
     }
 
@@ -45,7 +44,6 @@ public class RsaProperties {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
         PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
-        log.info("pub: {}",Base64.getEncoder().encodeToString(publicKey.getEncoded()));
         PUBLIC_KEY = publicKey;
         PRIVATE_KEY = privateKey;
     }

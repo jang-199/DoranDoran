@@ -63,6 +63,11 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
         return setNotificationResponseDto(notificationHistory);
     }
 
+    @Override
+    public Long findRemainMemberNotificationHistoryCount(Member member) {
+        return notificationHistoryRepository.findRemainNotificationMemberHistoryCount(member);
+    }
+
     private NotificationDto.notificationReadResponse makePostNotification(NotificationHistory notificationHistory) {
         return NotificationDto.notificationReadResponse.builder()
                 .notificationHistory(notificationHistory)

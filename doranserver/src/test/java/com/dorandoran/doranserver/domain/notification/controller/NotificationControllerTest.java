@@ -118,6 +118,25 @@ class NotificationControllerTest {
         deleteHistoryByIdResultActions.andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
+    @Test
+    void retrieveRemainNotificationCount() throws Exception{
+        //given
+        Member member = setMember();
+        BDDMockito.given(memberService.findByEmail(BDDMockito.any())).willReturn(member);
+        BDDMockito.given(notificationHistoryService.findRemainMemberNotificationHistoryCount(BDDMockito.any())).willReturn(3L);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/api/notification/count")
+                        .header(HEADER_AUTHORIZATION, REFRESH_TOKEN)
+        );
+
+        //then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.jsonPath("$['remainCount']").value(3L));
+    }
+
     private static Member setMember() {
         return Member.builder()
                 .email("9643us@naver.com")

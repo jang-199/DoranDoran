@@ -8,19 +8,11 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.ParseException;
-import java.util.Base64;
 
 @Slf4j
 public class RequestDecryptWrapper extends HttpServletRequestWrapper {
@@ -33,7 +25,6 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
 
         try {
             InputStream inputStream = request.getInputStream();
-//            rawData = IOUtils.toByteArray(inputStream);
             byte[] rawData = convertInputStreamToByteArray(inputStream);
 
             if (ObjectUtils.isEmpty(rawData)) {
@@ -45,7 +36,6 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
             String decryptedString = parse.getPayload().toString();
             this.decodingBody = decryptedString;
 
-            log.info("복호화 결과: {}", decryptedString);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException | JOSEException e) {
@@ -80,7 +70,7 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String getParameter(String parameter) {
-        String value = super.getParameter(parameter); // 전달받은 parameter 불러오기
+        String value = super.getParameter(parameter);
 
         if(value == null) {
             return null;
@@ -99,7 +89,7 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String[] getParameterValues(String name) {
-        String values[] = super.getParameterValues(name); // 전달받은 parameter 불러오기
+        String values[] = super.getParameterValues(name);
 
         if(values == null) {
             return null;
@@ -111,7 +101,6 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
                     JWEObject parse = JWEObject.parse(new String(values[i].getBytes(), StandardCharsets.UTF_8));
                     parse.decrypt(new RSADecrypter(rsaProperties.getPRIVATE_KEY()));
                     values[i] = parse.getPayload().toString();
-                    log.info("실행됨");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

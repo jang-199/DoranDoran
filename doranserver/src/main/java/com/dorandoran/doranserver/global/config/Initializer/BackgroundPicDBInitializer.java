@@ -26,6 +26,8 @@ import com.dorandoran.doranserver.domain.post.service.*;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 import com.dorandoran.doranserver.domain.member.repository.LockMemberRepository;
+import com.dorandoran.doranserver.domain.rsa.service.RsaService;
+import com.dorandoran.doranserver.global.config.rsa.RsaProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -37,6 +39,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -78,6 +82,10 @@ public class BackgroundPicDBInitializer {
     LockMemberRepository lockMemberRepository;
     @Autowired
     CommentLikeService commentLikeService;
+    @Autowired
+    RsaService rsaService;
+    @Autowired
+    RsaProperties rsaProperties;
 
     @Value("${background.cnt}")
     Integer max;
@@ -85,100 +93,106 @@ public class BackgroundPicDBInitializer {
     String serverPath;
 
     @PostConstruct
-    public void init() {
-        log.info("initinit");
-        List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
-        setBackgroundPic();//사진 경로 저장
-
-        for (long i = 1L; i <= 22L; i++) {
-
-            if(i == 1L){ //1번은 테스트용 계정 생성
-                PolicyTerms build3 = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
-                policyTermsCheck.policyTermsSave(build3);
-                Member build1 = Member.builder()
-                        .policyTermsId(build3)
-                        .email("9643us@naver.com")
-                        .dateOfBirth(LocalDate.now())
-                        .firebaseToken("firebasetoken")
-                        .closureDate(LocalDate.of(2000,12,12))
-                        .nickname("Admin").checkNotification(true)
-                        .signUpDate(LocalDateTime.now())
-                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjkxMjYwMjkzLCJleHAiOjE3MDY4MTIyOTMsInN1YiI6IuyImOyduCIsIlJPTEUiOiJST0xFX1VTRVIiLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.Jp88iBJy6OEfLyBGu8bQ9q8yAiQXi_M50syJJ5aTR0E")
-                        .build();
-                build1.setOsType(OsType.Ios);
-                memberService.saveMember(build1);
-
-                Map<NotificationType, String> message = Map.of(
-                        NotificationType.PostLike,"글 좋아요",
-                        NotificationType.CommentLike, "댓글 좋아요",
-                        NotificationType.Comment, "댓글 생성",
-                        NotificationType.Reply, "대댓글 생성");
-
-                for (Map.Entry<NotificationType, String> notificationTypeStringEntry : message.entrySet()) {
-                    NotificationHistory notificationHistory1 = NotificationHistory.builder()
-                            .message(notificationTypeStringEntry.getValue())
-                            .objectId(1L)
-                            .notificationType(notificationTypeStringEntry.getKey())
-                            .memberId(build1)
-                            .build();
-
-                    NotificationHistory notificationHistory2 = NotificationHistory.builder()
-                            .message(notificationTypeStringEntry.getValue())
-                            .objectId(1L)
-                            .notificationType(notificationTypeStringEntry.getKey())
-                            .memberId(build1)
-                            .build();
-
-                    notificationHistory1.setNotificationReadTime(LocalDateTime.now());
-
-                    notificationHistoryService.saveNotification(notificationHistory1);
-                    notificationHistoryService.saveNotification(notificationHistory2);
-                }
-            }
-            Boolean locked1 = i%2 == 0 ? Boolean.FALSE : Boolean.TRUE;
-            PolicyTerms policyTerms = setPolicyTerms();//권한 동의 저장
-            Member member = setMember(policyTerms, i + "@gmail.com", "nickname" + i, OsType.Ios);//맴버 생성 후 저장
-            Post post = setPost(i + "번 글입니다.", Boolean.FALSE, member, locked1);//글 생성 후 저장
-
-            if (i % 2 == 1) {
-                PostLike postLike = PostLike.builder().postId(post)
-                        .memberId(memberService.findByEmail("9643us@naver.com"))
-                        .checkDelete(false)
-                        .build();
-                postLikeService.savePostLike(postLike);
-            }
-
-            for (long j = 1L; j < i; j++) {
-                Boolean locked = j%2 == 0 ? Boolean.FALSE : Boolean.TRUE;
-
-                setPostLike(post,memberService.findByEmail(j+"@gmail.com"));
-                Comment comment = setComment(post, member, "contents", Boolean.FALSE, locked);//댓글 생성 후 저장
-
-                if (j == 1L) {
-                    CommentLike commentLike = CommentLike.builder()
-                            .checkDelete(Boolean.FALSE)
-                            .memberId(member)
-                            .commentId(comment)
-                            .build();
-
-                    commentLikeService.saveCommentLike(commentLike);
-                }
-
-                for (long k = 1L; k < i; k++) {
-                    Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, locked);//대댓글 생성 후 저장
-                }
-            }
-
-            Random random = new Random();
-            for (int j = 0; j <= random.nextInt(2); j++) {
-
-                int randomNum = random.nextInt(15);
-
-                HashTag hashtag = increaseHashtagCount(hashtagList.get(j + randomNum));
-                PostHash postHash = setPostHash(post, hashtag);
-
-            }
-        }
+    public void init() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        rsaProperties.reloadKey();
+//        if (rsaService.isEmpty()) {
+//            rsaProperties.generateKey();
+//        }else {
+//            rsaProperties.reloadKey();
+//        }
+//        log.info("initinit");
+//        List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
+//        setBackgroundPic();//사진 경로 저장
+//
+//        for (long i = 1L; i <= 22L; i++) {
+//
+//            if(i == 1L){ //1번은 테스트용 계정 생성
+//                PolicyTerms build3 = PolicyTerms.builder().policy1(true).policy2(true).policy3(true).build();
+//                policyTermsCheck.policyTermsSave(build3);
+//                Member build1 = Member.builder()
+//                        .policyTermsId(build3)
+//                        .email("9643us@naver.com")
+//                        .dateOfBirth(LocalDate.now())
+//                        .firebaseToken("firebasetoken")
+//                        .closureDate(LocalDate.of(2000,12,12))
+//                        .nickname("Admin").checkNotification(true)
+//                        .signUpDate(LocalDateTime.now())
+//                        .refreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqdzEwMTAxMTBAZ21haWwuY29tIiwiaWF0IjoxNjkxMjYwMjkzLCJleHAiOjE3MDY4MTIyOTMsInN1YiI6IuyImOyduCIsIlJPTEUiOiJST0xFX1VTRVIiLCJlbWFpbCI6Ijk2NDN1c0BuYXZlci5jb20ifQ.Jp88iBJy6OEfLyBGu8bQ9q8yAiQXi_M50syJJ5aTR0E")
+//                        .build();
+//                build1.setOsType(OsType.Ios);
+//                memberService.saveMember(build1);
+//
+//                Map<NotificationType, String> message = Map.of(
+//                        NotificationType.PostLike,"글 좋아요",
+//                        NotificationType.CommentLike, "댓글 좋아요",
+//                        NotificationType.Comment, "댓글 생성",
+//                        NotificationType.Reply, "대댓글 생성");
+//
+//                for (Map.Entry<NotificationType, String> notificationTypeStringEntry : message.entrySet()) {
+//                    NotificationHistory notificationHistory1 = NotificationHistory.builder()
+//                            .message(notificationTypeStringEntry.getValue())
+//                            .objectId(1L)
+//                            .notificationType(notificationTypeStringEntry.getKey())
+//                            .memberId(build1)
+//                            .build();
+//
+//                    NotificationHistory notificationHistory2 = NotificationHistory.builder()
+//                            .message(notificationTypeStringEntry.getValue())
+//                            .objectId(1L)
+//                            .notificationType(notificationTypeStringEntry.getKey())
+//                            .memberId(build1)
+//                            .build();
+//
+//                    notificationHistory1.setNotificationReadTime(LocalDateTime.now());
+//
+//                    notificationHistoryService.saveNotification(notificationHistory1);
+//                    notificationHistoryService.saveNotification(notificationHistory2);
+//                }
+//            }
+//            Boolean locked1 = i%2 == 0 ? Boolean.FALSE : Boolean.TRUE;
+//            PolicyTerms policyTerms = setPolicyTerms();//권한 동의 저장
+//            Member member = setMember(policyTerms, i + "@gmail.com", "nickname" + i, OsType.Ios);//맴버 생성 후 저장
+//            Post post = setPost(i + "번 글입니다.", Boolean.FALSE, member, locked1);//글 생성 후 저장
+//
+//            if (i % 2 == 1) {
+//                PostLike postLike = PostLike.builder().postId(post)
+//                        .memberId(memberService.findByEmail("9643us@naver.com"))
+//                        .checkDelete(false)
+//                        .build();
+//                postLikeService.savePostLike(postLike);
+//            }
+//
+//            for (long j = 1L; j < i; j++) {
+//                Boolean locked = j%2 == 0 ? Boolean.FALSE : Boolean.TRUE;
+//
+//                setPostLike(post,memberService.findByEmail(j+"@gmail.com"));
+//                Comment comment = setComment(post, member, "contents", Boolean.FALSE, locked);//댓글 생성 후 저장
+//
+//                if (j == 1L) {
+//                    CommentLike commentLike = CommentLike.builder()
+//                            .checkDelete(Boolean.FALSE)
+//                            .memberId(member)
+//                            .commentId(comment)
+//                            .build();
+//
+//                    commentLikeService.saveCommentLike(commentLike);
+//                }
+//
+//                for (long k = 1L; k < i; k++) {
+//                    Reply reply = setReply(comment, member, "댓글", Boolean.FALSE, locked);//대댓글 생성 후 저장
+//                }
+//            }
+//
+//            Random random = new Random();
+//            for (int j = 0; j <= random.nextInt(2); j++) {
+//
+//                int randomNum = random.nextInt(15);
+//
+//                HashTag hashtag = increaseHashtagCount(hashtagList.get(j + randomNum));
+//                PostHash postHash = setPostHash(post, hashtag);
+//
+//            }
+//        }
     }
 
     private PostLike setPostLike(Post post, Member member) {

@@ -26,17 +26,20 @@
 //import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 //import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 //import com.dorandoran.doranserver.domain.member.repository.LockMemberRepository;
+//import com.dorandoran.doranserver.domain.rsa.service.RsaService;
+//import com.dorandoran.doranserver.global.config.rsa.RsaProperties;
 //import lombok.extern.slf4j.Slf4j;
 //import org.locationtech.jts.geom.Coordinate;
 //import org.locationtech.jts.geom.GeometryFactory;
 //import org.locationtech.jts.geom.Point;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.boot.context.properties.ConfigurationProperties;
 //import org.springframework.context.annotation.Profile;
 //import org.springframework.stereotype.Component;
 //
 //import javax.annotation.PostConstruct;
+//import java.security.NoSuchAlgorithmException;
+//import java.security.spec.InvalidKeySpecException;
 //import java.time.LocalDate;
 //import java.time.LocalDateTime;
 //import java.util.List;
@@ -78,6 +81,10 @@
 //    LockMemberRepository lockMemberRepository;
 //    @Autowired
 //    CommentLikeService commentLikeService;
+//    @Autowired
+//    RsaService rsaService;
+//    @Autowired
+//    RsaProperties rsaProperties;
 //
 //    @Value("${background.cnt}")
 //    Integer max;
@@ -85,9 +92,14 @@
 //    String serverPath;
 //
 //    @PostConstruct
-//    public void init() {
+//    public void init() throws NoSuchAlgorithmException, InvalidKeySpecException {
 //        log.info("initinit");
-//        List<String> hashtagList = setHashtag();//해시태그 생성 후 저장
+//        if (rsaService.isEmpty()) {
+//            rsaProperties.generateKey();
+//        }else {
+//            rsaProperties.reloadKey();
+//        }
+//        List<String> hashtagList = setHashtag();
 //        setBackgroundPic();//사진 경로 저장
 //
 //        for (long i = 1L; i <= 22L; i++) {

@@ -26,16 +26,17 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
 
     public String generateNotificationRejectUserAccessToken(Member user,Date rejectExpireAt) {
-        return makeNotificationRejectUserToken(user.getEmail(), new Date(new Date().getTime() + Duration.ofDays(1).toMillis()), rejectExpireAt);
+        return makeNotificationRejectUserToken(user.getEmail(), user.getNickname(), new Date(new Date().getTime() + Duration.ofDays(1).toMillis()), rejectExpireAt);
     }
 
-    private String makeNotificationRejectUserToken(String userEmail, Date expiry, Date rejectExpiry) {
+    private String makeNotificationRejectUserToken(String userEmail, String userNickname, Date expiry, Date rejectExpiry) {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE,Header.JWT_TYPE)
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
-                .setSubject(userEmail)
+                .setSubject(userNickname)
+                .claim("email",userEmail)
                 .claim("ROLE","ROLE_USER")
                 .claim("rejectTime",rejectExpiry)
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)

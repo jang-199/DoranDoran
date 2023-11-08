@@ -36,9 +36,7 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
             String decryptedString = parse.getPayload().toString();
             this.decodingBody = decryptedString;
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException | JOSEException e) {
+        } catch (IOException | ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
     }
@@ -81,7 +79,7 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
             parse.decrypt(new RSADecrypter(rsaProperties.getPRIVATE_KEY()));
             value = parse.getPayload().toString();
         } catch(Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         return value;
@@ -102,7 +100,7 @@ public class RequestDecryptWrapper extends HttpServletRequestWrapper {
                     parse.decrypt(new RSADecrypter(rsaProperties.getPRIVATE_KEY()));
                     values[i] = parse.getPayload().toString();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }

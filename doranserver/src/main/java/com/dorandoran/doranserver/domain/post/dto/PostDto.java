@@ -2,10 +2,11 @@ package com.dorandoran.doranserver.domain.post.dto;
 
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.post.domain.Post;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -73,6 +74,7 @@ public class PostDto {
     @Getter
     @Setter
     @NoArgsConstructor
+    @ToString
     public static class ReadPost {
         private Long postId;
         private String location;
@@ -89,6 +91,9 @@ public class PostDto {
     @NoArgsConstructor
     public static class ReadPostResponse {
         private String content;
+
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         private LocalDateTime postTime;
         private Integer location;
         private Integer postLikeCnt;

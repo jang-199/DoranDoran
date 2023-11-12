@@ -56,7 +56,6 @@ public class CommentController {
     private final AnonymityMemberService anonymityMemberService;
     private final LockMemberService lockMemberService;
     private final MemberBlockListService memberBlockListService;
-    private final BlockMemberFilter blockMemberFilter;
     private final FirebaseService firebaseService;
     private final CommentResponseUtils commentResponseUtils;
     private final CommentCommonService commentCommonService;

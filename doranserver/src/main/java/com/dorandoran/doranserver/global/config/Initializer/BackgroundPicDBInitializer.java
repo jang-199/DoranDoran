@@ -183,6 +183,7 @@ public class BackgroundPicDBInitializer {
         }
     }
 
+
     private PostLike setPostLike(Post post, Member member) {
         PostLike postLike = PostLike.builder()
                 .postId(post)

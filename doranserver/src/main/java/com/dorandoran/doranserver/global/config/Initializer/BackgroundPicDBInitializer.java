@@ -26,8 +26,6 @@ import com.dorandoran.doranserver.domain.post.service.*;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 import com.dorandoran.doranserver.domain.member.repository.LockMemberRepository;
-import com.dorandoran.doranserver.domain.rsa.service.RsaService;
-import com.dorandoran.doranserver.global.config.rsa.RsaProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -81,10 +79,6 @@ public class BackgroundPicDBInitializer {
     LockMemberRepository lockMemberRepository;
     @Autowired
     CommentLikeService commentLikeService;
-    @Autowired
-    RsaService rsaService;
-    @Autowired
-    RsaProperties rsaProperties;
 
     @Value("${background.cnt}")
     Integer max;
@@ -94,11 +88,6 @@ public class BackgroundPicDBInitializer {
     @PostConstruct
     public void init() throws NoSuchAlgorithmException, InvalidKeySpecException {
         log.info("initinit");
-        if (rsaService.isEmpty()) {
-            rsaProperties.generateKey();
-        }else {
-            rsaProperties.reloadKey();
-        }
 
         List<String> hashtagList = setHashtag();
         setBackgroundPic();//사진 경로 저장
@@ -193,6 +182,7 @@ public class BackgroundPicDBInitializer {
             }
         }
     }
+
 
     private PostLike setPostLike(Post post, Member member) {
         PostLike postLike = PostLike.builder()

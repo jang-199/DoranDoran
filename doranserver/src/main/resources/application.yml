@@ -22,8 +22,8 @@ spring:
 #        format_sql: true
 
 #    show-sql: true
-    hibernate:
-      ddl-auto: create
+#    hibernate:
+#      ddl-auto: create
 
   servlet:
     multipart:
@@ -40,6 +40,10 @@ spring:
 
 #servlet default encoding UTF-8
 server:
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:ssl/keystore.p12
+    key-store-password: ENC(dJPMSD5guRWh1po42D2XaU9BGubuo9Zo)
   tomcat:
     mbeanregistry:
       enabled: true
@@ -49,6 +53,7 @@ server:
   servlet:
     encoding:
       force: true
+  port: 8443
 
 #linux server path
 background:

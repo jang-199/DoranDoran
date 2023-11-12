@@ -42,7 +42,7 @@ spring:
 server:
   ssl:
     key-store-type: PKCS12
-    key-store: src/main/resources/ssl/keystore.p12
+    key-store: keystore.p12
     key-store-password: ENC(dJPMSD5guRWh1po42D2XaU9BGubuo9Zo)
     enabled: true
   tomcat:

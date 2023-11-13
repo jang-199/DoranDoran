@@ -49,13 +49,12 @@ server:
     mbeanregistry:
       enabled: true
 
-
     max-keep-alive-requests: 1
 
   servlet:
     encoding:
       force: true
-  port: 443
+  port: 8443
 
 #linux server path
 background:

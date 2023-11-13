@@ -54,7 +54,7 @@ server:
   servlet:
     encoding:
       force: true
-  port: 443
+  port: 8443
 
 #linux server path
 background:

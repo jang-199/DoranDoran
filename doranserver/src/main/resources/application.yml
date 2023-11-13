@@ -49,6 +49,7 @@ server:
     mbeanregistry:
       enabled: true
 
+
     max-keep-alive-requests: 1
 
   servlet:

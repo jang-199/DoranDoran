@@ -106,4 +106,16 @@ public class AccountDto {
             this.tokenDto = tokenDto;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class notificationStatusResponse{
+        private Boolean notificationStatus;
+
+        @Builder
+        public notificationStatusResponse(Boolean notificationStatus) {
+            this.notificationStatus = notificationStatus;
+        }
+    }
 }

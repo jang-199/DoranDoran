@@ -43,4 +43,10 @@ public class MemberServiceImpl implements MemberService{
     public void setNickname(Member member, String nickname) {
         member.setNickname(nickname);
     }
+
+    @Override
+    @Transactional
+    public void updateNotificationStatus(Member member) {
+        member.updateNotificationStatus();
+    }
 }

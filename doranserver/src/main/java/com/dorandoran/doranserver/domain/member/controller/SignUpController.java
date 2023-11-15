@@ -131,7 +131,7 @@ public class SignUpController {
                     .signUpDate(LocalDateTime.now())
                     .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
                     .refreshToken("Dummy")
-                    .checkNotification(true).build();
+                    .checkNotification(signUp.getNotifyStatus()).build();
 
             String refreshToken = tokenProvider.generateRefreshToken(member); //약 6개월 기간의 refreshToken create
 

@@ -11,4 +11,6 @@ public interface MemberService {
     void saveMember(Member member);
     void subtractReportCount(Member member);
     void setNickname(Member member, String nickname);
+
+    void updateNotificationStatus(Member member);
 }

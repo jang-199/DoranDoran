@@ -30,8 +30,8 @@ public class RetrieveResponseUtils {
                         .replyCnt(null)
                         .backgroundPicUri(
                                 post.getSwitchPic() == ImgType.DefaultBackground
-                                        ? ipAddress + ":8080/api/pic/default/" + split[0]
-                                        : ipAddress + ":8080/api/pic/member/" + split[0])
+                                        ? ipAddress + ":8443/api/pic/default/" + split[0]
+                                        : ipAddress + ":8443/api/pic/member/" + split[0])
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
@@ -63,8 +63,8 @@ public class RetrieveResponseUtils {
                         .replyCnt(null)
                         .backgroundPicUri(
                                 post.getSwitchPic() == ImgType.DefaultBackground
-                                        ? ipAddress + ":8080/api/pic/default/" + split[0]
-                                        : ipAddress + ":8080/api/pic/member/" + split[0])
+                                        ? ipAddress + ":8443/api/pic/default/" + split[0]
+                                        : ipAddress + ":8443/api/pic/member/" + split[0])
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
@@ -104,7 +104,7 @@ public class RetrieveResponseUtils {
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
                         .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
                         .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
-                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8443/api/pic/default/" : ":8443/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
@@ -167,7 +167,7 @@ public class RetrieveResponseUtils {
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
                         .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
                         .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
-                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8443/api/pic/default/" : ":8443/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
@@ -222,7 +222,7 @@ public class RetrieveResponseUtils {
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
                         .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
                         .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
-                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8443/api/pic/default/" : ":8443/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
@@ -280,7 +280,7 @@ public class RetrieveResponseUtils {
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
                         .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
                         .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
-                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8443/api/pic/default/" : ":8443/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())
@@ -330,7 +330,7 @@ public class RetrieveResponseUtils {
                         .likeCnt(likeCntListIter.hasNext()?likeCntListIter.next():0)
                         .likeResult(likeResultByPostListIter.hasNext() ? likeResultByPostListIter.next() : false)
                         .replyCnt(commentAndReplyCntListIter.hasNext() ? commentAndReplyCntListIter.next() : 0)
-                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName)
+                        .backgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8443/api/pic/default/" : ":8443/api/pic/member/") + imgName)
                         .font(post.getFont())
                         .fontColor(post.getFontColor())
                         .fontSize(post.getFontSize())

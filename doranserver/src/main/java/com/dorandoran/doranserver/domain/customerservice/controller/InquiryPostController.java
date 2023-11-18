@@ -48,7 +48,7 @@ public class InquiryPostController {
                 .build();
         inquiryPostService.saveInquiryPost(inquiryPost);
 
-        String locationUri = "http://" + address + ":8080/api/inquiryPost/" + inquiryPost.getInquiryPostId() + "/read";
+        String locationUri = "http://" + address + ":8443/api/inquiryPost/" + inquiryPost.getInquiryPostId() + "/read";
         return ResponseEntity.created(URI.create(locationUri)).build();
     }
 

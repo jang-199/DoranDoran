@@ -77,6 +77,11 @@ public class Member implements UserDetails {
     public Boolean checkNotification(){
         return this.checkNotification.equals(Boolean.TRUE) ? Boolean.TRUE : Boolean.FALSE;
     }
+
+    public void updateNotificationStatus(){
+        this.checkNotification = !this.checkNotification;
+    }
+
     @Enumerated(EnumType.STRING)
     private OsType osType;
     @Builder

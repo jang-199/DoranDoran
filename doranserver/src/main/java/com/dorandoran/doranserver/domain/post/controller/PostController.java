@@ -202,7 +202,7 @@ public class PostController {
         postDetailDto.setPostHashes(postHashListDto);
 
         String imgName = post.getImgName().split("[.]")[0];
-        postDetailDto.setBackgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8080/api/pic/default/" : ":8080/api/pic/member/") + imgName);
+        postDetailDto.setBackgroundPicUri(ipAddress + (post.getSwitchPic().equals(ImgType.DefaultBackground) ? ":8443/api/pic/default/" : ":8443/api/pic/member/") + imgName);
 
         return ResponseEntity.ok().body(postDetailDto);
     }

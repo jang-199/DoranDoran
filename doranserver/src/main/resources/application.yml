@@ -8,9 +8,9 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: ENC(prmDG7wmy6YZGHAMr+IQiqQRYKOQ/fvy2XiIz7endPsJ1ywly3YUxRkMlt3tatuvMJYrFvdjBK50XSY0vXui8iLE6lambM2Pis9fiqZbrnR5zF57Y6AccOX42hAk9VA2)
-    username: ENC(Xh/N3MbBIY77cqVSWycSkA==)
-    password: ENC(9SMvXdMtykmQ50kPhY8EBPJ0n8XXMFY1)
+    url: ENC(iycghWLUzO5YOb9pfckwEhcAoUYxOgl4OQZ7TdY2as4M8tsppVFO+t9WG/8rfnKoRyCx5rwilFQJTL6oe00vZNCYZ51ArMLwwmcbq7/TxVvDe3xPXf+rMBVsOzb7TpE98nkBADBVPR/0N2itGTwD8yo4TEMZS74LIxUWCw8HPeeIVSwKcXELQToHXD+V34hhM3zedNmVMcONvrtqEhtZoA==)
+    username: ENC(bfSpttKshL1tH9oM3yw1zg==)
+    password: ENC(Tba6cvQrolFasjqUKKQmCC37X4638goacBdr83l70Aw=)
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -114,4 +114,16 @@ management:
 #    webhook-uri: https://hooks.slack.com/services/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
 #    config: classpath:logback-spring.xml
 
-
+cloud:
+  aws:
+    s3:
+      bucket: doran-s3-demo
+    credentials:
+      instance-profile: false
+      access-key: ENC(feoY8QffFIvSHNDEjllCz+9ALdpVFNaczbxzTRA2b0k=)
+      secret-key: ENC(wW8VJ0VUDMODMlwyIZCv9zPr/U1QQ/T/oaBJjpFACCdoz9Olfs3eCUXFZDu20aGn3U7owu4nSoU=)
+    region:
+      auto: false
+      static: ap-northeast-2
+    stack:
+      auto: false

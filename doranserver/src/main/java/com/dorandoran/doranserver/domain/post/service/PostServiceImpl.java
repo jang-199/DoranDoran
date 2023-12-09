@@ -21,9 +21,16 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 @Slf4j
@@ -32,8 +39,12 @@ import java.util.*;
 public class PostServiceImpl implements PostService {
     @Value("${userUpload.Store.path}")
     String userUploadPicServerPath;
+    @Value("${cloud.aws.s3.bucket}")
+    String bucket;
+
     private final PostRepository postRepository;
     private final UserUploadPicService userUploadPicService;
+    private final S3Client s3Client;
 
     @Override
     public void savePost(Post post) {
@@ -130,12 +141,15 @@ public class PostServiceImpl implements PostService {
         FileExtensionsFilter fileExtensionsFilter = new FileExtensionsFilter();
         if (postDto.getBackgroundImgName().isBlank()) {
             String fileName = postDto.getFile().getOriginalFilename();
-            String fileNameSubstring = fileName.substring(fileName.lastIndexOf(".") + 1);
+            String imageExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-            fileExtensionsFilter.isAvailableFileExtension(fileNameSubstring);
+            fileExtensionsFilter.isAvailableFileExtension(imageExtension);
 
-            String userUploadImgName = UUID.randomUUID() + "." + fileNameSubstring;
-            postDto.getFile().transferTo(new File(userUploadPicServerPath + userUploadImgName));
+            MultipartFile imageFile = postDto.getFile();
+            String userUploadImgName = UUID.randomUUID() + "." + imageExtension;
+
+            File convertedFile = convertMultiPartFileToFile(imageFile);
+            transferToS3(convertedFile, userUploadImgName);
 
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
@@ -149,6 +163,23 @@ public class PostServiceImpl implements PostService {
             post.setSwitchPic(ImgType.DefaultBackground);
             post.setImgName(postDto.getBackgroundImgName() + ".jpg");
         }
+    }
+
+    private File convertMultiPartFileToFile(MultipartFile file) throws IOException {
+        File convertedFile = new File(file.getOriginalFilename());
+        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
+            fos.write(file.getBytes());
+        }
+        return convertedFile;
+    }
+
+    private void transferToS3(File imageFile, String userUploadImgName) {
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key("UserUploadPic/" + userUploadImgName)
+                .build();
+
+        s3Client.putObject(request, RequestBody.fromFile(imageFile));
     }
 
     @Override

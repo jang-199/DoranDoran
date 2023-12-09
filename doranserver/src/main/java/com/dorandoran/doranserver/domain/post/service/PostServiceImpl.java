@@ -165,12 +165,8 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    private File convertMultiPartFileToFile(MultipartFile file) throws IOException {
-        File convertedFile = new File(file.getOriginalFilename());
-        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
-            fos.write(file.getBytes());
-        }
-        return convertedFile;
+    private File convertMultiPartFileToFile(MultipartFile file) {
+        return new File(file.getOriginalFilename());
     }
 
     private void transferToS3(File imageFile, String userUploadImgName) {

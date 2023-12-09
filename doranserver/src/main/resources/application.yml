@@ -58,14 +58,14 @@ server:
 background:
   Store:
 #        path: ENC(9QEeqickxWCf+Y92WqaPrsgC1Js2Jm1vL73jNTghzN/D41hISXlJIoFU8Ohh06TMG9PkAdCyEOQ=)
-    path: ENC(j8XH8sd8zNSI1/ErDS+ZtyB8zehJjU1Likf0cZMZjHgkcRw/XrEUGtFRDf5LtRsAxs0dLPrT4I4=)
+    path: ENC(72tMTp+Gqm1dmWZQexjAiYDztbwZrZvZ)
 
   cnt: 100
 
 userUpload:
   Store:
 #    path: ENC(JJQ2tG4BK3GI7HbgLiRCWrbTVBWwg4gujQlV1jb//1ngnOJ4KHP+NaSNrLtJpxyXAPx+5le56F4=)
-    path: ENC(m7Iwcgs8PSaRROCO1mjBujx8eZ9CwGZTERbfHK4FNn2axv3F785G9wEfdpcmi+52upZ7wFyY2Cw=)
+    path: ENC(v6XOpQejFm9ZcW/LtntJVH/gMrXzskC0)
 
 
 

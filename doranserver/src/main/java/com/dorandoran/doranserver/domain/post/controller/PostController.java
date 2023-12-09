@@ -43,10 +43,6 @@ import java.util.*;
 @RestController
 @Slf4j
 public class PostController {
-    @Value("${userUpload.Store.path}")
-    String userUploadPicServerPath;
-    @Value("${background.Store.path}")
-    String backgroundPicServerPath;
     @Value("${doran.ip.address}")
     String ipAddress;
 

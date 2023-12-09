@@ -26,10 +26,6 @@ import java.util.List;
 @Slf4j
 public class RetrieveAllPostsController {
 
-    @Value("${userUpload.Store.path}")
-    String userUploadPicServerPath;
-    @Value("${background.Store.path}")
-    String backgroundPicServerPath;
     @Value("${doran.ip.address}")
     String ipAddress;
 

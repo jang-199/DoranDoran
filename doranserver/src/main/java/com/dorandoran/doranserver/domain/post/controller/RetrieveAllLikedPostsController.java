@@ -5,8 +5,6 @@ import com.dorandoran.doranserver.global.util.RetrieveResponseUtils;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.post.dto.RetrievePostDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
-import com.dorandoran.doranserver.domain.post.domain.PostLike;
-import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
 import com.dorandoran.doranserver.domain.member.service.MemberBlockListService;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.post.service.PostLikeService;
@@ -32,10 +30,6 @@ import java.util.List;
 @Slf4j
 public class RetrieveAllLikedPostsController {
 
-    @Value("${userUpload.Store.path}")
-    String userUploadPicServerPath;
-    @Value("${background.Store.path}")
-    String backgroundPicServerPath;
     @Value("${doran.ip.address}")
     String ipAddress;
 

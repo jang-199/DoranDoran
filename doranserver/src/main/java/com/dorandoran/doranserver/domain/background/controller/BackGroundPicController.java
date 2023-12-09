@@ -51,7 +51,7 @@ public class BackGroundPicController {
     }
 
     @GetMapping("/pic/default/{picName}")
-    public ResponseEntity<Resource> eachBackground(@PathVariable Long picName) throws MalformedURLException {
+    public ResponseEntity<Resource> eachBackground(@PathVariable Long picName) {
         BackgroundPic backgroundPic = backGroundPicService.getBackgroundPic(picName).orElseThrow(()->new RuntimeException("해당 사진이 존재하지 않습니다."));
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(backgroundPic.getServerPath()).build();

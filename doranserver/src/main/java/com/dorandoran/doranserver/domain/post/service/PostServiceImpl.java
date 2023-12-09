@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -148,8 +149,24 @@ public class PostServiceImpl implements PostService {
             MultipartFile imageFile = postDto.getFile();
             String userUploadImgName = UUID.randomUUID() + "." + imageExtension;
 
-            File convertedFile = convertMultiPartFileToFile(imageFile);
-            transferToS3(convertedFile, userUploadImgName);
+//            File convertedFile = convertMultiPartFileToFile(imageFile);
+
+//            S3Client client = S3Client.builder().region(Region.AP_NORTHEAST_2)
+//                    .credentialsProvider(DefaultCredentialsProvider.create())
+//                    .build();
+
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key("UserUploadPic/" + userUploadImgName)
+                            .build(),
+                    RequestBody.fromInputStream(
+                            postDto.getFile().getInputStream(),
+                            postDto.getFile().getSize()
+                    )
+            );
+
+//            transferToS3(convertedFile, userUploadImgName);
 
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);

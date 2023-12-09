@@ -60,7 +60,7 @@ public class BackGroundPicController {
         ByteArrayResource byteArrayResource = new ByteArrayResource(byteArray);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backgroundPic.getImgName() + "\"")
                 .body(byteArrayResource);
 
     }

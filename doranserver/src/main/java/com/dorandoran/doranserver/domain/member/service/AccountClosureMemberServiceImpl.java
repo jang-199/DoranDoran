@@ -39,6 +39,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -52,6 +55,9 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
     @Value("${userUpload.Store.path}")
     String userUploadPicServerPath;
+
+    @Value("${cloud.aws.s3.bucket}")
+    String bucket;
 
     private final AccountClosureMemberRepository accountClosureMemberRepository;
     private final MemberHashService memberHashService;
@@ -77,6 +83,7 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
     private final InquiryCommentRepository inquiryCommentRepository;
     private final InquiryPostRepository inquiryPostRepository;
     private final UserUploadPicRepository userUploadPicRepository;
+    private final S3Client s3Client;
 
     @Override
     public Optional<AccountClosureMember> findClosureMemberByEmail(String email) {
@@ -156,18 +163,10 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
                         popularPostRepository.deleteAllInBatch(popularPostList);
 
                         if (post.getSwitchPic().equals(ImgType.UserUpload)) {
-                            File userUploadPIc = new File(userUploadPicServerPath + post.getImgName());
-                            if(userUploadPIc.exists()){
-                                if(userUploadPIc.delete()){
-                                    log.info(post.getImgName() + " 삭제 성공");
-                                    UserUploadPic userPicByName = userUploadPicRepository.findUserPicByName(post.getImgName()).orElseThrow(()->new RuntimeException(post.getImgName()+"을 삭제 했지만 경로를 찾을 수 없습니다."));
-                                    userUploadPicRepository.delete(userPicByName);
-                                }else{
-                                    log.info(post.getImgName() + " 삭제 실패");
-                                }
-                            }else{
-                                log.info(post.getImgName() + "이 존재하지 않습니다.");
-                            }
+
+                            S3Client client = S3Client.builder().region(Region.AP_NORTHEAST_2).build();
+                            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket).key("UserUploadPic/" + post.getImgName()).build();
+                            client.deleteObject(deleteObjectRequest);
                         }
 
 

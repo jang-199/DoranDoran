@@ -63,6 +63,9 @@ public class Member implements UserDetails {
     @Column(name = "CHECK_NOTIFICATION")
     private Boolean checkNotification;
 
+    @Enumerated(EnumType.STRING)
+    private OsType osType;
+
     public void setAccountClosureRequestTime() {
         this.closureDate = LocalDate.now();
     }
@@ -82,8 +85,6 @@ public class Member implements UserDetails {
         this.checkNotification = !this.checkNotification;
     }
 
-    @Enumerated(EnumType.STRING)
-    private OsType osType;
     @Builder
     public Member(Long memberId, String email, LocalDate dateOfBirth, String nickname, LocalDateTime signUpDate, String firebaseToken, PolicyTerms policyTermsId, String refreshToken, LocalDate closureDate, OsType osType, Boolean checkNotification) {
         this.memberId = memberId;

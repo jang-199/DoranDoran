@@ -82,7 +82,7 @@ public class ReplyServiceImpl implements ReplyService{
                 && !MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)
                 && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
                 && !reply.getReply().equals("차단된 사용자가 작성한 내용입니다.")
-                && !reply.getIsLocked().equals(Boolean.FALSE)) {
+                && !reply.getIsLocked().equals(Boolean.TRUE)) {
             replyDetailDto.setReply("비밀 댓글입니다.");
         }
     }

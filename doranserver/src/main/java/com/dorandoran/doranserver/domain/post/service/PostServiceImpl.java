@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -148,11 +149,11 @@ public class PostServiceImpl implements PostService {
             MultipartFile imageFile = postDto.getFile();
             String userUploadImgName = UUID.randomUUID() + "." + imageExtension;
 
-            File convertedFile = convertMultiPartFileToFile(imageFile);
-            transferToS3(convertedFile, userUploadImgName);
+            transferImageToS3(imageFile, userUploadImgName);
 
             post.setSwitchPic(ImgType.UserUpload);
             post.setImgName(userUploadImgName);
+
             UserUploadPic userUploadPic = UserUploadPic
                     .builder()
                     .imgName(userUploadImgName)
@@ -165,17 +166,17 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    private File convertMultiPartFileToFile(MultipartFile file) {
-        return new File(file.getOriginalFilename());
-    }
-
-    private void transferToS3(File imageFile, String userUploadImgName) {
-        PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key("UserUploadPic/" + userUploadImgName)
-                .build();
-
-        s3Client.putObject(request, RequestBody.fromFile(imageFile));
+    private void transferImageToS3(MultipartFile imageFile, String userUploadImgName) throws IOException {
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key("UserUploadPic/" + userUploadImgName)
+                        .build(),
+                RequestBody.fromInputStream(
+                        imageFile.getInputStream(),
+                        imageFile.getSize()
+                )
+        );
     }
 
     @Override

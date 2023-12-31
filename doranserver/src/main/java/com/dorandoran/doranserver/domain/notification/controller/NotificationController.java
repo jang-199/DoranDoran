@@ -1,14 +1,17 @@
 package com.dorandoran.doranserver.domain.notification.controller;
 
+import com.dorandoran.doranserver.domain.member.dto.AccountDto;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.notification.dto.NotificationDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.notification.service.NotificationHistoryService;
+import com.dorandoran.doranserver.global.util.nicknamecleaner.NicknameCleaner;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +27,13 @@ import java.util.List;
 public class NotificationController {
     private final MemberService memberService;
     private final NotificationHistoryService notificationHistoryService;
+
+    @Trace
+    @PostMapping("/notification/condition")
+    ResponseEntity<?> checkServerCondition() {
+        NicknameCleaner nicknameCleaner = new NicknameCleaner();
+        return ResponseEntity.ok().build();
+    }
 
     @Trace
     @GetMapping("/notification/{notCnt}")

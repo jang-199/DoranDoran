@@ -29,9 +29,8 @@ public class NotificationController {
     private final NotificationHistoryService notificationHistoryService;
 
     @Trace
-    @PostMapping("/notification/condition")
+    @GetMapping("/notification/condition")
     ResponseEntity<?> checkServerCondition() {
-        NicknameCleaner nicknameCleaner = new NicknameCleaner();
         return ResponseEntity.ok().build();
     }
 

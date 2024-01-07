@@ -50,7 +50,7 @@ public class Member implements UserDetails {
     private PolicyTerms policyTermsId;
 
     @NotNull
-    @Column(name = "REFRESH_TOKEN")
+    @Column(name = "REFRESH_TOKEN", length = 400)
     private String refreshToken;
 
     @Column(name = "CLOSURE_DATE")

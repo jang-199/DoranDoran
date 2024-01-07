@@ -3,6 +3,7 @@ package com.dorandoran.doranserver.domain.comment.service;
 import com.dorandoran.doranserver.domain.comment.dto.CommentDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.CommentLike;
+import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
@@ -105,10 +106,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void checkSecretComment(CommentDto.ReadCommentResponse commentDetailDto, Post post, Comment comment, String userEmail) {
+    public void checkSecretComment(CommentDto.ReadCommentResponse commentDetailDto, Post post, Comment comment, Member userMember) {
         if (comment.checkSecretMode()
-                && !MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)
-                && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !comment.getMemberId().equals(userMember)
+                && !post.getMemberId().equals(userMember)
                 && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")
                 && !comment.getIsLocked().equals(Boolean.TRUE)) {
             commentDetailDto.setComment("비밀 댓글입니다.");

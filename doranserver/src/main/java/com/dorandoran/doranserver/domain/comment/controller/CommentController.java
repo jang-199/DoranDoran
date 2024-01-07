@@ -82,7 +82,7 @@ public class CommentController {
         HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
 
         HashMap<String, Object> commentDetailHashMap =
-                commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, replies, isExistNext);
+                commentResponseUtils.makeCommentAndReplyList(member, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, replies, isExistNext);
 
         ArrayList<HashMap<String, Object>> commentDetailDtoList = new ArrayList<>();
         commentDetailDtoList.add(commentDetailHashMap);
@@ -173,7 +173,7 @@ public class CommentController {
         List<Member> memberBlockListByBlockingMember = memberBlockListService.findMemberBlockListByBlockingMember(member);
         List<Reply> replies = replyService.findNextReplies(commentId, replyId);
 
-        HashMap<String, Object> replyDetailHashMap = commentResponseUtils.makeReplyList(userEmail, post, anonymityMemberList, memberBlockListByBlockingMember, replies);
+        HashMap<String, Object> replyDetailHashMap = commentResponseUtils.makeReplyList(member, post, anonymityMemberList, memberBlockListByBlockingMember, replies);
         ArrayList<HashMap<String, Object>> replyDetailDtoList = new ArrayList<>();
         replyDetailDtoList.add(replyDetailHashMap);
 

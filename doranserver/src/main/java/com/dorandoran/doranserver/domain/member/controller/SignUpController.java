@@ -63,6 +63,7 @@ public class SignUpController {
         String accessToken = tokenProvider.generateAccessToken(member);
         String refreshToken = member.getRefreshToken();
         member.setRefreshToken(refreshToken);
+        member.setFirebaseToken(memberDto.getFirebaseToken());
         member.setOsType(memberDto.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios);
         if (member.getClosureDate() != null) { //탈퇴 후 삭제 전 재로그인 시
             member.setClosureDate(null);

@@ -29,7 +29,7 @@ public class NotificationController {
     private final NotificationHistoryService notificationHistoryService;
 
     @Trace
-    @PostMapping("/notification/condition")
+    @GetMapping("/notification/condition")
     ResponseEntity<?> checkServerCondition() {
         return ResponseEntity.ok().build();
     }

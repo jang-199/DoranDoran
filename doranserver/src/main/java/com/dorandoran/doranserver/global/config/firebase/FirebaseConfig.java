@@ -21,7 +21,7 @@ public class FirebaseConfig {
                     .setCredentials(
                             GoogleCredentials
                                     .fromStream(new ClassPathResource("doran-cb020-firebase-adminsdk-x0ohi-bac3a1516c.json").getInputStream()))
-                    .setProjectId("dorandoran-374312")
+                    .setProjectId("doran-cb020")
                     .build();
 
         return FirebaseApp.initializeApp(options, "aosApp");
@@ -33,7 +33,7 @@ public class FirebaseConfig {
                 .setCredentials(
                         GoogleCredentials
                                 .fromStream(new ClassPathResource("doran-cb020-firebase-adminsdk-x0ohi-dd41248a56.json").getInputStream()))
-                .setProjectId("dorandoran-374312")
+                .setProjectId("doran-cb020")
                 .build();
         return FirebaseApp.initializeApp(options, "iosApp");
     }

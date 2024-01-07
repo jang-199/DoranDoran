@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -31,11 +32,13 @@ public class AccountDto {
     public static class CheckRegisteredMember{
         String email;
         OsType osType;
+        String firebaseToken;
 
         @Builder
-        public CheckRegisteredMember(String email, OsType osType) {
+        public CheckRegisteredMember(String email, OsType osType, String firebaseToken) {
             this.email = email;
             this.osType = osType;
+            this.firebaseToken = firebaseToken;
         }
     }
 

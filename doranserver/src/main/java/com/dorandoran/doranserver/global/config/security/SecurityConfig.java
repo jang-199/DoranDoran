@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/test/token").permitAll()
                 .requestMatchers("/api/pic/default/**").permitAll()
                 .requestMatchers("/api/pic/member/**").permitAll()
+                .requestMatchers("/api/notification/condition").permitAll()
                 .requestMatchers("/api/**").hasAnyRole("USER","ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll());

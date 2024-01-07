@@ -77,10 +77,11 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     @Override
-    public void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, String userEmail) {
+    public void checkSecretReply(ReplyDto.ReadReplyResponse replyDetailDto, Post post, Reply reply, Member userMember) {
         if (reply.checkSecretMode()
-                && !MemberMatcherUtil.compareEmails(reply.getMemberId().getEmail(), userEmail)
-                && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
+                && !reply.getMemberId().equals(userMember)
+                && !reply.getCommentId().getMemberId().equals(userMember)
+                && !post.getMemberId().equals(userMember)
                 && !reply.getReply().equals("차단된 사용자가 작성한 내용입니다.")
                 && !reply.getIsLocked().equals(Boolean.TRUE)) {
             replyDetailDto.setReply("비밀 댓글입니다.");

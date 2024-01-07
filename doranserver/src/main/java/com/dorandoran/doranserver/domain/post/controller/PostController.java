@@ -189,7 +189,7 @@ public class PostController {
         HashMap<Long, Long> commentLikeCntHashMap = commentLikeService.findCommentLikeCnt(comments);
         HashMap<Long, Boolean> commentLikeResultHashMap = commentLikeService.findCommentLikeResult(userEmail, comments);
 
-        HashMap<String, Object> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(userEmail, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, replies, isExistNext);
+        HashMap<String, Object> commentDetailDtoList = commentResponseUtils.makeCommentAndReplyList(member, post, anonymityMemberList, comments, memberBlockListByBlockingMember, commentLikeResultHashMap, commentLikeCntHashMap, replies, isExistNext);
         postDetailDto.setCommentDetailDto(commentDetailDtoList);
 
         List<String> postHashListDto = new ArrayList<>();

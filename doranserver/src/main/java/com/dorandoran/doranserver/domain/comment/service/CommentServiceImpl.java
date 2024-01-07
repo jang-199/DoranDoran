@@ -110,7 +110,7 @@ public class CommentServiceImpl implements CommentService {
                 && !MemberMatcherUtil.compareEmails(comment.getMemberId().getEmail(), userEmail)
                 && !MemberMatcherUtil.compareEmails(post.getMemberId().getEmail(), userEmail)
                 && !comment.getComment().equals("차단된 사용자가 작성한 내용입니다.")
-                && !comment.getIsLocked().equals(Boolean.FALSE)) {
+                && !comment.getIsLocked().equals(Boolean.TRUE)) {
             commentDetailDto.setComment("비밀 댓글입니다.");
         }
     }

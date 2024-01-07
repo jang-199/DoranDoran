@@ -42,7 +42,7 @@ public class Reply extends BaseEntity {
     @Column(name = "IS_LOCKED")
     private Boolean isLocked;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "COMMENT_ID")
     private Comment commentId;
 

@@ -14,6 +14,6 @@ public interface ReportCommentRepository extends JpaRepository<ReportComment, Lo
     Optional<ReportComment> findByCommentIdAndMemberId(Comment comment, Member member);
 
     List<ReportComment> findAllByMemberId(Member member);
-    @Query("select rc from ReportComment rc where rc.commentId = :commentList")
+    @Query("select rc from ReportComment rc where rc.commentId in :commentList")
     List<ReportComment> findAllByCommentId(@Param("commentList") List<Comment> comment);
 }

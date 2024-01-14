@@ -11,6 +11,12 @@ import com.dorandoran.doranserver.domain.post.domain.PopularPost;
 import com.dorandoran.doranserver.domain.post.domain.Post;
 import com.dorandoran.doranserver.domain.post.domain.PostLike;
 import com.dorandoran.doranserver.domain.post.repository.*;
+import com.dorandoran.doranserver.domain.report.domain.ReportComment;
+import com.dorandoran.doranserver.domain.report.domain.ReportPost;
+import com.dorandoran.doranserver.domain.report.domain.ReportReply;
+import com.dorandoran.doranserver.domain.report.repository.ReportCommentRepository;
+import com.dorandoran.doranserver.domain.report.repository.ReportPostRepository;
+import com.dorandoran.doranserver.domain.report.repository.ReportReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +39,9 @@ public class PostCommonServiceImpl implements PostCommonService {
     private final PostHashRepository postHashRepository;
     private final PopularPostRepository popularPostRepository;
     private final AnonymityMemberRepository anonymityMemberRepository;
+    private final ReportPostRepository reportPostRepository;
+    private final ReportCommentRepository reportCommentRepository;
+    private final ReportReplyRepository reportReplyRepository;
 
     @Transactional
     @Override
@@ -43,10 +52,26 @@ public class PostCommonServiceImpl implements PostCommonService {
         List<PostHash> postHashList = postHashRepository.findPostHashByPostId(post);
         List<PopularPost> popularPostList = popularPostRepository.findByPostId(post);
         List<AnonymityMember> anonymityMemberList = anonymityMemberRepository.findAllByPost(post);
+        List<ReportPost> reportPostList = reportPostRepository.findAllByPostId(post);
+        List<ReportComment> reportCommentList = reportCommentRepository.findAllByCommentId(commentList);
+        List<ReportReply> reportReplyList = reportReplyRepository.findAllByReplyId(replyList);
+
+        if(!reportReplyList.isEmpty()){
+            reportReplyRepository.deleteAllInBatch(reportReplyList);
+        }
+
+        if(!reportCommentList.isEmpty()){
+            reportCommentRepository.deleteAllInBatch(reportCommentList);
+        }
+
+        if(!reportPostList.isEmpty()){
+            reportPostRepository.deleteAllInBatch(reportPostList);
+        }
 
         if (!replyList.isEmpty()) {
             replyRepository.deleteAllInBatch(replyList);
         }
+
         if (!commentList.isEmpty()){
             commentRepository.deleteAllInBatch(commentList);
         }

@@ -19,8 +19,12 @@ import com.dorandoran.doranserver.domain.report.repository.ReportPostRepository;
 import com.dorandoran.doranserver.domain.report.repository.ReportReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +36,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PostCommonServiceImpl implements PostCommonService {
+    @Value("${cloud.aws.s3.bucket}")
+    String bucket;
+
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
@@ -92,9 +99,10 @@ public class PostCommonServiceImpl implements PostCommonService {
             anonymityMemberRepository.deleteAllInBatch(anonymityMemberList);
         }
 
-        if (post.getSwitchPic().equals(ImgType.UserUpload)){
-            Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.getImgName());
-            Files.deleteIfExists(path);
+        if (post.getSwitchPic().equals(ImgType.UserUpload)) {
+            S3Client client = S3Client.builder().region(Region.AP_NORTHEAST_2).build();
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket).key("UserUploadPic/" + post.getImgName()).build();
+            client.deleteObject(deleteObjectRequest);
         }
 
         postRepository.delete(post);

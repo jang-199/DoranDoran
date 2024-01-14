@@ -1,17 +1,14 @@
 package com.dorandoran.doranserver.domain.notification.controller;
 
-import com.dorandoran.doranserver.domain.member.dto.AccountDto;
 import com.dorandoran.doranserver.global.util.annotation.Trace;
 import com.dorandoran.doranserver.domain.notification.dto.NotificationDto;
 import com.dorandoran.doranserver.domain.member.domain.Member;
 import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory;
 import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.notification.service.NotificationHistoryService;
-import com.dorandoran.doranserver.global.util.nicknamecleaner.NicknameCleaner;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +33,7 @@ public class NotificationController {
 
     @Trace
     @GetMapping("/notification/{notCnt}")
-    ResponseEntity<List<NotificationDto.notificationResponse>> retrieveNotification(@PathVariable Long notCnt,
+    ResponseEntity<List<NotificationDto.NotificationResponse>> retrieveNotification(@PathVariable Long notCnt,
                                                                                     @AuthenticationPrincipal UserDetails userDetails){
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
@@ -45,8 +42,8 @@ public class NotificationController {
                 ? notificationHistoryService.findFirstNotification(member)
                 : notificationHistoryService.findNotification(member, notCnt);
 
-        List<NotificationDto.notificationResponse> notificationResponse = notificationList.stream()
-                .map((notificationHistory) -> NotificationDto.notificationResponse.builder()
+        List<NotificationDto.NotificationResponse> notificationResponse = notificationList.stream()
+                .map((notificationHistory) -> NotificationDto.NotificationResponse.builder()
                         .notificationHistory(notificationHistory)
                         .build())
                 .toList();
@@ -56,9 +53,9 @@ public class NotificationController {
 
     @Trace
     @GetMapping("/notification/{notificationId}/detail")
-    ResponseEntity<NotificationDto.notificationReadResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
+    ResponseEntity<NotificationDto.NotificationReadResponse> retrieveNotificationDetail(@PathVariable Long notificationId){
         NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
-        NotificationDto.notificationReadResponse notificationReadResponse = notificationHistoryService.readNotification(notification);
+        NotificationDto.NotificationReadResponse notificationReadResponse = notificationHistoryService.readNotification(notification);
         return ResponseEntity.ok().body(notificationReadResponse);
     }
 
@@ -82,9 +79,24 @@ public class NotificationController {
         String userEmail = userDetails.getUsername();
         Member member = memberService.findByEmail(userEmail);
         Long remainHistoryCount = notificationHistoryService.findRemainMemberNotificationHistoryCount(member);
-        NotificationDto.notificationRemainCountResponse countResponseDto =
-                new NotificationDto.notificationRemainCountResponse().toEntity(remainHistoryCount);
+        NotificationDto.NotificationRemainCountResponse countResponseDto =
+                new NotificationDto.NotificationRemainCountResponse().toEntity(remainHistoryCount);
 
         return ResponseEntity.ok().body(countResponseDto);
+    }
+
+    @Trace
+    @PatchMapping("/notification")
+    public ResponseEntity<String> readNotificationList(@RequestBody NotificationDto.NotificationReadRequest notificationRequestDto){
+        List<Long> requestNotifcationList = notificationRequestDto.getNotifcationList();
+
+        if (!requestNotifcationList.isEmpty()) {
+            List<NotificationHistory> notificationHistoryList =
+                    notificationHistoryService.findNotificationHistoryList(requestNotifcationList);
+
+            notificationHistoryService.patchNotificationListReadTime(notificationHistoryList);
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

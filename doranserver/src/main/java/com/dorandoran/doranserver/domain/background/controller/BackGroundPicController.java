@@ -64,7 +64,7 @@ public class BackGroundPicController {
     }
 
     @GetMapping("/pic/member/{picName}")
-    ResponseEntity<Resource> findUserUploadPic(@PathVariable String picName) throws Exception {
+    ResponseEntity<Resource> findUserUploadPic(@PathVariable String picName) {
 
         UserUploadPic userUploadPic = userUploadPicService.findUserUploadPicByName(picName);
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(userUploadPic.getServerPath()).build();

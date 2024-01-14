@@ -1,6 +1,9 @@
 package com.dorandoran.doranserver.domain.post.service.common;
 
+import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
+import com.dorandoran.doranserver.domain.background.service.UserUploadPicService;
+import com.dorandoran.doranserver.domain.background.service.repository.UserUploadPicRepository;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
@@ -49,10 +52,13 @@ public class PostCommonServiceImpl implements PostCommonService {
     private final ReportPostRepository reportPostRepository;
     private final ReportCommentRepository reportCommentRepository;
     private final ReportReplyRepository reportReplyRepository;
+    private final UserUploadPicService userUploadPicService;
+    private final UserUploadPicRepository userUploadPicRepository;
+    private final S3Client s3Client;
 
     @Transactional
     @Override
-    public void deletePost(Post post) throws IOException {
+    public void deletePost(Post post) {
         List<Comment> commentList = commentRepository.findCommentByPostId(post);
         List<Reply> replyList = replyRepository.findReplyByCommentList(commentList);
         List<PostLike> postLikeList = postLikeRepository.findByPostId(post);
@@ -100,9 +106,11 @@ public class PostCommonServiceImpl implements PostCommonService {
         }
 
         if (post.getSwitchPic().equals(ImgType.UserUpload)) {
-            S3Client client = S3Client.builder().region(Region.AP_NORTHEAST_2).build();
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket).key("UserUploadPic/" + post.getImgName()).build();
-            client.deleteObject(deleteObjectRequest);
+            s3Client.deleteObject(deleteObjectRequest);
+
+            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPicByName(post.getImgName());
+            userUploadPicRepository.delete(userUploadPic);;
         }
 
         postRepository.delete(post);

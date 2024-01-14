@@ -115,7 +115,7 @@ public class PostController {
     @Trace
     @DeleteMapping("/post")
     public ResponseEntity<?> postDelete(@RequestBody PostDto.DeletePost postDeleteDto,
-                                        @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+                                        @AuthenticationPrincipal UserDetails userDetails) {
         Post post = postService.findFetchMember(postDeleteDto.getPostId());
 
         if (post.getMemberId().getEmail().equals(userDetails.getUsername())) {

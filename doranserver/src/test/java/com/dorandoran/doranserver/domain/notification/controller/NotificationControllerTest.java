@@ -6,16 +6,13 @@ import com.dorandoran.doranserver.domain.notification.domain.NotificationHistory
 import com.dorandoran.doranserver.domain.notification.domain.notificationType.NotificationType;
 import com.dorandoran.doranserver.domain.notification.domain.osType.OsType;
 import com.dorandoran.doranserver.domain.notification.dto.NotificationDto;
-import com.dorandoran.doranserver.domain.notification.repository.NotificationHistoryRepository;
 import com.dorandoran.doranserver.domain.notification.service.NotificationHistoryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -24,8 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -72,7 +67,7 @@ class NotificationControllerTest {
         //given
         Member member = setMember();
         NotificationHistory notificationHistory = setNotificationHistory(member, NotificationType.PostLike);
-        NotificationDto.notificationReadResponse notificationReadResponse = setResponseDto(notificationHistory);
+        NotificationDto.NotificationReadResponse notificationReadResponse = setResponseDto(notificationHistory);
 
         BDDMockito.given(notificationHistoryService.findNotificationById(BDDMockito.any())).willReturn(notificationHistory);
         BDDMockito.given(notificationHistoryService.readNotification(BDDMockito.any())).willReturn(notificationReadResponse);
@@ -159,8 +154,6 @@ class NotificationControllerTest {
                 .message("테스트")
                 .build();
 
-        notificationHistory.setCreatedTime(LocalDateTime.now());
-
         return notificationHistory;
     }
 
@@ -173,8 +166,8 @@ class NotificationControllerTest {
         return List.of(postLike, commentList, comment, reply);
     }
 
-    private static NotificationDto.notificationReadResponse setResponseDto(NotificationHistory notificationHistory) {
-        return NotificationDto.notificationReadResponse
+    private static NotificationDto.NotificationReadResponse setResponseDto(NotificationHistory notificationHistory) {
+        return NotificationDto.NotificationReadResponse
                 .builder()
                 .notificationHistory(notificationHistory)
                 .postId(1L)

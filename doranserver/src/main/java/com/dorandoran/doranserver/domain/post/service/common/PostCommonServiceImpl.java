@@ -1,6 +1,9 @@
 package com.dorandoran.doranserver.domain.post.service.common;
 
+import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
 import com.dorandoran.doranserver.domain.background.domain.imgtype.ImgType;
+import com.dorandoran.doranserver.domain.background.service.UserUploadPicService;
+import com.dorandoran.doranserver.domain.background.service.repository.UserUploadPicRepository;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.comment.domain.Reply;
 import com.dorandoran.doranserver.domain.comment.repository.CommentRepository;
@@ -19,8 +22,12 @@ import com.dorandoran.doranserver.domain.report.repository.ReportPostRepository;
 import com.dorandoran.doranserver.domain.report.repository.ReportReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +39,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PostCommonServiceImpl implements PostCommonService {
+    @Value("${cloud.aws.s3.bucket}")
+    String bucket;
+
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
@@ -42,10 +52,13 @@ public class PostCommonServiceImpl implements PostCommonService {
     private final ReportPostRepository reportPostRepository;
     private final ReportCommentRepository reportCommentRepository;
     private final ReportReplyRepository reportReplyRepository;
+    private final UserUploadPicService userUploadPicService;
+    private final UserUploadPicRepository userUploadPicRepository;
+    private final S3Client s3Client;
 
     @Transactional
     @Override
-    public void deletePost(Post post) throws IOException {
+    public void deletePost(Post post) {
         List<Comment> commentList = commentRepository.findCommentByPostId(post);
         List<Reply> replyList = replyRepository.findReplyByCommentList(commentList);
         List<PostLike> postLikeList = postLikeRepository.findByPostId(post);
@@ -92,9 +105,12 @@ public class PostCommonServiceImpl implements PostCommonService {
             anonymityMemberRepository.deleteAllInBatch(anonymityMemberList);
         }
 
-        if (post.getSwitchPic().equals(ImgType.UserUpload)){
-            Path path = Paths.get("home\\jw1010110\\DoranDoranPic\\UserUploadPic\\" + post.getImgName());
-            Files.deleteIfExists(path);
+        if (post.getSwitchPic().equals(ImgType.UserUpload)) {
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket).key("UserUploadPic/" + post.getImgName()).build();
+            s3Client.deleteObject(deleteObjectRequest);
+
+            UserUploadPic userUploadPic = userUploadPicService.findUserUploadPicByName(post.getImgName());
+            userUploadPicRepository.delete(userUploadPic);;
         }
 
         postRepository.delete(post);

@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.domain.background.service;
 
 import com.dorandoran.doranserver.domain.background.domain.UserUploadPic;
 import com.dorandoran.doranserver.domain.background.service.repository.UserUploadPicRepository;
+import com.dorandoran.doranserver.domain.post.exception.CannotFoundUserUploadPicException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,24 +19,8 @@ public class UserUploadPicServiceImpl implements UserUploadPicService{
     }
 
     @Override
-    public UserUploadPic findUserUploadPic(Long imgId) throws Exception {
-        Optional<UserUploadPic> byId = userUploadPicRepository.findById(imgId);
-        if (byId.isPresent()) {
-            return byId.get();
-        }
-        else {
-            throw new Exception("유저 업로드 사진을 찾을 수 없습니다.");
-        }
-    }
-
-    @Override
-    public UserUploadPic findUserUploadPicByName(String picName) throws Exception {
-        Optional<UserUploadPic> byImgName = userUploadPicRepository.findUserPicByName(picName);
-        if (byImgName.isPresent()) {
-            return byImgName.get();
-        }
-        else {
-            throw new Exception("유저 업로드 사진을 찾을 수 없습니다.");
-        }
+    public UserUploadPic findUserUploadPicByName(String picName) {
+        return userUploadPicRepository.findUserPicByName(picName)
+                .orElseThrow(() -> new CannotFoundUserUploadPicException("유저 업로드 사진을 찾을 수 없습니다."));
     }
 }

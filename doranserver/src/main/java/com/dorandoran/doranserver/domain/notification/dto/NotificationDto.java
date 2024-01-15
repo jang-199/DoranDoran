@@ -5,6 +5,7 @@ import com.dorandoran.doranserver.domain.notification.domain.notificationType.No
 import lombok.*;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class NotificationDto {
     private static final String notificationTitle = "도란도란";
@@ -13,7 +14,7 @@ public class NotificationDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class notificationResponse {
+    public static class NotificationResponse {
         Long notificationId;
         String title;
         String message;
@@ -22,7 +23,7 @@ public class NotificationDto {
         NotificationType notificationType;
 
         @Builder
-        public notificationResponse(NotificationHistory notificationHistory) {
+        public NotificationResponse(NotificationHistory notificationHistory) {
             this.notificationId = notificationHistory.getNotificationHistoryId();
             this.title = notificationTitle;
             this.message = notificationHistory.getMessage();
@@ -37,7 +38,7 @@ public class NotificationDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class notificationReadResponse {
+    public static class NotificationReadResponse {
         Long notificationId;
         Long postId;
         Long commentId;
@@ -45,7 +46,7 @@ public class NotificationDto {
         NotificationType notificationType;
 
         @Builder
-        public notificationReadResponse(NotificationHistory notificationHistory, Long postId, Long commentId, Long replyId) {
+        public NotificationReadResponse(NotificationHistory notificationHistory, Long postId, Long commentId, Long replyId) {
             this.notificationId = notificationHistory.getNotificationHistoryId();
             this.postId = postId;
             this.commentId = commentId;
@@ -57,19 +58,25 @@ public class NotificationDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class notificationRemainCountResponse {
+    public static class NotificationRemainCountResponse {
         Long remainCount;
 
-        public notificationRemainCountResponse toEntity(Long remainCount){
-            return NotificationDto.notificationRemainCountResponse.builder().
+        public NotificationRemainCountResponse toEntity(Long remainCount){
+            return NotificationRemainCountResponse.builder().
                     remainCount(remainCount).
                     build();
         }
 
         @Builder
-        public notificationRemainCountResponse(Long remainCount) {
+        public NotificationRemainCountResponse(Long remainCount) {
             this.remainCount = remainCount;
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class NotificationReadRequest {
+        List<Long> notifcationList;
+    }
 }

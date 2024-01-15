@@ -14,6 +14,6 @@ public interface ReportReplyRepository extends JpaRepository<ReportReply, Long> 
     Optional<ReportReply> findByReplyIdAndMemberId(Reply reply, Member member);
 
     List<ReportReply> findAllByMemberId(Member member);
-    @Query("select rr from ReportReply rr where rr.replyId = :replyList")
+    @Query("select rr from ReportReply rr where rr.replyId in :replyList")
     List<ReportReply> findAllByReplyId(@Param("replyList") List<Reply> reply);
 }

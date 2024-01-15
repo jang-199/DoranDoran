@@ -155,7 +155,6 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                         List<HashTag> hashTagList = postHashList.stream().map(PostHash::getHashTagId)
                                 .filter(hashTagId -> hashTagId.getHashTagCount() <= 0).toList();
-//                                .forEach(postHash -> hashTagRepository.delete(postHash.getHashTagId()));
                         hashTagRepository.deleteAllInBatch(hashTagList);
 
 

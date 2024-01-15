@@ -164,9 +164,8 @@ public class AccountClosureMemberServiceImpl implements AccountClosureMemberServ
 
                         if (post.getSwitchPic().equals(ImgType.UserUpload)) {
 
-                            S3Client client = S3Client.builder().region(Region.AP_NORTHEAST_2).build();
                             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket).key("UserUploadPic/" + post.getImgName()).build();
-                            client.deleteObject(deleteObjectRequest);
+                            s3Client.deleteObject(deleteObjectRequest);
                         }
 
 

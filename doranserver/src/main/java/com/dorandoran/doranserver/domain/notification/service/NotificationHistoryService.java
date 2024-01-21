@@ -16,7 +16,11 @@ public interface NotificationHistoryService {
     List<NotificationHistory> findFirstNotification(Member member);
 
     NotificationHistory findNotificationById(Long notificationId);
-    NotificationDto.notificationReadResponse readNotification(NotificationHistory notificationHistory);
+    NotificationDto.NotificationReadResponse readNotification(NotificationHistory notificationHistory);
 
     Long findRemainMemberNotificationHistoryCount(Member member);
+
+    void patchNotificationListReadTime(List<NotificationHistory> notifcationHistoryList);
+
+    List<NotificationHistory> findNotificationHistoryList(List<Long> requestNotifcationList);
 }

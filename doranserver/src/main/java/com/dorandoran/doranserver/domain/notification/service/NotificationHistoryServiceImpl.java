@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -58,7 +59,7 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
 
     @Override
     @Transactional
-    public NotificationDto.notificationReadResponse readNotification(NotificationHistory notificationHistory) {
+    public NotificationDto.NotificationReadResponse readNotification(NotificationHistory notificationHistory) {
         notificationHistory.readNotification();
         return setNotificationResponseDto(notificationHistory);
     }
@@ -68,8 +69,23 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
         return notificationHistoryRepository.findRemainNotificationMemberHistoryCount(member);
     }
 
-    private NotificationDto.notificationReadResponse makePostNotification(NotificationHistory notificationHistory) {
-        return NotificationDto.notificationReadResponse.builder()
+    @Override
+    public List<NotificationHistory> findNotificationHistoryList(List<Long> requestNotifcationList) {
+        return notificationHistoryRepository.findListByNotificationHistoryId(requestNotifcationList);
+    }
+
+    @Override
+    @Transactional
+    public void patchNotificationListReadTime(List<NotificationHistory> notifcationHistoryList) {
+        for (NotificationHistory notificationHistory : notifcationHistoryList) {
+            notificationHistory.setNotificationReadTime(LocalDateTime.now());
+        }
+    }
+
+
+
+    private NotificationDto.NotificationReadResponse makePostNotification(NotificationHistory notificationHistory) {
+        return NotificationDto.NotificationReadResponse.builder()
                 .notificationHistory(notificationHistory)
                 .postId(notificationHistory.getObjectId())
                 .commentId(null)
@@ -77,9 +93,9 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
                 .build();
     }
 
-    private NotificationDto.notificationReadResponse makeCommentNotification(Long notificationObjectId, NotificationHistory notificationHistory) {
+    private NotificationDto.NotificationReadResponse makeCommentNotification(Long notificationObjectId, NotificationHistory notificationHistory) {
         Comment comment = commentService.findCommentByCommentId(notificationObjectId);
-        return NotificationDto.notificationReadResponse.builder()
+        return NotificationDto.NotificationReadResponse.builder()
                 .notificationHistory(notificationHistory)
                 .postId(comment.getPostId().getPostId())
                 .commentId(notificationObjectId)
@@ -87,9 +103,9 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
                 .build();
     }
 
-    private NotificationDto.notificationReadResponse makeReplyNotification(NotificationHistory notificationHistory) {
+    private NotificationDto.NotificationReadResponse makeReplyNotification(NotificationHistory notificationHistory) {
         Reply reply = replyService.findReplyByReplyId(notificationHistory.getObjectId());
-        return NotificationDto.notificationReadResponse.builder()
+        return NotificationDto.NotificationReadResponse.builder()
                 .notificationHistory(notificationHistory)
                 .postId(reply.getCommentId().getPostId().getPostId())
                 .commentId(reply.getCommentId().getCommentId())
@@ -97,7 +113,7 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
                 .build();
     }
 
-    private NotificationDto.notificationReadResponse setNotificationResponseDto(NotificationHistory notificationHistory) {
+    private NotificationDto.NotificationReadResponse setNotificationResponseDto(NotificationHistory notificationHistory) {
         switch (notificationHistory.getNotificationType()) {
             case PostLike -> {
                 return makePostNotification(notificationHistory);

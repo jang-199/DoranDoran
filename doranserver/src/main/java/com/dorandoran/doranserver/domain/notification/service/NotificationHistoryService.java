@@ -20,7 +20,9 @@ public interface NotificationHistoryService {
 
     Long findRemainMemberNotificationHistoryCount(Member member);
 
-    void patchNotificationListReadTime(List<NotificationHistory> notifcationHistoryList);
+    void patchAllMemberNotificationListReadTime(Member member);
 
     List<NotificationHistory> findNotificationHistoryList(List<Long> requestNotifcationList);
+
+    void patchNotificationReadTime(NotificationHistory notification);
 }

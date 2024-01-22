@@ -2,6 +2,7 @@ package com.dorandoran.doranserver.domain.notification.service;
 
 import com.dorandoran.doranserver.domain.comment.service.CommentService;
 import com.dorandoran.doranserver.domain.comment.service.ReplyService;
+import com.dorandoran.doranserver.domain.member.service.MemberService;
 import com.dorandoran.doranserver.domain.notification.dto.NotificationDto;
 import com.dorandoran.doranserver.domain.comment.domain.Comment;
 import com.dorandoran.doranserver.domain.member.domain.Member;
@@ -23,6 +24,7 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
     private final NotificationHistoryRepository notificationHistoryRepository;
     private final CommentService commentService;
     private final ReplyService replyService;
+    private final MemberService memberService;
     @Override
     public void saveNotification(NotificationHistory notificationHistory) {
         notificationHistoryRepository.save(notificationHistory);
@@ -76,7 +78,15 @@ public class NotificationHistoryServiceImpl implements NotificationHistoryServic
 
     @Override
     @Transactional
-    public void patchNotificationListReadTime(List<NotificationHistory> notifcationHistoryList) {
+    public void patchNotificationReadTime(NotificationHistory notificationHistory) {
+        notificationHistory.setNotificationReadTime(LocalDateTime.now());
+    }
+
+    @Override
+    @Transactional
+    public void patchAllMemberNotificationListReadTime(Member member) {
+        List<NotificationHistory> notifcationHistoryList = notificationHistoryRepository.findAllMemberNotificationListIsNotRead(member);
+
         for (NotificationHistory notificationHistory : notifcationHistoryList) {
             notificationHistory.setNotificationReadTime(LocalDateTime.now());
         }

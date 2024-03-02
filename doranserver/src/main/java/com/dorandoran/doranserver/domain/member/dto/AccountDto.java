@@ -79,16 +79,16 @@ public class AccountDto {
         private LocalDate dateOfBirth;
         private String nickname;
         private String firebaseToken;
-        private String kakaoAccessToken;
+        private String email;
         private OsType osType;
         private Boolean notifyStatus;
 
         @Builder
-        public SignUp(LocalDate dateOfBirth, String nickname, String firebaseToken, String kakaoAccessToken, OsType osType, Boolean notifyStatus) {
+        public SignUp(LocalDate dateOfBirth, String nickname, String firebaseToken, String email, OsType osType, Boolean notifyStatus) {
             this.dateOfBirth = dateOfBirth;
             this.nickname = nickname;
             this.firebaseToken = firebaseToken;
-            this.kakaoAccessToken = kakaoAccessToken;
+            this.email = email;
             this.osType = osType;
             this.notifyStatus = notifyStatus;
         }

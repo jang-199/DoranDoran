@@ -61,9 +61,11 @@
 |:-:|
 |<img src="https://avatars.githubusercontent.com/u/87413903?v=4" alt="beucol" width="100" height="100">|
 |[SUIN](https://github.com/lsuinl)|
+|su96in43@naver.com|
 ### Backend
 
 |정우|호왕|
 |:-:|:--:|
 |<img src="https://avatars.githubusercontent.com/u/68003036?v=4" alt="beucol" width="100" height="100">|<img src="https://avatars.githubusercontent.com/u/114158271?v=4" alt="chris" width="100" height="100">|
 |[jang-199](https://github.com/jang-199)|[LeeKing2017](https://github.com/LeeKing2017)|
+|jw1010110@gmail.com|thrusum@naver.com|

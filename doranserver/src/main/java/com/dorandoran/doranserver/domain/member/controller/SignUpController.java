@@ -106,16 +106,7 @@ public class SignUpController {
             return ResponseEntity.unprocessableEntity().body("사용할 수 없는 닉네임입니다.");
         }
 
-        String email;
-        try {
-            email = signUpService.getEmailByKakaoResourceServer(signUp.getKakaoAccessToken());
-        } catch (KakaoResourceServerException e) {
-            log.error("kakaoAccess token err : {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Kakao 서버에서 사용자 정보를 받을 수 없습니다.");
-        }
-
-
-        if (memberService.findByEmilIsEmpty(email)) { //회원 저장 시작
+        if (memberService.findByEmilIsEmpty(signUp.getEmail())) { //회원 저장 시작
 
             PolicyTerms policyTerms = PolicyTerms.builder().policy1(true)
                     .policy2(true)
@@ -129,7 +120,7 @@ public class SignUpController {
                     .firebaseToken(signUp.getFirebaseToken())
                     .nickname(signUp.getNickname())
                     .policyTermsId(policyTerms)
-                    .email(email)
+                    .email(signUp.getEmail())
                     .signUpDate(LocalDateTime.now())
                     .osType(signUp.getOsType().equals(OsType.Aos)?OsType.Aos:OsType.Ios)
                     .refreshToken("Dummy")

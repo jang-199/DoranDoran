@@ -86,15 +86,18 @@ public class NotificationController {
     }
 
     @Trace
-    @PatchMapping("/notification")
-    public ResponseEntity<String> readNotificationList(@RequestBody NotificationDto.NotificationReadRequest notificationRequestDto){
-        List<Long> requestNotifcationList = notificationRequestDto.getNotifcationList();
+    @PatchMapping("/notification/{notificationId}")
+    public ResponseEntity<String> readNotificationList(@PathVariable long notificationId,
+                                                       @AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        Member member = memberService.findByEmail(username);
 
-        if (!requestNotifcationList.isEmpty()) {
-            List<NotificationHistory> notificationHistoryList =
-                    notificationHistoryService.findNotificationHistoryList(requestNotifcationList);
+        if (notificationId == 0){
+            notificationHistoryService.patchAllMemberNotificationListReadTime(member);
+        }else {
+            NotificationHistory notification = notificationHistoryService.findNotificationById(notificationId);
 
-            notificationHistoryService.patchNotificationListReadTime(notificationHistoryList);
+            notificationHistoryService.patchNotificationReadTime(notification);
         }
 
         return ResponseEntity.noContent().build();

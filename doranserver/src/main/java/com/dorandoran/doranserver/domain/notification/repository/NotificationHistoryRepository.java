@@ -30,4 +30,7 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
 
     @Query("select not from NotificationHistory not where not.notificationHistoryId in :notificationList")
     List<NotificationHistory> findListByNotificationHistoryId(@Param("notificationList") List<Long> notificationIdList);
+
+    @Query("select not from NotificationHistory  not where not.notificationReadTime = null and not.memberId = :memberId")
+    List<NotificationHistory> findAllMemberNotificationListIsNotRead(@Param("memberId") Member member);
 }
